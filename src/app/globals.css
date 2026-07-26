@@ -1,0 +1,146 @@
+@import "tailwindcss";
+
+@theme inline {
+  /* Typography — mapped from next/font CSS variables */
+  --font-heading: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+
+  /* Colors — mapped from CSS custom properties for dark/light mode */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-surface-elevated: var(--surface-elevated);
+  --color-foreground-muted: var(--foreground-muted);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-border: var(--border);
+  --color-border-subtle: var(--border-subtle);
+  --color-destructive: var(--destructive);
+  --color-success: var(--success);
+
+  /* Animations */
+  --animate-fade-in: fadeIn 0.5s ease-out forwards;
+  --animate-fade-in-up: fadeInUp 0.5s ease-out forwards;
+  --animate-slide-up: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  --animate-slide-down: slideDown 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  --animate-slide-in-left: slideInLeft 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  --animate-slide-in-right: slideInRight 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  --animate-scale-in: scaleIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  --animate-shimmer: shimmer 2s linear infinite;
+  --animate-float: float 3s ease-in-out infinite;
+  --animate-pulse-glow: pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@layer base {
+  :root {
+    --background: #FAFAF8;
+    --foreground: #1A1A1A;
+    --surface: #F5F5F0;
+    --surface-elevated: #FFFFFF;
+    --foreground-muted: #6B6B6B;
+    --accent: #C9A96E;
+    --accent-hover: #B8953D;
+    --accent-foreground: #1A1A1A;
+    --border: #E5E5E0;
+    --border-subtle: #F0F0EB;
+    --destructive: #DC2626;
+    --success: #059669;
+  }
+
+  .dark {
+    --background: #0A0A0A;
+    --foreground: #FAFAF8;
+    --surface: #141414;
+    --surface-elevated: #1A1A1A;
+    --foreground-muted: #8A8A8A;
+    --accent: #D4B87C;
+    --accent-hover: #E5C88A;
+    --accent-foreground: #0A0A0A;
+    --border: #2A2A2A;
+    --border-subtle: #1F1F1F;
+    --destructive: #EF4444;
+    --success: #34D399;
+  }
+
+  html {
+    @apply scroll-smooth;
+  }
+
+  body {
+    @apply font-body bg-background text-foreground antialiased selection:bg-accent/30 selection:text-foreground;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-accent/50 rounded-full;
+}
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-accent;
+}
+
+@layer utilities {
+  .text-gradient-gold {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-accent to-accent-hover;
+  }
+  .text-gradient-shimmer {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-accent via-[#FFDF99] to-accent bg-[length:200%_auto] animate-[shimmer_2s_linear_infinite];
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+@keyframes slideDown {
+  from { transform: translateY(-100%); }
+  to { transform: translateY(0); }
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes shimmer {
+  to { background-position: 200% center; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 1; filter: drop-shadow(0 0 8px var(--accent)); }
+  50% { opacity: 0.7; filter: drop-shadow(0 0 16px var(--accent-hover)); }
+}
