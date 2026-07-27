@@ -2,11 +2,9 @@
 
 import React, { useState } from 'react';
 import { SignIn } from '@clerk/nextjs';
-import { useRouter } from 'next/navigation';
 import { ShieldCheck, Lock, Mail, ArrowRight, KeyRound } from 'lucide-react';
 
 export default function SignInPage() {
-  const router = useRouter();
   const [email, setEmail] = useState('piyella@gmail.com');
   const [password, setPassword] = useState('piyella123');
   const [loading, setLoading] = useState(false);
@@ -15,9 +13,8 @@ export default function SignInPage() {
   const handleAdminDirectLogin = (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setTimeout(() => {
-      router.push('/admin');
-    }, 300);
+    // Instant hard browser redirect to /admin
+    window.location.href = '/admin';
   };
 
   return (
@@ -91,7 +88,7 @@ export default function SignInPage() {
             disabled={loading}
             className="w-full py-4 bg-[#C9A96E] hover:bg-[#D4B87C] text-black font-semibold text-xs uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-[#C9A96E]/20 flex items-center justify-center gap-2"
           >
-            <span>{loading ? 'Authenticating...' : 'Sign In as Admin (No OTP)'}</span>
+            <span>{loading ? 'Entering Admin Portal...' : 'Sign In as Admin (No OTP)'}</span>
             <ArrowRight className="w-4 h-4" />
           </button>
         </form>
