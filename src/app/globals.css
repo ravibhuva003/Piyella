@@ -97,22 +97,26 @@
 }
 
 /* ==========================================================================
-   Clerk Auth Modal & Card High-Contrast Overrides
+   Clerk Auth Modal & Card High-Contrast Overrides (SignIn & SignUp)
    ========================================================================== */
 .cl-card,
 .cl-cardBox,
 .cl-rootBox,
+div[class*="cl-card"],
+div[class*="cl-rootBox"],
 .cl-userButtonPopoverCard {
   background-color: #141414 !important;
-  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
   color: #FAFAF8 !important;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7) !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8) !important;
   border-radius: 1rem !important;
 }
 
 .cl-headerTitle,
-.cl-sign-up-title,
-.cl-sign-in-title {
+h1[class*="cl-headerTitle"],
+div[class*="cl-headerTitle"],
+.cl-signUp-title,
+.cl-signIn-title {
   color: #C9A96E !important;
   font-family: var(--font-heading), Georgia, serif !important;
   font-size: 1.5rem !important;
@@ -165,9 +169,11 @@
   font-weight: 500 !important;
 }
 
-/* Force Gold Theme on ALL Clerk Primary Buttons */
+/* Force Gold Theme on ALL Clerk Primary Buttons (SignIn & SignUp) */
 .cl-formButtonPrimary,
 button.cl-formButtonPrimary,
+button[class*="cl-formButtonPrimary"],
+button[type="submit"],
 button[data-localization-key*="formButtonPrimary"],
 button[data-localization-key*="continue"],
 button[data-localization-key*="signUp"] {
@@ -177,11 +183,13 @@ button[data-localization-key*="signUp"] {
   letter-spacing: 0.1em !important;
   text-transform: uppercase !important;
   border: none !important;
+  border-radius: 0.75rem !important;
 }
 
 .cl-formButtonPrimary:hover,
 button.cl-formButtonPrimary:hover,
-button[data-localization-key*="formButtonPrimary"]:hover {
+button[class*="cl-formButtonPrimary"]:hover,
+button[type="submit"]:hover {
   background-color: #D4B87C !important;
   color: #000000 !important;
 }
@@ -189,13 +197,17 @@ button[data-localization-key*="formButtonPrimary"]:hover {
 /* Force Gold Links */
 .cl-footerActionLink,
 .cl-formResendCodeLink,
-a.cl-footerActionLink {
+a.cl-footerActionLink,
+a[class*="cl-footerActionLink"],
+a[href*="sign-in"],
+a[href*="sign-up"] {
   color: #C9A96E !important;
   font-weight: 600 !important;
 }
 
 .cl-footerActionLink:hover,
-a.cl-footerActionLink:hover {
+a.cl-footerActionLink:hover,
+a[class*="cl-footerActionLink"]:hover {
   color: #FFFFFF !important;
 }
 
