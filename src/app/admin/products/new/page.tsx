@@ -14,7 +14,7 @@ export default function NewProductPage() {
 
   const [name, setName] = useState('');
   const [slug, setSlug] = useState('');
-  const [collectionId, setCollectionId] = useState(collections[0]?.id || 'col_heritage_embroidery');
+  const [collectionId, setCollectionId] = useState(collections[0]?.id || '');
   const [price, setPrice] = useState<number>(45000);
   const [compareAtPrice, setCompareAtPrice] = useState<number | undefined>(55000);
   const [sku, setSku] = useState(`PYL-${Math.floor(1000 + Math.random() * 9000)}`);
@@ -52,8 +52,8 @@ export default function NewProductPage() {
       return;
     }
 
-    // Find selected collection details
-    const selectedCollection = collections.find((c) => c.id === collectionId);
+    const targetCollectionId = collectionId || collections[0]?.id || 'custom_collection';
+    const selectedCollection = collections.find((c) => c.id === targetCollectionId);
     const categoryName = selectedCollection?.name || 'General';
 
     const tags: string[] = [];
@@ -71,7 +71,7 @@ export default function NewProductPage() {
       currency: 'INR',
       images,
       category: categoryName,
-      collectionId,
+      collectionId: targetCollectionId,
       tags,
       variants: [],
       inventory,
@@ -85,7 +85,7 @@ export default function NewProductPage() {
       reviewCount: 1,
     } as any);
 
-    alert('Product created successfully! It is now assigned to the selected collection and live on the public website.');
+    alert('Product created successfully! It is now live on the public website.');
     router.push('/admin/products');
   };
 
@@ -149,31 +149,37 @@ export default function NewProductPage() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-[#C9A96E] text-xs uppercase tracking-widest font-semibold">
                 <Layers className="w-4 h-4" />
-                <span>Target Collection (Created in Admin Collection Settings) *</span>
+                <span>Target Collection (From Admin Collection Settings) *</span>
               </div>
               <Link
                 href="/admin/categories"
                 className="text-[11px] text-[#C9A96E] hover:underline uppercase tracking-wider font-mono flex items-center gap-1"
               >
                 <Plus className="w-3 h-3" />
-                <span>Manage Collections</span>
+                <span>Create Collection</span>
               </Link>
             </div>
-            <p className="text-xs text-white/60 font-light">
-              Select which admin-generated collection this product belongs to.
-            </p>
 
-            <select
-              value={collectionId}
-              onChange={(e) => setCollectionId(e.target.value)}
-              className="w-full bg-black border border-[#C9A96E]/50 px-4 py-3.5 text-sm text-[#C9A96E] font-medium focus:border-[#C9A96E] focus:outline-none rounded-xl"
-            >
-              {collections.map((col) => (
-                <option key={col.id} value={col.id}>
-                  {col.name} ({col.slug})
-                </option>
-              ))}
-            </select>
+            {collections.length > 0 ? (
+              <select
+                value={collectionId || collections[0]?.id}
+                onChange={(e) => setCollectionId(e.target.value)}
+                className="w-full bg-black border border-[#C9A96E]/50 px-4 py-3.5 text-sm text-[#C9A96E] font-medium focus:border-[#C9A96E] focus:outline-none rounded-xl"
+              >
+                {collections.map((col) => (
+                  <option key={col.id} value={col.id}>
+                    {col.name} ({col.slug})
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <div className="p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl text-amber-300 text-xs flex items-center justify-between">
+                <span>No custom collections created yet. You can create your first collection in Collection Settings.</span>
+                <Link href="/admin/categories" className="px-3 py-1.5 bg-[#C9A96E] text-black font-bold text-[10px] uppercase tracking-wider rounded-lg shrink-0 ml-2">
+                  Create Collection
+                </Link>
+              </div>
+            )}
           </div>
 
           {/* Special Placement Toggles */}

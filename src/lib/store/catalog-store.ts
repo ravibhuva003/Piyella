@@ -109,12 +109,25 @@ export function useCatalogStore() {
       const savedUsers = localStorage.getItem('piyella_admin_users');
       const savedOrders = localStorage.getItem('piyella_admin_orders');
 
-      setProducts(savedProds ? JSON.parse(savedProds) : []);
-      setCollections(savedCols ? JSON.parse(savedCols) : []);
+      // Purge any dummy/mock items starting with prod_ or col_
+      const cleanProds: Product[] = savedProds 
+        ? JSON.parse(savedProds).filter((p: any) => !p.id.startsWith('prod_')) 
+        : [];
+      
+      const cleanCols: Collection[] = savedCols 
+        ? JSON.parse(savedCols).filter((c: any) => !c.id.startsWith('col_')) 
+        : [];
+
+      setProducts(cleanProds);
+      setCollections(cleanCols);
       setCoupons(savedCoupons ? JSON.parse(savedCoupons) : INITIAL_COUPONS);
       setBanners(savedBanners ? JSON.parse(savedBanners) : INITIAL_BANNER);
       setUsers(savedUsers ? JSON.parse(savedUsers) : INITIAL_USERS);
       setOrders(savedOrders ? JSON.parse(savedOrders) : []);
+
+      // Re-save clean catalog to localStorage
+      localStorage.setItem('piyella_admin_products', JSON.stringify(cleanProds));
+      localStorage.setItem('piyella_admin_collections', JSON.stringify(cleanCols));
     } catch (e) {
       console.error('Error initializing admin store:', e);
       setProducts([]);
