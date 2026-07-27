@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useCatalogStore, AdminUser } from '@/lib/store/catalog-store';
 import { formatPrice } from '@/lib/utils';
-import { Users, ShieldCheck, Crown, User as UserIcon, UserPlus, ShieldAlert, KeyRound, Edit3, X, Check } from 'lucide-react';
+import { Users, ShieldCheck, Crown, User as UserIcon, UserPlus, ShieldAlert, KeyRound, Edit3, Trash2, X, Check } from 'lucide-react';
 
 export default function AdminUsersPage() {
   const { users, updateUserRole, addAdminUser, saveUsers, isLoaded } = useCatalogStore();
@@ -40,6 +40,22 @@ export default function AdminUsersPage() {
     saveUsers(updated);
     setEditingUser(null);
     alert(`User "${editingUser.name}" updated successfully!`);
+  };
+
+  const handleDeleteUser = (userToDelete: AdminUser) => {
+    if (userToDelete.isParentAdmin) {
+      alert('Action Denied: Root Parent Super Admin account cannot be deleted.');
+      return;
+    }
+
+    if (confirm(`Are you sure you want to permanently delete user "${userToDelete.name}" (${userToDelete.email})?`)) {
+      const updated = users.filter((u) => u.id !== userToDelete.id);
+      saveUsers(updated);
+      if (editingUser?.id === userToDelete.id) {
+        setEditingUser(null);
+      }
+      alert(`User "${userToDelete.name}" deleted successfully.`);
+    }
   };
 
   return (
@@ -87,7 +103,7 @@ export default function AdminUsersPage() {
         </span>
       </div>
 
-      {/* Create New Admin Form (Expandable) */}
+      {/* Create New Admin Form */}
       {showAddForm && (
         <form onSubmit={handleCreateAdmin} className="bg-surface border border-border p-6 rounded-2xl space-y-6 shadow-2xl animate-fade-in">
           <div className="flex items-center justify-between">
@@ -210,7 +226,18 @@ export default function AdminUsersPage() {
                         className="px-3 py-1.5 bg-[#C9A96E]/10 hover:bg-[#C9A96E]/20 text-[#C9A96E] border border-[#C9A96E]/30 rounded-lg text-xs font-semibold uppercase tracking-wider transition-colors inline-flex items-center gap-1.5 disabled:opacity-50"
                       >
                         <Edit3 className="w-3.5 h-3.5" />
-                        <span>Edit User</span>
+                        <span>Edit</span>
+                      </button>
+
+                      {/* Delete User Button */}
+                      <button
+                        onClick={() => handleDeleteUser(u)}
+                        disabled={u.isParentAdmin}
+                        className="px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 rounded-lg text-xs font-semibold uppercase tracking-wider transition-colors inline-flex items-center gap-1.5 disabled:opacity-50"
+                        title={u.isParentAdmin ? 'Root account cannot be deleted' : 'Delete user account'}
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        <span>Delete</span>
                       </button>
                     </div>
                   </td>
@@ -239,7 +266,7 @@ export default function AdminUsersPage() {
 
             <form onSubmit={handleSaveUserEdit} className="space-y-4">
               <div>
-                <label className="block text-xs uppercase tracking-widest text-foreground-muted mb-1 font-medium">Full Name</label>
+                <label className="block text-xs uppercase tracking-widest text-foreground-muted mb-1 font-medium font-mono">Full Name</label>
                 <input
                   type="text"
                   required
@@ -250,7 +277,7 @@ export default function AdminUsersPage() {
               </div>
 
               <div>
-                <label className="block text-xs uppercase tracking-widest text-foreground-muted mb-1 font-medium">Email Address</label>
+                <label className="block text-xs uppercase tracking-widest text-foreground-muted mb-1 font-medium font-mono">Email Address</label>
                 <input
                   type="email"
                   required
@@ -261,7 +288,7 @@ export default function AdminUsersPage() {
               </div>
 
               <div>
-                <label className="block text-xs uppercase tracking-widest text-foreground-muted mb-1 font-medium">Assigned Role</label>
+                <label className="block text-xs uppercase tracking-widest text-foreground-muted mb-1 font-medium font-mono">Assigned Role</label>
                 <select
                   value={editingUser.role}
                   onChange={(e) => setEditingUser({ ...editingUser, role: e.target.value as AdminUser['role'] })}
@@ -273,21 +300,33 @@ export default function AdminUsersPage() {
                 </select>
               </div>
 
-              <div className="flex justify-end gap-3 pt-2">
+              <div className="flex items-center justify-between pt-4 border-t border-border">
                 <button
                   type="button"
-                  onClick={() => setEditingUser(null)}
-                  className="px-5 py-2.5 border border-border text-foreground text-xs uppercase tracking-wider rounded-xl hover:bg-background"
+                  onClick={() => handleDeleteUser(editingUser)}
+                  disabled={editingUser.isParentAdmin}
+                  className="px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 rounded-xl text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5 disabled:opacity-50"
                 >
-                  Cancel
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>Delete User</span>
                 </button>
-                <button
-                  type="submit"
-                  className="px-6 py-2.5 bg-[#C9A96E] hover:bg-[#D4B87C] text-black font-semibold text-xs uppercase tracking-widest rounded-xl transition-all shadow-md flex items-center gap-1.5"
-                >
-                  <Check className="w-4 h-4" />
-                  <span>Save User</span>
-                </button>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setEditingUser(null)}
+                    className="px-4 py-2 border border-border text-foreground text-xs uppercase tracking-wider rounded-xl hover:bg-background"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-5 py-2 bg-[#C9A96E] hover:bg-[#D4B87C] text-black font-semibold text-xs uppercase tracking-widest rounded-xl transition-all shadow-md flex items-center gap-1.5"
+                  >
+                    <Check className="w-4 h-4" />
+                    <span>Save Changes</span>
+                  </button>
+                </div>
               </div>
             </form>
           </div>
