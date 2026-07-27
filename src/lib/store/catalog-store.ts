@@ -61,6 +61,15 @@ const INITIAL_BANNER: BannerConfig = {
 
 const INITIAL_USERS: AdminUser[] = [
   {
+    id: 'u_piyella_admin',
+    name: 'Piyella Admin',
+    email: 'piyella@gmail.com',
+    role: 'admin',
+    ordersCount: 0,
+    totalSpent: 0,
+    createdAt: '2026-07-27T12:00:00Z',
+  },
+  {
     id: 'u_ravi_admin1',
     name: 'Ravi Bhuva',
     email: 'ravibhuva577@gmail.com',
