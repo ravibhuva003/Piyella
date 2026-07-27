@@ -1,156 +1,151 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'motion/react';
-import { Search, User, Menu, X, Heart, ShieldCheck, LogIn } from 'lucide-react';
-
-import { cn } from '@/lib/utils';
-import { useScrollDirection } from '@/hooks/use-scroll-direction';
-import { useMediaQuery } from '@/hooks/use-media-query';
+import { Menu, Search, ShoppingBag, User, LogIn, Sun, Moon } from 'lucide-react';
+import { useUser, UserButton } from '@clerk/nextjs';
 import { mainNavItems } from '@/constants/navigation';
 import { Container } from '@/components/layout/container';
+import { MobileMenu } from './mobile-menu';
+import { NavbarCart } from './navbar-cart';
+import { NavbarSearch } from './navbar-search';
 import { ThemeToggle } from '@/components/shared/theme-toggle';
 
-import { MobileMenu } from './mobile-menu';
-import { NavbarSearch } from './navbar-search';
-import { NavbarCart } from './navbar-cart';
-
 export function Navbar() {
+  const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
-  const isDesktop = useMediaQuery('(min-width: 1024px)');
-  
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [showUserDropdown, setShowUserDropdown] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+
+  const { isSignedIn } = useUser();
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
+      if (window.scrollY > 20) {
+        setIsScrolled(true);
+      } else {
+        setIsScrolled(false);
+      }
     };
+
     window.addEventListener('scroll', handleScroll);
-    handleScroll();
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   return (
     <>
       <motion.header
-        className={cn(
-          'fixed inset-x-0 top-0 z-50 flex flex-col w-full transition-all duration-300',
-          isScrolled ? 'bg-background/90 backdrop-blur-xl border-b border-border/50 shadow-md' : 'bg-transparent'
-        )}
         initial={{ y: 0 }}
         animate={{ y: 0 }}
-        transition={{ duration: 0.3, ease: 'easeInOut' }}
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+          isScrolled
+            ? 'bg-background/90 backdrop-blur-md py-4 border-b border-border/40 shadow-lg'
+            : 'bg-gradient-to-b from-background/90 via-background/40 to-transparent py-6'
+        }`}
       >
         <Container>
-          <div className="flex items-center justify-between h-20">
-            {/* Left Mobile Menu Button */}
-            {!isDesktop && (
-              <button
-                onClick={() => setIsMobileMenuOpen(true)}
-                className="text-foreground p-2 -ml-2 hover:text-[#C9A96E] transition-colors"
-                aria-label="Open navigation menu"
-              >
-                <Menu className="w-6 h-6" />
-              </button>
-            )}
+          <div className="flex items-center justify-between">
+            {/* Mobile Menu Trigger */}
+            <button
+              onClick={() => setIsMobileMenuOpen(true)}
+              className="p-2 -ml-2 lg:hidden text-foreground hover:text-accent transition-colors"
+              aria-label="Open Mobile Menu"
+            >
+              <Menu className="w-6 h-6" />
+            </button>
 
             {/* Brand Logo */}
             <Link
               href="/"
-              className="font-serif text-2xl md:text-3xl font-bold tracking-[0.25em] text-foreground hover:opacity-90 transition-opacity uppercase"
+              className="font-heading uppercase tracking-[0.3em] font-bold text-xl md:text-2xl text-foreground hover:opacity-90 transition-opacity"
             >
               PIYELLA
             </Link>
 
             {/* Desktop Navigation Links */}
-            {isDesktop && (
-              <nav className="flex items-center space-x-8">
-                {mainNavItems.map((item) => (
+            <nav className="hidden lg:flex items-center gap-8">
+              {mainNavItems.map((item) => {
+                const isActive = pathname === item.href;
+                return (
                   <Link
-                    key={item.title}
+                    key={item.href}
                     href={item.href}
-                    className="text-xs uppercase tracking-[0.2em] font-medium text-foreground/80 hover:text-[#C9A96E] transition-colors py-2"
+                    className={`text-xs uppercase tracking-widest transition-all hover:text-accent ${
+                      isActive ? 'text-accent font-semibold' : 'text-foreground/80'
+                    }`}
                   >
                     {item.title}
                   </Link>
-                ))}
-              </nav>
-            )}
+                );
+              })}
+            </nav>
 
-            {/* Right Icons */}
-            <div className="flex items-center space-x-4 md:space-x-5">
-              <ThemeToggle className="text-foreground/80 hover:text-[#C9A96E]" />
+            {/* Icons Action Bar */}
+            <div className="flex items-center gap-3 sm:gap-4">
+              {/* Theme Toggle Button */}
+              <ThemeToggle />
 
-              <button 
+              {/* Search Toggle */}
+              <button
                 onClick={() => setIsSearchOpen(true)}
-                className="text-[#C9A96E] transition-colors"
+                className="p-2 text-foreground/80 hover:text-foreground transition-colors"
                 aria-label="Search"
               >
                 <Search className="w-5 h-5" />
               </button>
-              
-              {isDesktop && (
-                <>
-                  <Link href="/wishlist" className="text-foreground/80 hover:text-[#C9A96E] transition-colors" aria-label="Wishlist">
-                    <Heart className="w-5 h-5" />
-                  </Link>
 
-                  {/* Account / Admin Dropdown */}
-                  <div
-                    className="relative"
-                    onMouseEnter={() => setShowUserDropdown(true)}
-                    onMouseLeave={() => setShowUserDropdown(false)}
+              {/* User Profile Action */}
+              {isSignedIn ? (
+                <div className="flex items-center">
+                  <UserButton
+                    appearance={{
+                      elements: {
+                        avatarBox: 'w-8 h-8 rounded-full border border-border hover:border-accent transition-colors',
+                      },
+                    }}
+                  />
+                </div>
+              ) : (
+                <div className="relative">
+                  <button
+                    onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                    className="p-2 text-foreground/80 hover:text-foreground transition-colors"
+                    aria-label="User Account"
                   >
-                    <Link
-                      href="/account"
-                      className="text-foreground/80 hover:text-[#C9A96E] transition-colors flex items-center gap-1 py-2"
-                      aria-label="Account"
-                    >
-                      <User className="w-5 h-5" />
-                    </Link>
+                    <User className="w-5 h-5" />
+                  </button>
 
-                    <AnimatePresence>
-                      {showUserDropdown && (
-                        <motion.div
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: 10 }}
-                          transition={{ duration: 0.2 }}
-                          className="absolute right-0 top-full w-52 py-2 mt-1 bg-surface border border-border shadow-2xl rounded-xl z-50 overflow-hidden"
+                  <AnimatePresence>
+                    {isUserMenuOpen && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 10 }}
+                        transition={{ duration: 0.2 }}
+                        className="absolute right-0 top-full w-48 py-2 mt-1 bg-surface border border-border shadow-2xl rounded-xl z-50 overflow-hidden"
+                      >
+                        <Link
+                          href="/account"
+                          className="flex items-center gap-2.5 px-4 py-2.5 text-xs uppercase tracking-wider text-foreground/80 hover:text-foreground hover:bg-muted/50 transition-colors"
                         >
-                          <Link
-                            href="/admin"
-                            className="flex items-center gap-2.5 px-4 py-2.5 text-xs uppercase tracking-wider font-semibold text-[#C9A96E] hover:bg-muted/50 transition-colors"
-                          >
-                            <ShieldCheck className="w-4 h-4 text-[#C9A96E]" />
-                            <span>Admin Portal</span>
-                          </Link>
-                          
-                          <div className="h-px bg-border my-1" />
+                          <User className="w-3.5 h-3.5 text-foreground-muted" />
+                          <span>My Profile</span>
+                        </Link>
 
-                          <Link
-                            href="/account"
-                            className="flex items-center gap-2.5 px-4 py-2 text-xs uppercase tracking-wider text-foreground/80 hover:text-foreground hover:bg-muted/50 transition-colors"
-                          >
-                            <User className="w-3.5 h-3.5 text-foreground-muted" />
-                            <span>My Profile</span>
-                          </Link>
-
-                          <Link
-                            href="/sign-in"
-                            className="flex items-center gap-2.5 px-4 py-2 text-xs uppercase tracking-wider text-foreground/80 hover:text-foreground hover:bg-muted/50 transition-colors"
-                          >
-                            <LogIn className="w-3.5 h-3.5 text-foreground-muted" />
-                            <span>Sign In</span>
-                          </Link>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                </>
+                        <Link
+                          href="/sign-in"
+                          className="flex items-center gap-2.5 px-4 py-2.5 text-xs uppercase tracking-wider text-foreground/80 hover:text-foreground hover:bg-muted/50 transition-colors"
+                        >
+                          <LogIn className="w-3.5 h-3.5 text-foreground-muted" />
+                          <span>Sign In</span>
+                        </Link>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
               )}
 
               <NavbarCart />

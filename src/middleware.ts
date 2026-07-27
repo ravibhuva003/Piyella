@@ -13,15 +13,13 @@ const isAdminRoute = createRouteMatcher([
 export default clerkMiddleware(async (auth, req) => {
   const { userId } = await auth();
 
-  // Guard Customer Protected Routes
-  if (isProtectedRoute(req) && !userId) {
-    const signInUrl = new URL('/sign-in', req.url);
-    signInUrl.searchParams.set('redirect_url', req.nextUrl.pathname);
-    return NextResponse.redirect(signInUrl);
+  // Block and redirect any attempt to access /admin back to Homepage
+  if (isAdminRoute(req)) {
+    return NextResponse.redirect(new URL('/', req.url));
   }
 
-  // Guard Admin Protected Routes - Redirect to local /sign-in page if unauthenticated
-  if (isAdminRoute(req) && !userId) {
+  // Guard Customer Protected Routes
+  if (isProtectedRoute(req) && !userId) {
     const signInUrl = new URL('/sign-in', req.url);
     signInUrl.searchParams.set('redirect_url', req.nextUrl.pathname);
     return NextResponse.redirect(signInUrl);

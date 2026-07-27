@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import { ShieldCheck } from 'lucide-react';
 import { IconInstagram, IconTwitterX, IconFacebook } from '@/components/shared/social-icons';
 import { Container } from '@/components/layout/container';
 import { footerNavItems } from '@/constants/navigation';
@@ -68,7 +67,7 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Company & Admin Column */}
+          {/* Company Column */}
           <div>
             <h3 className="font-semibold mb-6 uppercase tracking-wider text-sm">Company</h3>
             <ul className="flex flex-col gap-4">
@@ -79,12 +78,6 @@ export function Footer() {
                   </Link>
                 </li>
               ))}
-              <li>
-                <Link href="/admin" className="text-[#C9A96E] font-medium hover:underline inline-flex items-center gap-1.5 text-sm pt-2">
-                  <ShieldCheck className="w-4 h-4" />
-                  <span>Admin Portal</span>
-                </Link>
-              </li>
             </ul>
           </div>
         </div>
