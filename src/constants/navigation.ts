@@ -12,31 +12,12 @@ export const mainNavItems: NavItem[] = [
     href: '/',
   },
   {
-    title: 'Collections',
-    href: '/collections',
-    children: [
-      { title: 'Hand-Embroidered Purses', href: '/collections/embroidery-purses' },
-      { title: 'Cozy Crochet Gifts', href: '/collections/crochet-gifts' },
-      { title: 'Handmade Home Décor', href: '/collections/home-decor' },
-      { title: 'Hair Accessories', href: '/collections/hair-accessories' },
-      { title: 'Wool Thread Embroidery', href: '/collections/wool-embroidery' },
-    ],
-  },
-  {
-    title: 'Behind the Stitch',
-    href: '/story',
-  },
-  {
-    title: 'Custom Artwork',
-    href: '/custom-artwork',
-  },
-  {
-    title: 'Atelier Cinema',
-    href: '/reels',
-  },
-  {
     title: 'About',
     href: '/about',
+  },
+  {
+    title: 'Contact',
+    href: '/contact',
   },
 ];
 
