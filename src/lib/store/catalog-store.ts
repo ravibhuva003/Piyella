@@ -53,9 +53,8 @@ export interface AdminOrder {
 }
 
 const INITIAL_COUPONS: Coupon[] = [
-  { id: 'cp1', code: 'LUXE10', discountPercent: 10, minSpend: 10000, expiryDate: '2026-12-31', isActive: true, usedCount: 142 },
-  { id: 'cp2', code: 'PIYELLA20', discountPercent: 20, minSpend: 50000, expiryDate: '2026-12-31', isActive: true, usedCount: 89 },
-  { id: 'cp3', code: 'VIPATELIER', discountPercent: 25, minSpend: 100000, expiryDate: '2026-12-31', isActive: true, usedCount: 34 },
+  { id: 'cp1', code: 'LUXE10', discountPercent: 10, minSpend: 10000, expiryDate: '2026-12-31', isActive: true, usedCount: 0 },
+  { id: 'cp2', code: 'PIYELLA20', discountPercent: 20, minSpend: 50000, expiryDate: '2026-12-31', isActive: true, usedCount: 0 },
 ];
 
 const INITIAL_BANNER: BannerConfig = {
@@ -64,18 +63,6 @@ const INITIAL_BANNER: BannerConfig = {
   heroHeadline: 'Mastery of Bespoke Luxury',
   heroSubtitle: 'Handcrafted in Italian ateliers with rare calfskin, 100% pure Mulberry silk, and Swiss automatic movements.',
 };
-
-const INITIAL_USERS: AdminUser[] = [
-  { id: 'u1', name: 'Ravi Bhuva', email: 'ravibhuva003@gmail.com', role: 'admin', ordersCount: 8, totalSpent: 645000, createdAt: '2026-01-10T10:00:00Z' },
-  { id: 'u2', name: 'Eleanor Vance', email: 'eleanor.vance@example.com', role: 'vip', ordersCount: 5, totalSpent: 420000, createdAt: '2026-02-15T10:00:00Z' },
-  { id: 'u3', name: 'Julian Mercer', email: 'julian.mercer@example.com', role: 'user', ordersCount: 2, totalSpent: 185000, createdAt: '2026-03-20T10:00:00Z' },
-];
-
-const INITIAL_ORDERS: AdminOrder[] = [
-  { id: 'ORD-8472', customerName: 'Ravi Bhuva', customerEmail: 'ravibhuva003@gmail.com', itemsCount: 2, totalAmount: 280000, status: 'Processing', trackingNumber: 'SHIP-992481', createdAt: '2026-07-24T14:30:00Z' },
-  { id: 'ORD-6391', customerName: 'Eleanor Vance', customerEmail: 'eleanor.vance@example.com', itemsCount: 1, totalAmount: 185000, status: 'Delivered', trackingNumber: 'SHIP-881204', createdAt: '2026-07-18T09:15:00Z' },
-  { id: 'ORD-5219', customerName: 'Julian Mercer', customerEmail: 'julian.mercer@example.com', itemsCount: 3, totalAmount: 125000, status: 'Shipped', trackingNumber: 'SHIP-773192', createdAt: '2026-07-15T11:45:00Z' },
-];
 
 export function useCatalogStore() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -95,16 +82,16 @@ export function useCatalogStore() {
       const savedUsers = localStorage.getItem('piyella_admin_users');
       const savedOrders = localStorage.getItem('piyella_admin_orders');
 
-      setProducts(savedProds ? JSON.parse(savedProds) : mockProducts);
-      setCollections(savedCols ? JSON.parse(savedCols) : mockCollections);
+      setProducts(savedProds ? JSON.parse(savedProds) : []);
+      setCollections(savedCols ? JSON.parse(savedCols) : []);
       setCoupons(savedCoupons ? JSON.parse(savedCoupons) : INITIAL_COUPONS);
       setBanners(savedBanners ? JSON.parse(savedBanners) : INITIAL_BANNER);
-      setUsers(savedUsers ? JSON.parse(savedUsers) : INITIAL_USERS);
-      setOrders(savedOrders ? JSON.parse(savedOrders) : INITIAL_ORDERS);
+      setUsers(savedUsers ? JSON.parse(savedUsers) : []);
+      setOrders(savedOrders ? JSON.parse(savedOrders) : []);
     } catch (e) {
       console.error('Error initializing admin store:', e);
-      setProducts(mockProducts);
-      setCollections(mockCollections);
+      setProducts([]);
+      setCollections([]);
     } finally {
       setIsLoaded(true);
     }
@@ -121,6 +108,13 @@ export function useCatalogStore() {
     setCollections(newCollections);
     try {
       localStorage.setItem('piyella_admin_collections', JSON.stringify(newCollections));
+    } catch {}
+  };
+
+  const saveOrders = (newOrders: AdminOrder[]) => {
+    setOrders(newOrders);
+    try {
+      localStorage.setItem('piyella_admin_orders', JSON.stringify(newOrders));
     } catch {}
   };
 
@@ -145,78 +139,77 @@ export function useCatalogStore() {
     } catch {}
   };
 
-  const saveOrders = (newOrders: AdminOrder[]) => {
-    setOrders(newOrders);
-    try {
-      localStorage.setItem('piyella_admin_orders', JSON.stringify(newOrders));
-    } catch {}
-  };
-
-  // Product Actions
   const addProduct = (product: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>) => {
-    const newProduct: Product = {
+    const newProd: Product = {
       ...product,
       id: `p_${Date.now()}`,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
-    const updated = [newProduct, ...products];
-    saveProducts(updated);
-    return newProduct;
+    saveProducts([newProd, ...products]);
   };
 
-  const updateProduct = (id: string, updates: Partial<Product>) => {
-    const updated = products.map((p) => (p.id === id ? { ...p, ...updates, updatedAt: new Date().toISOString() } : p));
-    saveProducts(updated);
+  const updateProduct = (id: string, updated: Partial<Product>) => {
+    const newProds = products.map((p) => (p.id === id ? { ...p, ...updated, updatedAt: new Date().toISOString() } : p));
+    saveProducts(newProds);
   };
 
   const deleteProduct = (id: string) => {
-    const updated = products.filter((p) => p.id !== id);
-    saveProducts(updated);
+    saveProducts(products.filter((p) => p.id !== id));
   };
 
-  // Category Actions
-  const addCollection = (collection: Omit<Collection, 'id' | 'createdAt'>) => {
-    const newCollection: Collection = {
-      ...collection,
+  const addCollection = (col: Omit<Collection, 'id' | 'createdAt'>) => {
+    const newCol: Collection = {
+      ...col,
       id: `c_${Date.now()}`,
       createdAt: new Date().toISOString(),
     };
-    const updated = [...collections, newCollection];
-    saveCollections(updated);
+    saveCollections([newCol, ...collections]);
   };
 
   const deleteCollection = (id: string) => {
-    const updated = collections.filter((c) => c.id !== id);
-    saveCollections(updated);
+    saveCollections(collections.filter((c) => c.id !== id));
   };
 
-  // Coupon Actions
-  const addCoupon = (coupon: Omit<Coupon, 'id' | 'usedCount'>) => {
-    const newCoupon: Coupon = {
-      ...coupon,
+  const addCoupon = (cp: Omit<Coupon, 'id' | 'usedCount'>) => {
+    const newCp: Coupon = {
+      ...cp,
       id: `cp_${Date.now()}`,
       usedCount: 0,
     };
-    saveCoupons([newCoupon, ...coupons]);
+    saveCoupons([newCp, ...coupons]);
   };
 
   const toggleCoupon = (id: string) => {
-    saveCoupons(coupons.map((c) => (c.id === id ? { ...c, isActive: !c.isActive } : c)));
+    const updated = coupons.map((c) => (c.id === id ? { ...c, isActive: !c.isActive } : c));
+    saveCoupons(updated);
   };
 
   const deleteCoupon = (id: string) => {
     saveCoupons(coupons.filter((c) => c.id !== id));
   };
 
-  // Order Actions
-  const updateOrderStatus = (id: string, status: AdminOrder['status']) => {
-    saveOrders(orders.map((o) => (o.id === id ? { ...o, status } : o)));
+  const updateUserRole = (id: string, role: AdminUser['role']) => {
+    const updated = users.map((u) => (u.id === id ? { ...u, role } : u));
+    saveUsers(updated);
   };
 
-  // User Actions
-  const updateUserRole = (id: string, role: AdminUser['role']) => {
-    saveUsers(users.map((u) => (u.id === id ? { ...u, role } : u)));
+  const addOrder = (order: AdminOrder) => {
+    saveOrders([order, ...orders]);
+  };
+
+  const clearAllCatalog = () => {
+    saveProducts([]);
+    saveCollections([]);
+    try {
+      localStorage.removeItem('piyella_admin_products');
+      localStorage.removeItem('piyella_admin_collections');
+    } catch {}
+  };
+
+  const updateOrderStatus = (id: string, status: AdminOrder['status']) => {
+    const updated = orders.map((o) => (o.id === id ? { ...o, status } : o));
+    saveOrders(updated);
   };
 
   return {
@@ -235,9 +228,13 @@ export function useCatalogStore() {
     addCoupon,
     toggleCoupon,
     deleteCoupon,
-    saveBanners,
-    saveOrders,
-    updateOrderStatus,
     updateUserRole,
+    addOrder,
+    saveOrders,
+    saveCoupons,
+    saveBanners,
+    saveUsers,
+    clearAllCatalog,
+    updateOrderStatus,
   };
 }

@@ -2,20 +2,22 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { motion, AnimatePresence } from 'motion/react';
-import { ArrowRight } from 'lucide-react';
+import { motion } from 'motion/react';
+import { ArrowRight, PackagePlus } from 'lucide-react';
 import { Container } from '@/components/layout/container';
 import { ProductCard } from '@/components/product/ProductCard';
 import { Product } from '@/types/product';
+import { useCatalogStore } from '@/lib/store/catalog-store';
 import { cn } from '@/lib/utils';
 
 interface BestSellersProps {
-  products: Product[];
+  products?: Product[];
 }
 
-const TABS = ['All', 'Women', 'Men', 'Accessories'];
+export function BestSellers({ products: initialProducts }: BestSellersProps) {
+  const { products: storeProducts, isLoaded } = useCatalogStore();
+  const products = storeProducts.length > 0 ? storeProducts : (initialProducts || []);
 
-export function BestSellers({ products }: BestSellersProps) {
   const [activeTab, setActiveTab] = useState('All');
 
   const filteredProducts = products.filter((p) => {
@@ -24,9 +26,9 @@ export function BestSellers({ products }: BestSellersProps) {
   }).slice(0, 8);
 
   return (
-    <section className="py-24 md:py-32 bg-[#0a0a0a] border-t border-white/5">
+    <section className="py-24 md:py-32 bg-[#0a0a0a] border-t border-white/5 text-white">
       <Container>
-        {/* Header & Tabs */}
+        {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-8">
           <div>
             <span className="text-[#C9A96E] text-xs uppercase tracking-[0.3em] font-medium block mb-3">
@@ -36,54 +38,34 @@ export function BestSellers({ products }: BestSellersProps) {
               Best Sellers
             </h2>
           </div>
-
-          {/* Filter Tabs */}
-          <div className="flex flex-wrap items-center gap-2 sm:gap-4 border-b border-white/10 pb-2">
-            {TABS.map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={cn(
-                  'px-4 py-2 text-xs sm:text-sm font-medium uppercase tracking-wider rounded-full transition-all duration-300',
-                  activeTab === tab
-                    ? 'bg-[#C9A96E] text-black shadow-lg shadow-[#C9A96E]/20'
-                    : 'text-white/60 hover:text-white hover:bg-white/5'
-                )}
-              >
-                {tab}
-              </button>
-            ))}
-          </div>
         </div>
 
-        {/* Product Grid */}
-        <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
-          <AnimatePresence mode="popLayout">
+        {/* Product Grid or Empty State */}
+        {filteredProducts.length > 0 ? (
+          <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
             {filteredProducts.map((product) => (
-              <motion.div
-                key={product.id}
-                layout
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ duration: 0.4 }}
-              >
-                <ProductCard product={product} />
-              </motion.div>
+              <ProductCard key={product.id} product={product} />
             ))}
-          </AnimatePresence>
-        </motion.div>
-
-        {/* View All Button */}
-        <div className="mt-16 text-center">
-          <Link
-            href="/collections"
-            className="inline-flex items-center gap-3 px-8 py-4 border border-white/20 hover:border-[#C9A96E] text-white hover:text-[#C9A96E] text-xs sm:text-sm font-medium uppercase tracking-[0.2em] transition-all duration-300 bg-white/5 backdrop-blur-sm"
-          >
-            <span>View Full Catalog</span>
-            <ArrowRight className="w-4 h-4" />
-          </Link>
-        </div>
+          </motion.div>
+        ) : (
+          <div className="py-16 bg-black border border-dashed border-white/10 rounded-3xl text-center space-y-4 max-w-xl mx-auto p-8">
+            <div className="w-16 h-16 rounded-full bg-white/5 text-[#C9A96E] flex items-center justify-center mx-auto border border-white/10">
+              <PackagePlus className="w-8 h-8" />
+            </div>
+            <div className="space-y-1">
+              <h3 className="font-serif text-2xl text-white">No Products Published Yet</h3>
+              <p className="text-xs text-white/50 font-light">
+                Administrators can create products, upload high-res images, set prices, and configure variants in the Admin Dashboard.
+              </p>
+            </div>
+            <Link
+              href="/admin/products/new"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-[#C9A96E] hover:bg-[#D4B87C] text-black font-semibold text-xs uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-[#C9A96E]/20"
+            >
+              <span>+ Create First Product in Admin</span>
+            </Link>
+          </div>
+        )}
       </Container>
     </section>
   );
