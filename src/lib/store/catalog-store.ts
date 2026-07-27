@@ -3,8 +3,6 @@
 import { useState, useEffect } from 'react';
 import { Product } from '@/types/product';
 import { Collection } from '@/types/collection';
-import { products as mockProducts } from '@/data/mock-products';
-import { collections as mockCollections } from '@/data/mock-collections';
 
 export interface Coupon {
   id: string;
@@ -52,10 +50,7 @@ export interface AdminOrder {
   };
 }
 
-const INITIAL_COUPONS: Coupon[] = [
-  { id: 'cp1', code: 'LUXE10', discountPercent: 10, minSpend: 10000, expiryDate: '2026-12-31', isActive: true, usedCount: 0 },
-  { id: 'cp2', code: 'PIYELLA20', discountPercent: 20, minSpend: 50000, expiryDate: '2026-12-31', isActive: true, usedCount: 0 },
-];
+const INITIAL_COUPONS: Coupon[] = [];
 
 const INITIAL_BANNER: BannerConfig = {
   announcementText: 'Handcrafted Bespoke Luxury Collection',
@@ -63,6 +58,18 @@ const INITIAL_BANNER: BannerConfig = {
   heroHeadline: 'Mastery of Bespoke Luxury',
   heroSubtitle: 'Handcrafted in Italian ateliers with rare calfskin, 100% pure Mulberry silk, and Swiss automatic movements.',
 };
+
+const INITIAL_USERS: AdminUser[] = [
+  {
+    id: 'u_piyella_admin',
+    name: 'Piyella Admin',
+    email: 'piyella@gmail.com',
+    role: 'admin',
+    ordersCount: 0,
+    totalSpent: 0,
+    createdAt: '2026-07-27T12:00:00Z',
+  },
+];
 
 export function useCatalogStore() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -86,12 +93,13 @@ export function useCatalogStore() {
       setCollections(savedCols ? JSON.parse(savedCols) : []);
       setCoupons(savedCoupons ? JSON.parse(savedCoupons) : INITIAL_COUPONS);
       setBanners(savedBanners ? JSON.parse(savedBanners) : INITIAL_BANNER);
-      setUsers(savedUsers ? JSON.parse(savedUsers) : []);
+      setUsers(savedUsers ? JSON.parse(savedUsers) : INITIAL_USERS);
       setOrders(savedOrders ? JSON.parse(savedOrders) : []);
     } catch (e) {
       console.error('Error initializing admin store:', e);
       setProducts([]);
       setCollections([]);
+      setUsers(INITIAL_USERS);
     } finally {
       setIsLoaded(true);
     }
