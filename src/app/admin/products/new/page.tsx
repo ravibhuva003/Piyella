@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useCatalogStore } from '@/lib/store/catalog-store';
 import { ImageUploader } from '@/components/admin/image-uploader';
 import { ProductImage } from '@/types/product';
-import { ArrowLeft, Sparkles, Check, Tag, Flame, Sparkle } from 'lucide-react';
+import { ArrowLeft, Sparkles, Check, Layers } from 'lucide-react';
 import Link from 'next/link';
 
 export default function NewProductPage() {
@@ -15,6 +15,7 @@ export default function NewProductPage() {
   const [name, setName] = useState('');
   const [slug, setSlug] = useState('');
   const [category, setCategory] = useState('Handbags');
+  const [collectionId, setCollectionId] = useState('col_heritage_embroidery');
   const [price, setPrice] = useState<number>(45000);
   const [compareAtPrice, setCompareAtPrice] = useState<number | undefined>(55000);
   const [sku, setSku] = useState(`PYL-${Math.floor(1000 + Math.random() * 9000)}`);
@@ -67,6 +68,7 @@ export default function NewProductPage() {
       currency: 'INR',
       images,
       category,
+      collectionId,
       tags,
       variants: [],
       inventory,
@@ -80,7 +82,7 @@ export default function NewProductPage() {
       reviewCount: 1,
     } as any);
 
-    alert('Product created successfully! It is now live under selected category pages.');
+    alert('Product created successfully! It is now assigned to the selected collection and live on the public website.');
     router.push('/admin/products');
   };
 
@@ -103,7 +105,7 @@ export default function NewProductPage() {
           Create Luxury Product
         </h1>
         <p className="text-sm text-white/60 font-light">
-          Add a new handcrafted item to the catalog. Select special category placements below.
+          Add a new handcrafted item to the catalog. Select its target collection placement below.
         </p>
       </div>
 
@@ -139,17 +141,39 @@ export default function NewProductPage() {
             </div>
           </div>
 
-          {/* Category Badges & Placement Toggles */}
-          <div className="p-5 bg-black/80 border border-[#C9A96E]/30 rounded-2xl space-y-4">
+          {/* Collection Assignment Box */}
+          <div className="p-5 bg-black/80 border border-[#C9A96E]/40 rounded-2xl space-y-4">
             <div className="flex items-center gap-2 text-[#C9A96E] text-xs uppercase tracking-widest font-semibold">
-              <Sparkles className="w-4 h-4" />
-              <span>Special Collection Placements</span>
+              <Layers className="w-4 h-4" />
+              <span>Target Collection Selection *</span>
             </div>
             <p className="text-xs text-white/60 font-light">
-              Check the boxes below to feature this product on specific storefront collection pages.
+              Select which storefront collection this product will belong to. It will immediately appear on that collection&apos;s public page.
             </p>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+            <select
+              value={collectionId}
+              onChange={(e) => setCollectionId(e.target.value)}
+              className="w-full bg-black border border-[#C9A96E]/50 px-4 py-3.5 text-sm text-[#C9A96E] font-medium focus:border-[#C9A96E] focus:outline-none rounded-xl"
+            >
+              <option value="col_heritage_embroidery">Heritage Embroidery Curation (heritage-embroidery)</option>
+              <option value="col_handbags">Artisanal Handbags & Purses (handbags)</option>
+              <option value="col_silk_scarves">Silk Scarves & Wraps (silk-scarves)</option>
+              <option value="col_velvet_decor">Velvet Home Decor (decor)</option>
+              <option value="col_new_arrivals">New Arrivals (new-arrivals)</option>
+              <option value="col_best_sellers">Best Sellers (best-sellers)</option>
+              <option value="col_sale">Special Sale (sale)</option>
+            </select>
+          </div>
+
+          {/* Special Placement Toggles */}
+          <div className="p-5 bg-black/80 border border-white/10 rounded-2xl space-y-4">
+            <div className="flex items-center gap-2 text-white/80 text-xs uppercase tracking-widest font-semibold">
+              <Sparkles className="w-4 h-4 text-[#C9A96E]" />
+              <span>Special Collection Badges & Placement</span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
               <label className={`flex items-center gap-3 p-4 rounded-xl border cursor-pointer transition-all ${
                 isNew ? 'bg-emerald-500/10 border-emerald-500/40 text-emerald-300' : 'bg-white/5 border-white/10 text-white/70'
               }`}>

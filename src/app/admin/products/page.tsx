@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { useCatalogStore } from '@/lib/store/catalog-store';
 import { Product } from '@/types/product';
 import { formatPrice } from '@/lib/utils';
-import { Plus, Search, Trash2, Edit3, Eye, Package, Sparkles, X, Check, Flame, Tag } from 'lucide-react';
+import { Plus, Search, Trash2, Edit3, Eye, Package, Sparkles, X, Check, Flame, Tag, Layers } from 'lucide-react';
 
 export default function AdminProductsPage() {
   const { products, updateProduct, deleteProduct, isLoaded } = useCatalogStore();
@@ -36,6 +36,7 @@ export default function AdminProductsPage() {
       price: Number(editingProduct.price),
       compareAtPrice: editingProduct.compareAtPrice ? Number(editingProduct.compareAtPrice) : undefined,
       category: editingProduct.category,
+      collectionId: editingProduct.collectionId,
       inventory: Number(editingProduct.inventory),
       isNew: editingProduct.isNew,
       isBestSeller: (editingProduct as any).isBestSeller,
@@ -88,6 +89,7 @@ export default function AdminProductsPage() {
               <tr>
                 <th className="px-6 py-4">Product</th>
                 <th className="px-6 py-4">Category</th>
+                <th className="px-6 py-4">Collection ID</th>
                 <th className="px-6 py-4">Placements</th>
                 <th className="px-6 py-4">Price</th>
                 <th className="px-6 py-4">Stock</th>
@@ -115,6 +117,10 @@ export default function AdminProductsPage() {
 
                     <td className="px-6 py-4 text-xs uppercase tracking-wider text-foreground-muted font-semibold">
                       {prod.category}
+                    </td>
+
+                    <td className="px-6 py-4 text-xs font-mono text-[#C9A96E]">
+                      {prod.collectionId || 'default'}
                     </td>
 
                     <td className="px-6 py-4">
@@ -204,6 +210,27 @@ export default function AdminProductsPage() {
                   onChange={(e) => setEditingProduct({ ...editingProduct, name: e.target.value })}
                   className="w-full bg-background border border-border px-4 py-2.5 text-sm text-foreground focus:border-[#C9A96E] focus:outline-none rounded-xl"
                 />
+              </div>
+
+              {/* Target Collection Selection */}
+              <div>
+                <label className="block text-xs uppercase tracking-widest text-foreground-muted mb-1 font-medium flex items-center gap-1.5">
+                  <Layers className="w-3.5 h-3.5 text-[#C9A96E]" />
+                  <span>Target Collection Curation</span>
+                </label>
+                <select
+                  value={editingProduct.collectionId || 'col_heritage_embroidery'}
+                  onChange={(e) => setEditingProduct({ ...editingProduct, collectionId: e.target.value })}
+                  className="w-full bg-background border border-border px-4 py-2.5 text-sm text-[#C9A96E] font-medium focus:border-[#C9A96E] focus:outline-none rounded-xl"
+                >
+                  <option value="col_heritage_embroidery">Heritage Embroidery Curation (heritage-embroidery)</option>
+                  <option value="col_handbags">Artisanal Handbags & Purses (handbags)</option>
+                  <option value="col_silk_scarves">Silk Scarves & Wraps (silk-scarves)</option>
+                  <option value="col_velvet_decor">Velvet Home Decor (decor)</option>
+                  <option value="col_new_arrivals">New Arrivals (new-arrivals)</option>
+                  <option value="col_best_sellers">Best Sellers (best-sellers)</option>
+                  <option value="col_sale">Special Sale (sale)</option>
+                </select>
               </div>
 
               {/* Placement Checkboxes */}

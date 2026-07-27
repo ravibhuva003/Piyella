@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useCatalogStore, AdminOrder } from '@/lib/store/catalog-store';
 import { formatPrice } from '@/lib/utils';
-import { Gift, X, Heart, Edit3, Check } from 'lucide-react';
+import { Gift, X, Edit3, Check, Trash2 } from 'lucide-react';
 
 export default function AdminOrdersPage() {
   const { orders, updateOrderStatus, saveOrders, isLoaded } = useCatalogStore();
@@ -26,6 +26,15 @@ export default function AdminOrdersPage() {
     saveOrders(updated);
     setEditingOrder(null);
     alert(`Order ${editingOrder.id} updated successfully!`);
+  };
+
+  const handleDeleteOrder = (orderId: string) => {
+    if (confirm(`Are you sure you want to delete order ${orderId}? This action cannot be undone.`)) {
+      const updated = orders.filter((o) => o.id !== orderId);
+      saveOrders(updated);
+      if (editingOrder?.id === orderId) setEditingOrder(null);
+      alert(`Order ${orderId} has been deleted successfully.`);
+    }
   };
 
   return (
@@ -89,9 +98,17 @@ export default function AdminOrdersPage() {
                       <button
                         onClick={() => setEditingOrder(o)}
                         className="px-3 py-1.5 bg-[#C9A96E]/10 hover:bg-[#C9A96E]/20 text-[#C9A96E] border border-[#C9A96E]/30 rounded-lg text-xs font-semibold uppercase tracking-wider transition-colors inline-flex items-center gap-1.5"
+                        title="Edit Order Details"
                       >
                         <Edit3 className="w-3.5 h-3.5" />
-                        <span>Edit Order</span>
+                        <span>Edit</span>
+                      </button>
+                      <button
+                        onClick={() => handleDeleteOrder(o.id)}
+                        className="p-1.5 text-foreground-muted hover:text-red-400 hover:bg-red-500/10 border border-transparent hover:border-red-500/20 rounded-lg transition-colors"
+                        title="Delete Order"
+                      >
+                        <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
                   </td>
@@ -180,21 +197,32 @@ export default function AdminOrdersPage() {
                 />
               </div>
 
-              <div className="flex justify-end gap-3 pt-2">
+              <div className="flex justify-between items-center pt-2">
                 <button
                   type="button"
-                  onClick={() => setEditingOrder(null)}
-                  className="px-5 py-2.5 border border-border text-foreground text-xs uppercase tracking-wider rounded-xl hover:bg-background"
+                  onClick={() => handleDeleteOrder(editingOrder.id)}
+                  className="px-4 py-2.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 text-xs font-semibold uppercase tracking-wider rounded-xl transition-colors flex items-center gap-1.5"
                 >
-                  Cancel
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>Delete Order</span>
                 </button>
-                <button
-                  type="submit"
-                  className="px-6 py-2.5 bg-[#C9A96E] hover:bg-[#D4B87C] text-black font-semibold text-xs uppercase tracking-widest rounded-xl transition-all shadow-md flex items-center gap-1.5"
-                >
-                  <Check className="w-4 h-4" />
-                  <span>Save Order</span>
-                </button>
+
+                <div className="flex gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setEditingOrder(null)}
+                    className="px-5 py-2.5 border border-border text-foreground text-xs uppercase tracking-wider rounded-xl hover:bg-background"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-6 py-2.5 bg-[#C9A96E] hover:bg-[#D4B87C] text-black font-semibold text-xs uppercase tracking-widest rounded-xl transition-all shadow-md flex items-center gap-1.5"
+                  >
+                    <Check className="w-4 h-4" />
+                    <span>Save Order</span>
+                  </button>
+                </div>
               </div>
             </form>
           </div>
