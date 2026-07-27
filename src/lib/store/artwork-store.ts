@@ -97,6 +97,25 @@ export function useArtworkStore() {
     saveRequests(updated);
   };
 
+  const updateArtworkQuote = (
+    id: string,
+    quotePrice: number,
+    estimatedDays: number,
+    status: ArtworkStatus = 'Quotation Sent',
+    adminNotes?: string
+  ) => {
+    updateQuote(id, {
+      status,
+      quotePrice,
+      estimatedDays,
+      adminNotes,
+    });
+  };
+
+  const updateArtworkStatus = (id: string, status: ArtworkStatus) => {
+    updateQuote(id, { status });
+  };
+
   const deleteRequest = (id: string) => {
     const updated = requests.filter((req) => req.id !== id);
     saveRequests(updated);
@@ -106,7 +125,10 @@ export function useArtworkStore() {
     requests,
     isLoaded,
     submitRequest,
+    addArtworkRequest: submitRequest,
     updateQuote,
+    updateArtworkQuote,
+    updateArtworkStatus,
     deleteRequest,
   };
 }
