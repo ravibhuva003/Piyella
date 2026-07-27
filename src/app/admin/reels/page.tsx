@@ -2,57 +2,60 @@
 
 import React, { useState, useRef } from 'react';
 import Image from 'next/image';
-import { useReelsStore } from '@/lib/store/reels-store';
+import { useReelsStore, InstagramReel } from '@/lib/store/reels-store';
 import { ReelCategory } from '@/lib/data/reels-data';
-import { Film, Plus, Trash2, Pin, Eye, Check, Upload } from 'lucide-react';
+import { Plus, Trash2, Pin, Film, Upload, Edit3, X, Check } from 'lucide-react';
 
 export default function AdminReelsPage() {
-  const { reels, addReel, togglePinReel, deleteReel, isLoaded } = useReelsStore();
-
+  const { reels, addReel, deleteReel, togglePinReel, saveReels, isLoaded } = useReelsStore();
   const [title, setTitle] = useState('');
+  const [category, setCategory] = useState<ReelCategory>('Making Process');
   const [videoUrl, setVideoUrl] = useState('');
   const [posterUrl, setPosterUrl] = useState('');
-  const [category, setCategory] = useState<ReelCategory>('Making Process');
   const [instagramUrl, setInstagramUrl] = useState('');
+  const [editingReel, setEditingReel] = useState<InstagramReel | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const editFileInputRef = useRef<HTMLInputElement>(null);
 
   if (!isLoaded) {
     return (
-      <div className="min-h-[50vh] flex items-center justify-center text-foreground">
+      <div className="min-h-[50vh] flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-[#C9A96E] border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, isEdit = false) => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onload = (event) => {
         const result = event.target?.result as string;
         if (result) {
-          setPosterUrl(result);
+          if (isEdit && editingReel) {
+            setEditingReel({ ...editingReel, posterUrl: result });
+          } else {
+            setPosterUrl(result);
+          }
         }
       };
       reader.readAsDataURL(file);
     }
   };
 
-  const handleAdd = (e: React.FormEvent) => {
+  const handleCreate = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title) {
-      alert('Please fill in reel title');
-      return;
-    }
+    if (!title) return;
 
-    const defaultPoster = 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?q=80&w=800&auto=format&fit=crop';
+    const fallbackPoster = 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?q=80&w=800&auto=format&fit=crop';
+    const fallbackVideo = 'https://assets.mixkit.co/videos/preview/mixkit-fashion-model-walking-on-a-runway-41565-large.mp4';
 
     addReel({
       title,
-      videoUrl: videoUrl || 'https://assets.mixkit.co/videos/preview/mixkit-artist-painting-a-canvas-with-a-brush-41584-large.mp4',
-      posterUrl: posterUrl || defaultPoster,
       category,
-      instagramUrl: instagramUrl || 'https://instagram.com/piyella.official',
+      videoUrl: videoUrl || fallbackVideo,
+      posterUrl: posterUrl || fallbackPoster,
+      instagramUrl,
       isPinned: false,
     });
 
@@ -60,24 +63,34 @@ export default function AdminReelsPage() {
     setVideoUrl('');
     setPosterUrl('');
     setInstagramUrl('');
-    alert('Instagram Reel published live to Atelier Cinema gallery!');
+    alert('Reel published to Atelier Cinema!');
+  };
+
+  const handleSaveReelEdit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingReel) return;
+
+    const updated = reels.map((r) => (r.id === editingReel.id ? editingReel : r));
+    saveReels(updated);
+    setEditingReel(null);
+    alert(`Reel "${editingReel.title}" updated successfully!`);
   };
 
   return (
     <div className="space-y-10 text-foreground">
       <div>
         <span className="text-[#C9A96E] text-xs uppercase tracking-[0.3em] font-medium block mb-1">
-          Storefront Broadcasting
+          Cinema & Media Studio
         </span>
         <h1 className="font-serif text-3xl sm:text-4xl text-foreground font-medium">
-          Instagram Reels Manager
+          Reels & Short Video Manager ({reels.length} Reels)
         </h1>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Create Reel Form */}
-        <form onSubmit={handleAdd} className="bg-surface border border-border p-6 rounded-2xl space-y-6 h-fit shadow-xl">
-          <h2 className="font-serif text-xl text-foreground font-medium">Add Instagram Reel</h2>
+        {/* Publish Form */}
+        <form onSubmit={handleCreate} className="bg-surface border border-border p-6 rounded-2xl space-y-6 h-fit shadow-xl">
+          <h2 className="font-serif text-xl text-foreground font-medium">Publish Video Reel</h2>
 
           <div>
             <label className="block text-xs uppercase tracking-widest text-foreground-muted mb-2 font-medium">Reel Title *</label>
@@ -86,7 +99,7 @@ export default function AdminReelsPage() {
               required
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="e.g. Master Gold Gilder in Milan"
+              placeholder="e.g. Master Gold Stitching Atelier"
               className="w-full bg-background border border-border px-4 py-3 text-sm text-foreground focus:border-[#C9A96E] focus:outline-none rounded-xl"
             />
           </div>
@@ -98,23 +111,20 @@ export default function AdminReelsPage() {
               onChange={(e) => setCategory(e.target.value as ReelCategory)}
               className="w-full bg-background border border-border px-4 py-3 text-sm text-foreground focus:border-[#C9A96E] focus:outline-none rounded-xl uppercase"
             >
-              <option value="Featured">Featured</option>
               <option value="Making Process">Making Process</option>
               <option value="Behind the Scenes">Behind the Scenes</option>
               <option value="Customer Unboxing">Customer Unboxing</option>
+              <option value="Featured">Featured</option>
             </select>
           </div>
 
-          <div>
-            <label className="block text-xs uppercase tracking-widest text-foreground-muted mb-2 font-medium">
-              Poster Thumbnail (Optional)
-            </label>
-            
+          <div className="space-y-2">
+            <label className="block text-xs uppercase tracking-widest text-foreground-muted font-medium">Poster Thumbnail</label>
             <input
               ref={fileInputRef}
               type="file"
               accept="image/*"
-              onChange={handleFileUpload}
+              onChange={(e) => handleFileUpload(e, false)}
               className="hidden"
             />
 
@@ -137,23 +147,12 @@ export default function AdminReelsPage() {
           </div>
 
           <div>
-            <label className="block text-xs uppercase tracking-widest text-foreground-muted mb-2 font-medium">Video File / MP4 URL (Optional)</label>
+            <label className="block text-xs uppercase tracking-widest text-foreground-muted mb-2 font-medium">Video File / MP4 URL</label>
             <input
               type="url"
               value={videoUrl}
               onChange={(e) => setVideoUrl(e.target.value)}
               placeholder="https://assets.mixkit.co/..."
-              className="w-full bg-background border border-border px-4 py-3 text-sm text-foreground focus:border-[#C9A96E] focus:outline-none rounded-xl font-mono text-xs"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs uppercase tracking-widest text-foreground-muted mb-2 font-medium">Instagram Post URL (Optional)</label>
-            <input
-              type="url"
-              value={instagramUrl}
-              onChange={(e) => setInstagramUrl(e.target.value)}
-              placeholder="https://instagram.com/p/..."
               className="w-full bg-background border border-border px-4 py-3 text-sm text-foreground focus:border-[#C9A96E] focus:outline-none rounded-xl font-mono text-xs"
             />
           </div>
@@ -187,6 +186,13 @@ export default function AdminReelsPage() {
 
                   <div className="flex items-center gap-2 shrink-0">
                     <button
+                      onClick={() => setEditingReel(r)}
+                      className="p-2 rounded-lg border border-border text-[#C9A96E] hover:bg-[#C9A96E]/10 transition-colors"
+                      title="Edit Reel"
+                    >
+                      <Edit3 className="w-4 h-4" />
+                    </button>
+                    <button
                       onClick={() => togglePinReel(r.id)}
                       className={`p-2 rounded-lg border transition-colors ${
                         r.isPinned
@@ -217,6 +223,106 @@ export default function AdminReelsPage() {
           )}
         </div>
       </div>
+
+      {/* Edit Reel Modal */}
+      {editingReel && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
+          <div className="relative w-full max-w-lg bg-surface border border-border rounded-2xl p-6 sm:p-8 space-y-6 shadow-2xl">
+            <button
+              onClick={() => setEditingReel(null)}
+              className="absolute top-4 right-4 text-foreground-muted hover:text-foreground p-2"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="space-y-1">
+              <span className="text-[#C9A96E] text-[10px] uppercase tracking-widest font-semibold block">Edit Cinema Reel</span>
+              <h2 className="font-serif text-2xl text-foreground font-medium">Modify Reel Details</h2>
+            </div>
+
+            <form onSubmit={handleSaveReelEdit} className="space-y-4">
+              <div>
+                <label className="block text-xs uppercase tracking-widest text-foreground-muted mb-1 font-medium">Reel Title</label>
+                <input
+                  type="text"
+                  required
+                  value={editingReel.title}
+                  onChange={(e) => setEditingReel({ ...editingReel, title: e.target.value })}
+                  className="w-full bg-background border border-border px-4 py-2.5 text-sm text-foreground focus:border-[#C9A96E] focus:outline-none rounded-xl"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs uppercase tracking-widest text-foreground-muted mb-1 font-medium">Category</label>
+                <select
+                  value={editingReel.category}
+                  onChange={(e) => setEditingReel({ ...editingReel, category: e.target.value as ReelCategory })}
+                  className="w-full bg-background border border-border px-4 py-2.5 text-sm text-foreground focus:border-[#C9A96E] focus:outline-none rounded-xl uppercase"
+                >
+                  <option value="Making Process">Making Process</option>
+                  <option value="Behind the Scenes">Behind the Scenes</option>
+                  <option value="Customer Unboxing">Customer Unboxing</option>
+                  <option value="Featured">Featured</option>
+                </select>
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-xs uppercase tracking-widest text-foreground-muted font-medium">Poster Thumbnail</label>
+                <input
+                  ref={editFileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleFileUpload(e, true)}
+                  className="hidden"
+                />
+
+                <button
+                  type="button"
+                  onClick={() => editFileInputRef.current?.click()}
+                  className="w-full py-2.5 bg-background border border-dashed border-border hover:border-[#C9A96E] text-foreground text-xs uppercase font-semibold tracking-wider rounded-xl transition-all flex items-center justify-center gap-2 mb-2"
+                >
+                  <Upload className="w-3.5 h-3.5 text-[#C9A96E]" />
+                  <span>Choose New Thumbnail File</span>
+                </button>
+
+                <input
+                  type="url"
+                  value={editingReel.posterUrl || ''}
+                  onChange={(e) => setEditingReel({ ...editingReel, posterUrl: e.target.value })}
+                  className="w-full bg-background border border-border px-4 py-2.5 text-xs text-foreground focus:border-[#C9A96E] focus:outline-none rounded-xl font-mono"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs uppercase tracking-widest text-foreground-muted mb-1 font-medium font-medium">Video MP4 URL</label>
+                <input
+                  type="url"
+                  value={editingReel.videoUrl || ''}
+                  onChange={(e) => setEditingReel({ ...editingReel, videoUrl: e.target.value })}
+                  className="w-full bg-background border border-border px-4 py-2.5 text-xs text-foreground focus:border-[#C9A96E] focus:outline-none rounded-xl font-mono"
+                />
+              </div>
+
+              <div className="flex justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setEditingReel(null)}
+                  className="px-5 py-2.5 border border-border text-foreground text-xs uppercase tracking-wider rounded-xl hover:bg-background"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-6 py-2.5 bg-[#C9A96E] hover:bg-[#D4B87C] text-black font-semibold text-xs uppercase tracking-widest rounded-xl transition-all shadow-md flex items-center gap-1.5"
+                >
+                  <Check className="w-4 h-4" />
+                  <span>Save Reel</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

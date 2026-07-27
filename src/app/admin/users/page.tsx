@@ -3,14 +3,15 @@
 import React, { useState } from 'react';
 import { useCatalogStore, AdminUser } from '@/lib/store/catalog-store';
 import { formatPrice } from '@/lib/utils';
-import { Users, ShieldCheck, Crown, User as UserIcon, UserPlus, ShieldAlert, KeyRound } from 'lucide-react';
+import { Users, ShieldCheck, Crown, User as UserIcon, UserPlus, ShieldAlert, KeyRound, Edit3, X, Check } from 'lucide-react';
 
 export default function AdminUsersPage() {
-  const { users, updateUserRole, addAdminUser, isLoaded } = useCatalogStore();
+  const { users, updateUserRole, addAdminUser, saveUsers, isLoaded } = useCatalogStore();
   const [newAdminName, setNewAdminName] = useState('');
   const [newAdminEmail, setNewAdminEmail] = useState('');
   const [newAdminRole, setNewAdminRole] = useState<'admin' | 'vip' | 'user'>('admin');
   const [showAddForm, setShowAddForm] = useState(false);
+  const [editingUser, setEditingUser] = useState<AdminUser | null>(null);
 
   if (!isLoaded) {
     return (
@@ -31,6 +32,16 @@ export default function AdminUsersPage() {
     alert(`Successfully granted ${newAdminRole.toUpperCase()} permissions to ${newAdminEmail}!`);
   };
 
+  const handleSaveUserEdit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingUser) return;
+
+    const updated = users.map((u) => (u.id === editingUser.id ? editingUser : u));
+    saveUsers(updated);
+    setEditingUser(null);
+    alert(`User "${editingUser.name}" updated successfully!`);
+  };
+
   return (
     <div className="space-y-8 text-foreground">
       {/* Header */}
@@ -40,7 +51,7 @@ export default function AdminUsersPage() {
             Executive Permission Delegation
           </span>
           <h1 className="font-serif text-3xl sm:text-4xl text-foreground font-medium">
-            User & Admin Role Manager
+            User & Admin Role Manager ({users.length} Users)
           </h1>
         </div>
 
@@ -153,7 +164,7 @@ export default function AdminUsersPage() {
                 <th className="px-6 py-4">Current Role</th>
                 <th className="px-6 py-4">Orders</th>
                 <th className="px-6 py-4">Total Spent</th>
-                <th className="px-6 py-4 text-right">Assign Role</th>
+                <th className="px-6 py-4 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border text-foreground">
@@ -192,16 +203,16 @@ export default function AdminUsersPage() {
                   <td className="px-6 py-4 font-medium text-foreground">{formatPrice(u.totalSpent)}</td>
 
                   <td className="px-6 py-4 text-right">
-                    <select
-                      value={u.role}
-                      disabled={u.isParentAdmin}
-                      onChange={(e) => updateUserRole(u.id, e.target.value as AdminUser['role'])}
-                      className="bg-background border border-border text-xs text-foreground px-3 py-1.5 rounded-lg uppercase focus:border-[#C9A96E] focus:outline-none disabled:opacity-50"
-                    >
-                      <option value="user">User</option>
-                      <option value="vip">VIP Connoisseur</option>
-                      <option value="admin">Administrator</option>
-                    </select>
+                    <div className="flex items-center justify-end gap-2">
+                      <button
+                        onClick={() => setEditingUser(u)}
+                        disabled={u.isParentAdmin}
+                        className="px-3 py-1.5 bg-[#C9A96E]/10 hover:bg-[#C9A96E]/20 text-[#C9A96E] border border-[#C9A96E]/30 rounded-lg text-xs font-semibold uppercase tracking-wider transition-colors inline-flex items-center gap-1.5 disabled:opacity-50"
+                      >
+                        <Edit3 className="w-3.5 h-3.5" />
+                        <span>Edit User</span>
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -209,6 +220,79 @@ export default function AdminUsersPage() {
           </table>
         </div>
       </div>
+
+      {/* Edit User Modal */}
+      {editingUser && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
+          <div className="relative w-full max-w-lg bg-surface border border-border rounded-2xl p-6 sm:p-8 space-y-6 shadow-2xl">
+            <button
+              onClick={() => setEditingUser(null)}
+              className="absolute top-4 right-4 text-foreground-muted hover:text-foreground p-2"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="space-y-1">
+              <span className="text-[#C9A96E] text-[10px] uppercase tracking-widest font-semibold block">Edit User Account</span>
+              <h2 className="font-serif text-2xl text-foreground font-medium">Modify User Credentials & Role</h2>
+            </div>
+
+            <form onSubmit={handleSaveUserEdit} className="space-y-4">
+              <div>
+                <label className="block text-xs uppercase tracking-widest text-foreground-muted mb-1 font-medium">Full Name</label>
+                <input
+                  type="text"
+                  required
+                  value={editingUser.name}
+                  onChange={(e) => setEditingUser({ ...editingUser, name: e.target.value })}
+                  className="w-full bg-background border border-border px-4 py-2.5 text-sm text-foreground focus:border-[#C9A96E] focus:outline-none rounded-xl"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs uppercase tracking-widest text-foreground-muted mb-1 font-medium">Email Address</label>
+                <input
+                  type="email"
+                  required
+                  value={editingUser.email}
+                  onChange={(e) => setEditingUser({ ...editingUser, email: e.target.value })}
+                  className="w-full bg-background border border-border px-4 py-2.5 text-sm text-foreground focus:border-[#C9A96E] focus:outline-none rounded-xl font-mono text-xs"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs uppercase tracking-widest text-foreground-muted mb-1 font-medium">Assigned Role</label>
+                <select
+                  value={editingUser.role}
+                  onChange={(e) => setEditingUser({ ...editingUser, role: e.target.value as AdminUser['role'] })}
+                  className="w-full bg-background border border-border px-4 py-2.5 text-sm text-foreground focus:border-[#C9A96E] focus:outline-none rounded-xl uppercase"
+                >
+                  <option value="user">User (Standard Client)</option>
+                  <option value="vip">VIP Connoisseur</option>
+                  <option value="admin">Administrator (Full Access)</option>
+                </select>
+              </div>
+
+              <div className="flex justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setEditingUser(null)}
+                  className="px-5 py-2.5 border border-border text-foreground text-xs uppercase tracking-wider rounded-xl hover:bg-background"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-6 py-2.5 bg-[#C9A96E] hover:bg-[#D4B87C] text-black font-semibold text-xs uppercase tracking-widest rounded-xl transition-all shadow-md flex items-center gap-1.5"
+                >
+                  <Check className="w-4 h-4" />
+                  <span>Save User</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

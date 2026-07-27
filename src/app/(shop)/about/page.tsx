@@ -1,17 +1,16 @@
 import { constructMetadata } from '@/lib/metadata';
-import { Container } from '@/components/layout/container';
+import { AboutContent } from '@/components/about/about-content';
 
-export const metadata = constructMetadata({ title: 'About Us | Piyella' });
+export const metadata = constructMetadata({
+  title: 'About Us | Piyella',
+  description: 'Discover the story, heritage craftsmanship, and slow artistry behind Piyella - luxury handcrafted fashion and modern heirlooms.'
+});
 
 export default function AboutPage() {
   return (
-    <div className="py-24 min-h-screen">
-      <Container className="max-w-3xl text-center">
-        <h1 className="font-heading text-4xl mb-8">About Piyella</h1>
-        <p className="text-foreground-muted mb-6">
-          Piyella is a premium luxury fashion ecommerce platform dedicated to bringing you curated elegance from around the world.
-        </p>
-      </Container>
-    </div>
+    <main className="min-h-screen bg-black">
+      <AboutContent />
+    </main>
   );
 }
+

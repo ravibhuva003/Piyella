@@ -3,11 +3,12 @@
 import React, { useState } from 'react';
 import { useCatalogStore, AdminOrder } from '@/lib/store/catalog-store';
 import { formatPrice } from '@/lib/utils';
-import { Gift, X, Heart } from 'lucide-react';
+import { Gift, X, Heart, Edit3, Check } from 'lucide-react';
 
 export default function AdminOrdersPage() {
-  const { orders, updateOrderStatus, isLoaded } = useCatalogStore();
+  const { orders, updateOrderStatus, saveOrders, isLoaded } = useCatalogStore();
   const [activeGiftModal, setActiveGiftModal] = useState<AdminOrder['giftPackaging'] | null>(null);
+  const [editingOrder, setEditingOrder] = useState<AdminOrder | null>(null);
 
   if (!isLoaded) {
     return (
@@ -17,37 +18,47 @@ export default function AdminOrdersPage() {
     );
   }
 
+  const handleSaveOrderEdit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingOrder) return;
+
+    const updated = orders.map((o) => (o.id === editingOrder.id ? editingOrder : o));
+    saveOrders(updated);
+    setEditingOrder(null);
+    alert(`Order ${editingOrder.id} updated successfully!`);
+  };
+
   return (
-    <div className="space-y-8 text-white">
+    <div className="space-y-8 text-foreground">
       <div>
         <span className="text-[#C9A96E] text-xs uppercase tracking-[0.3em] font-medium block mb-1">
           Fulfillment & Logistics
         </span>
-        <h1 className="font-serif text-3xl sm:text-4xl text-white font-medium">
-          Order Management Processor
+        <h1 className="font-serif text-3xl sm:text-4xl text-foreground font-medium">
+          Order Management Processor ({orders.length} Orders)
         </h1>
       </div>
 
-      <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
+      <div className="bg-surface border border-border rounded-2xl overflow-hidden shadow-2xl">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
-            <thead className="bg-white/5 text-[10px] uppercase tracking-widest text-white/50 border-b border-white/10">
+            <thead className="bg-background text-[10px] uppercase tracking-widest text-foreground-muted border-b border-border">
               <tr>
                 <th className="px-6 py-4">Order Reference</th>
                 <th className="px-6 py-4">Client Name & Email</th>
                 <th className="px-6 py-4">Gift Options</th>
                 <th className="px-6 py-4">Status</th>
                 <th className="px-6 py-4">Amount</th>
-                <th className="px-6 py-4 text-right">Update Status</th>
+                <th className="px-6 py-4 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5 text-white/80">
+            <tbody className="divide-y divide-border text-foreground">
               {orders.map((o) => (
-                <tr key={o.id} className="hover:bg-white/5 transition-colors">
+                <tr key={o.id} className="hover:bg-background/50 transition-colors">
                   <td className="px-6 py-4 font-mono text-xs text-[#C9A96E] font-medium">{o.id}</td>
                   <td className="px-6 py-4">
-                    <div className="font-medium text-white">{o.customerName}</div>
-                    <div className="text-[11px] text-white/40 font-light">{o.customerEmail}</div>
+                    <div className="font-medium text-foreground">{o.customerName}</div>
+                    <div className="text-[11px] text-foreground-muted font-light">{o.customerEmail}</div>
                   </td>
                   <td className="px-6 py-4">
                     {o.giftPackaging?.enabled ? (
@@ -59,7 +70,7 @@ export default function AdminOrdersPage() {
                         <span>Gift Wrapped</span>
                       </button>
                     ) : (
-                      <span className="text-xs text-white/30 font-light">Standard Box</span>
+                      <span className="text-xs text-foreground-muted font-light">Standard Box</span>
                     )}
                   </td>
                   <td className="px-6 py-4">
@@ -72,19 +83,17 @@ export default function AdminOrdersPage() {
                       {o.status}
                     </span>
                   </td>
-                  <td className="px-6 py-4 font-medium text-white">{formatPrice(o.totalAmount)}</td>
+                  <td className="px-6 py-4 font-medium text-foreground">{formatPrice(o.totalAmount)}</td>
                   <td className="px-6 py-4 text-right">
-                    <select
-                      value={o.status}
-                      onChange={(e) => updateOrderStatus(o.id, e.target.value as AdminOrder['status'])}
-                      className="bg-black border border-white/20 text-xs text-white px-3 py-1.5 rounded-lg uppercase focus:border-[#C9A96E] focus:outline-none"
-                    >
-                      <option value="Pending">Pending</option>
-                      <option value="Processing">Processing</option>
-                      <option value="Shipped">Shipped</option>
-                      <option value="Delivered">Delivered</option>
-                      <option value="Cancelled">Cancelled</option>
-                    </select>
+                    <div className="flex items-center justify-end gap-2">
+                      <button
+                        onClick={() => setEditingOrder(o)}
+                        className="px-3 py-1.5 bg-[#C9A96E]/10 hover:bg-[#C9A96E]/20 text-[#C9A96E] border border-[#C9A96E]/30 rounded-lg text-xs font-semibold uppercase tracking-wider transition-colors inline-flex items-center gap-1.5"
+                      >
+                        <Edit3 className="w-3.5 h-3.5" />
+                        <span>Edit Order</span>
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -93,43 +102,138 @@ export default function AdminOrdersPage() {
         </div>
       </div>
 
+      {/* Edit Order Modal */}
+      {editingOrder && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
+          <div className="relative w-full max-w-lg bg-surface border border-border rounded-2xl p-6 sm:p-8 space-y-6 shadow-2xl">
+            <button
+              onClick={() => setEditingOrder(null)}
+              className="absolute top-4 right-4 text-foreground-muted hover:text-foreground p-2"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="space-y-1">
+              <span className="text-[#C9A96E] text-[10px] uppercase tracking-widest font-semibold block">Edit Order</span>
+              <h2 className="font-serif text-2xl text-foreground font-medium">Modify Order Details ({editingOrder.id})</h2>
+            </div>
+
+            <form onSubmit={handleSaveOrderEdit} className="space-y-4">
+              <div>
+                <label className="block text-xs uppercase tracking-widest text-foreground-muted mb-1 font-medium">Customer Name</label>
+                <input
+                  type="text"
+                  required
+                  value={editingOrder.customerName}
+                  onChange={(e) => setEditingOrder({ ...editingOrder, customerName: e.target.value })}
+                  className="w-full bg-background border border-border px-4 py-2.5 text-sm text-foreground focus:border-[#C9A96E] focus:outline-none rounded-xl"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs uppercase tracking-widest text-foreground-muted mb-1 font-medium">Customer Email</label>
+                <input
+                  type="email"
+                  required
+                  value={editingOrder.customerEmail}
+                  onChange={(e) => setEditingOrder({ ...editingOrder, customerEmail: e.target.value })}
+                  className="w-full bg-background border border-border px-4 py-2.5 text-sm text-foreground focus:border-[#C9A96E] focus:outline-none rounded-xl font-mono text-xs"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs uppercase tracking-widest text-foreground-muted mb-1 font-medium">Total Amount (₹)</label>
+                  <input
+                    type="number"
+                    required
+                    value={editingOrder.totalAmount}
+                    onChange={(e) => setEditingOrder({ ...editingOrder, totalAmount: Number(e.target.value) })}
+                    className="w-full bg-background border border-border px-4 py-2.5 text-sm text-foreground focus:border-[#C9A96E] focus:outline-none rounded-xl font-mono"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs uppercase tracking-widest text-foreground-muted mb-1 font-medium">Fulfillment Status</label>
+                  <select
+                    value={editingOrder.status}
+                    onChange={(e) => setEditingOrder({ ...editingOrder, status: e.target.value as AdminOrder['status'] })}
+                    className="w-full bg-background border border-border px-4 py-2.5 text-sm text-foreground focus:border-[#C9A96E] focus:outline-none rounded-xl uppercase"
+                  >
+                    <option value="Pending">Pending</option>
+                    <option value="Processing">Processing</option>
+                    <option value="Shipped">Shipped</option>
+                    <option value="Delivered">Delivered</option>
+                    <option value="Cancelled">Cancelled</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs uppercase tracking-widest text-foreground-muted mb-1 font-medium">Tracking AWB Number</label>
+                <input
+                  type="text"
+                  value={editingOrder.trackingNumber || ''}
+                  onChange={(e) => setEditingOrder({ ...editingOrder, trackingNumber: e.target.value })}
+                  placeholder="e.g. AWB-9912048"
+                  className="w-full bg-background border border-border px-4 py-2.5 text-sm text-foreground focus:border-[#C9A96E] focus:outline-none rounded-xl font-mono text-xs"
+                />
+              </div>
+
+              <div className="flex justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setEditingOrder(null)}
+                  className="px-5 py-2.5 border border-border text-foreground text-xs uppercase tracking-wider rounded-xl hover:bg-background"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-6 py-2.5 bg-[#C9A96E] hover:bg-[#D4B87C] text-black font-semibold text-xs uppercase tracking-widest rounded-xl transition-all shadow-md flex items-center gap-1.5"
+                >
+                  <Check className="w-4 h-4" />
+                  <span>Save Order</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       {/* Gift Details Modal */}
       {activeGiftModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
-          <div className="relative w-full max-w-md bg-[#0a0a0a] border border-white/10 rounded-2xl p-6 sm:p-8 space-y-6 shadow-2xl">
+          <div className="relative w-full max-w-md bg-surface border border-border rounded-2xl p-6 sm:p-8 space-y-6 shadow-2xl">
             <button
               onClick={() => setActiveGiftModal(null)}
-              className="absolute top-4 right-4 p-2 text-white/50 hover:text-white transition-colors"
+              className="absolute top-4 right-4 text-foreground-muted hover:text-foreground p-2"
             >
-              <X size={20} />
+              <X className="w-5 h-5" />
             </button>
 
-            <div className="flex items-center gap-2 text-[#C9A96E]">
-              <Gift size={20} />
-              <h3 className="font-serif text-2xl text-white font-medium">Gift Packaging Ticket</h3>
+            <div className="space-y-1">
+              <span className="text-[#C9A96E] text-[10px] uppercase tracking-widest font-semibold block">Bespoke Gift Service</span>
+              <h2 className="font-serif text-2xl text-foreground font-medium">Bespoke Gift Card & Note</h2>
             </div>
 
-            <div className="space-y-3 text-xs">
-              <div className="p-3 bg-white/5 border border-white/10 rounded-xl space-y-1">
-                <span className="text-[10px] uppercase text-white/40 font-bold block">Selected Box Style</span>
-                <span className="text-sm font-serif text-[#C9A96E] font-bold">{activeGiftModal.boxStyleName}</span>
+            <div className="space-y-4 p-4 bg-background border border-border rounded-xl">
+              <div>
+                <span className="text-[10px] uppercase text-foreground-muted block font-semibold">Recipient Name:</span>
+                <span className="text-sm font-medium text-foreground">{activeGiftModal.recipientName}</span>
               </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div className="p-3 bg-white/5 border border-white/10 rounded-xl space-y-1">
-                  <span className="text-[10px] uppercase text-white/40 font-bold block">Recipient Name</span>
-                  <span className="text-white font-medium">{activeGiftModal.recipientName || 'N/A'}</span>
-                </div>
-                <div className="p-3 bg-white/5 border border-white/10 rounded-xl space-y-1">
-                  <span className="text-[10px] uppercase text-white/40 font-bold block">Sender Signature</span>
-                  <span className="text-white font-medium">{activeGiftModal.senderName || 'N/A'}</span>
-                </div>
+              <div>
+                <span className="text-[10px] uppercase text-foreground-muted block font-semibold">Sender Name:</span>
+                <span className="text-sm font-medium text-foreground">{activeGiftModal.senderName}</span>
               </div>
-
-              <div className="p-4 bg-black border border-white/10 rounded-xl space-y-2">
-                <span className="text-[10px] uppercase tracking-widest text-[#C9A96E] font-bold block">Card Message Payload</span>
-                <p className="text-white/80 font-light italic text-xs leading-relaxed">
-                  &ldquo;{activeGiftModal.message || 'No custom message specified.'}&rdquo;
+              <div>
+                <span className="text-[10px] uppercase text-foreground-muted block font-semibold">Packaging Style:</span>
+                <span className="text-sm font-medium text-[#C9A96E]">{activeGiftModal.boxStyleName}</span>
+              </div>
+              <div>
+                <span className="text-[10px] uppercase text-foreground-muted block font-semibold">Gift Message:</span>
+                <p className="text-xs font-serif italic text-foreground leading-relaxed pt-1 bg-surface p-3 rounded-lg border border-border">
+                  &ldquo;{activeGiftModal.message}&rdquo;
                 </p>
               </div>
             </div>

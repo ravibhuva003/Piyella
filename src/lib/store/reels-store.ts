@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { InstagramReel, INITIAL_REELS } from '@/lib/data/reels-data';
 
+export type { InstagramReel };
+
 export function useReelsStore() {
   const [reels, setReels] = useState<InstagramReel[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -49,5 +51,6 @@ export function useReelsStore() {
     addReel,
     togglePinReel,
     deleteReel,
+    saveReels,
   };
 }

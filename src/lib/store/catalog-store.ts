@@ -272,6 +272,8 @@ export function useCatalogStore() {
     updateUserRole,
     addAdminUser,
     addOrder,
+    saveProducts,
+    saveCollections,
     saveOrders,
     saveCoupons,
     saveBanners,

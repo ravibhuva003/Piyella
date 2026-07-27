@@ -3,14 +3,17 @@
 import React, { useState, useRef } from 'react';
 import Image from 'next/image';
 import { useCatalogStore } from '@/lib/store/catalog-store';
-import { Plus, Trash2, FolderTree, Upload, ImagePlus } from 'lucide-react';
+import { Collection } from '@/types/collection';
+import { Plus, Trash2, FolderTree, Upload, Edit3, X, Check } from 'lucide-react';
 
 export default function AdminCategoriesPage() {
-  const { collections, addCollection, deleteCollection, isLoaded } = useCatalogStore();
+  const { collections, addCollection, deleteCollection, saveCollections, isLoaded } = useCatalogStore();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [image, setImage] = useState('');
+  const [editingCategory, setEditingCategory] = useState<Collection | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const editFileInputRef = useRef<HTMLInputElement>(null);
 
   if (!isLoaded) {
     return (
@@ -20,14 +23,18 @@ export default function AdminCategoriesPage() {
     );
   }
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, isEdit = false) => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onload = (event) => {
         const result = event.target?.result as string;
         if (result) {
-          setImage(result);
+          if (isEdit && editingCategory) {
+            setEditingCategory({ ...editingCategory, image: result });
+          } else {
+            setImage(result);
+          }
         }
       };
       reader.readAsDataURL(file);
@@ -54,6 +61,16 @@ export default function AdminCategoriesPage() {
     setDescription('');
     setImage('');
     alert('Category created! Instantly visible on public storefront.');
+  };
+
+  const handleSaveCategoryEdit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingCategory) return;
+
+    const updated = collections.map((c) => (c.id === editingCategory.id ? editingCategory : c));
+    saveCollections(updated);
+    setEditingCategory(null);
+    alert(`Category "${editingCategory.name}" updated successfully!`);
   };
 
   return (
@@ -85,7 +102,7 @@ export default function AdminCategoriesPage() {
           </div>
 
           <div>
-            <label className="block text-xs uppercase tracking-widest text-foreground-muted mb-2 font-medium">Editorial Description</label>
+            <label className="block text-xs uppercase tracking-widest text-foreground-muted mb-2 font-medium font-medium">Editorial Description</label>
             <textarea
               rows={3}
               value={description}
@@ -95,7 +112,7 @@ export default function AdminCategoriesPage() {
             />
           </div>
 
-          {/* Direct Image File Upload & URL Input */}
+          {/* Image Upload */}
           <div className="space-y-3">
             <label className="block text-xs uppercase tracking-widest text-foreground-muted font-medium">
               Category Cover Photo
@@ -105,7 +122,7 @@ export default function AdminCategoriesPage() {
               ref={fileInputRef}
               type="file"
               accept="image/*"
-              onChange={handleFileUpload}
+              onChange={(e) => handleFileUpload(e, false)}
               className="hidden"
             />
 
@@ -169,13 +186,22 @@ export default function AdminCategoriesPage() {
                     <p className="text-white/70 text-xs font-light line-clamp-1">{col.description}</p>
                   </div>
 
-                  <button
-                    onClick={() => deleteCollection(col.id)}
-                    className="absolute top-4 right-4 z-20 p-2 bg-red-500/80 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
-                    title="Delete Category"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+                  <div className="absolute top-4 right-4 z-20 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button
+                      onClick={() => setEditingCategory(col)}
+                      className="p-2 bg-[#C9A96E] text-black rounded-full hover:bg-[#D4B87C] shadow-lg"
+                      title="Edit Category"
+                    >
+                      <Edit3 className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => deleteCollection(col.id)}
+                      className="p-2 bg-red-500/80 text-white rounded-full hover:bg-red-600 shadow-lg"
+                      title="Delete Category"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -188,6 +214,94 @@ export default function AdminCategoriesPage() {
           )}
         </div>
       </div>
+
+      {/* Edit Category Modal */}
+      {editingCategory && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
+          <div className="relative w-full max-w-lg bg-surface border border-border rounded-2xl p-6 sm:p-8 space-y-6 shadow-2xl">
+            <button
+              onClick={() => setEditingCategory(null)}
+              className="absolute top-4 right-4 text-foreground-muted hover:text-foreground p-2"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="space-y-1">
+              <span className="text-[#C9A96E] text-[10px] uppercase tracking-widest font-semibold block">Edit Category</span>
+              <h2 className="font-serif text-2xl text-foreground font-medium">Modify Category Details</h2>
+            </div>
+
+            <form onSubmit={handleSaveCategoryEdit} className="space-y-4">
+              <div>
+                <label className="block text-xs uppercase tracking-widest text-foreground-muted mb-1 font-medium">Category Name</label>
+                <input
+                  type="text"
+                  required
+                  value={editingCategory.name}
+                  onChange={(e) => setEditingCategory({ ...editingCategory, name: e.target.value })}
+                  className="w-full bg-background border border-border px-4 py-2.5 text-sm text-foreground focus:border-[#C9A96E] focus:outline-none rounded-xl"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs uppercase tracking-widest text-foreground-muted mb-1 font-medium">Description</label>
+                <textarea
+                  rows={3}
+                  value={editingCategory.description || ''}
+                  onChange={(e) => setEditingCategory({ ...editingCategory, description: e.target.value })}
+                  className="w-full bg-background border border-border px-4 py-2.5 text-sm text-foreground focus:border-[#C9A96E] focus:outline-none rounded-xl font-light"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-xs uppercase tracking-widest text-foreground-muted font-medium">Cover Photo</label>
+                
+                <input
+                  ref={editFileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleFileUpload(e, true)}
+                  className="hidden"
+                />
+
+                <button
+                  type="button"
+                  onClick={() => editFileInputRef.current?.click()}
+                  className="w-full py-2.5 bg-background border border-dashed border-border hover:border-[#C9A96E] text-foreground text-xs uppercase font-semibold tracking-wider rounded-xl transition-all flex items-center justify-center gap-2 mb-2"
+                >
+                  <Upload className="w-3.5 h-3.5 text-[#C9A96E]" />
+                  <span>Choose New Image File</span>
+                </button>
+
+                <input
+                  type="url"
+                  value={editingCategory.image || ''}
+                  onChange={(e) => setEditingCategory({ ...editingCategory, image: e.target.value })}
+                  placeholder="https://images.unsplash.com/..."
+                  className="w-full bg-background border border-border px-4 py-2.5 text-xs text-foreground focus:border-[#C9A96E] focus:outline-none rounded-xl font-mono"
+                />
+              </div>
+
+              <div className="flex justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setEditingCategory(null)}
+                  className="px-5 py-2.5 border border-border text-foreground text-xs uppercase tracking-wider rounded-xl hover:bg-background"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-6 py-2.5 bg-[#C9A96E] hover:bg-[#D4B87C] text-black font-semibold text-xs uppercase tracking-widest rounded-xl transition-all shadow-md flex items-center gap-1.5"
+                >
+                  <Check className="w-4 h-4" />
+                  <span>Save Category</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
