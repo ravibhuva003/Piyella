@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useCatalogStore } from '@/lib/store/catalog-store';
 import { ImageUploader } from '@/components/admin/image-uploader';
 import { ProductImage } from '@/types/product';
-import { ArrowLeft, Sparkles, Check } from 'lucide-react';
+import { ArrowLeft, Sparkles, Check, Tag, Flame, Sparkle } from 'lucide-react';
 import Link from 'next/link';
 
 export default function NewProductPage() {
@@ -14,22 +14,27 @@ export default function NewProductPage() {
 
   const [name, setName] = useState('');
   const [slug, setSlug] = useState('');
-  const [category, setCategory] = useState('women');
+  const [category, setCategory] = useState('Handbags');
   const [price, setPrice] = useState<number>(45000);
   const [compareAtPrice, setCompareAtPrice] = useState<number | undefined>(55000);
   const [sku, setSku] = useState(`PYL-${Math.floor(1000 + Math.random() * 9000)}`);
   const [inventory, setInventory] = useState<number>(15);
   const [description, setDescription] = useState('');
   const [shortDescription, setShortDescription] = useState('');
-  const [isFeatured, setIsFeatured] = useState(true);
+  
+  // Category Display Flags
   const [isNew, setIsNew] = useState(true);
+  const [isBestSeller, setIsBestSeller] = useState(false);
+  const [isSale, setIsSale] = useState(false);
+  const [isFeatured, setIsFeatured] = useState(true);
+
   const [images, setImages] = useState<ProductImage[]>([
     {
       id: 'img_default',
-      url: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1000&auto=format&fit=crop',
+      url: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?q=80&w=1000&auto=format&fit=crop',
       alt: 'Luxury Product Photo',
       width: 1000,
-      height: 1500,
+      height: 1000,
       isPrimary: true,
     },
   ]);
@@ -47,31 +52,35 @@ export default function NewProductPage() {
       return;
     }
 
+    const tags: string[] = [];
+    if (isNew) tags.push('new-arrivals');
+    if (isBestSeller) tags.push('best-sellers');
+    if (isSale) tags.push('sale');
+
     addProduct({
       name,
       slug: slug || `product-${Date.now()}`,
       description: description || 'Handcrafted Italian luxury piece.',
       shortDescription: shortDescription || 'Bespoke luxury piece.',
       price,
-      compareAtPrice,
+      compareAtPrice: isSale ? (compareAtPrice || price * 1.2) : undefined,
       currency: 'INR',
       images,
       category,
-      tags: ['featured', 'new'],
-      variants: [
-        { id: `v_${Date.now()}_s`, name: 'S', type: 'size', value: 'S', inventory: Math.floor(inventory / 2), sku: `${sku}-S` },
-        { id: `v_${Date.now()}_m`, name: 'M', type: 'size', value: 'M', inventory: Math.ceil(inventory / 2), sku: `${sku}-M` },
-      ],
+      tags,
+      variants: [],
       inventory,
       sku,
       isActive: true,
       isFeatured,
       isNew,
+      isBestSeller,
+      isSale,
       ratings: 5.0,
       reviewCount: 1,
-    });
+    } as any);
 
-    alert('Product created successfully! It is now live on the public website.');
+    alert('Product created successfully! It is now live under selected category pages.');
     router.push('/admin/products');
   };
 
@@ -94,13 +103,14 @@ export default function NewProductPage() {
           Create Luxury Product
         </h1>
         <p className="text-sm text-white/60 font-light">
-          Add a new handcrafted item to the catalog. Changes are reflected instantly.
+          Add a new handcrafted item to the catalog. Select special category placements below.
         </p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* Form Grid */}
         <div className="bg-[#0a0a0a] border border-white/10 rounded-2xl p-6 sm:p-8 space-y-6">
+          
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div>
               <label className="block text-xs uppercase tracking-widest text-white/70 mb-2 font-medium">
@@ -111,7 +121,7 @@ export default function NewProductPage() {
                 required
                 value={name}
                 onChange={handleNameChange}
-                placeholder="e.g. Mulberry Silk Evening Gown"
+                placeholder="e.g. Gold Thread Silk Embroidery Clutch"
                 className="w-full bg-black/60 border border-white/10 px-4 py-3 text-sm text-white focus:border-[#C9A96E] focus:outline-none rounded-xl"
               />
             </div>
@@ -129,6 +139,64 @@ export default function NewProductPage() {
             </div>
           </div>
 
+          {/* Category Badges & Placement Toggles */}
+          <div className="p-5 bg-black/80 border border-[#C9A96E]/30 rounded-2xl space-y-4">
+            <div className="flex items-center gap-2 text-[#C9A96E] text-xs uppercase tracking-widest font-semibold">
+              <Sparkles className="w-4 h-4" />
+              <span>Special Collection Placements</span>
+            </div>
+            <p className="text-xs text-white/60 font-light">
+              Check the boxes below to feature this product on specific storefront collection pages.
+            </p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+              <label className={`flex items-center gap-3 p-4 rounded-xl border cursor-pointer transition-all ${
+                isNew ? 'bg-emerald-500/10 border-emerald-500/40 text-emerald-300' : 'bg-white/5 border-white/10 text-white/70'
+              }`}>
+                <input
+                  type="checkbox"
+                  checked={isNew}
+                  onChange={(e) => setIsNew(e.target.checked)}
+                  className="w-4 h-4 accent-[#C9A96E] rounded"
+                />
+                <div>
+                  <span className="font-semibold text-xs uppercase block">1. New Arrival</span>
+                  <span className="text-[10px] opacity-70 block font-light">Show in /collections/new-arrivals</span>
+                </div>
+              </label>
+
+              <label className={`flex items-center gap-3 p-4 rounded-xl border cursor-pointer transition-all ${
+                isBestSeller ? 'bg-purple-500/10 border-purple-500/40 text-purple-300' : 'bg-white/5 border-white/10 text-white/70'
+              }`}>
+                <input
+                  type="checkbox"
+                  checked={isBestSeller}
+                  onChange={(e) => setIsBestSeller(e.target.checked)}
+                  className="w-4 h-4 accent-[#C9A96E] rounded"
+                />
+                <div>
+                  <span className="font-semibold text-xs uppercase block">2. Best Seller</span>
+                  <span className="text-[10px] opacity-70 block font-light">Show in /collections/best-sellers</span>
+                </div>
+              </label>
+
+              <label className={`flex items-center gap-3 p-4 rounded-xl border cursor-pointer transition-all ${
+                isSale ? 'bg-amber-500/10 border-amber-500/40 text-amber-300' : 'bg-white/5 border-white/10 text-white/70'
+              }`}>
+                <input
+                  type="checkbox"
+                  checked={isSale}
+                  onChange={(e) => setIsSale(e.target.checked)}
+                  className="w-4 h-4 accent-[#C9A96E] rounded"
+                />
+                <div>
+                  <span className="font-semibold text-xs uppercase block">3. Special Sale</span>
+                  <span className="text-[10px] opacity-70 block font-light">Show in /collections/sale</span>
+                </div>
+              </label>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             <div>
               <label className="block text-xs uppercase tracking-widest text-white/70 mb-2 font-medium">
@@ -137,12 +205,12 @@ export default function NewProductPage() {
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                className="w-full bg-black/60 border border-white/10 px-4 py-3 text-sm text-white focus:border-[#C9A96E] focus:outline-none rounded-xl uppercase"
+                className="w-full bg-black/60 border border-white/10 px-4 py-3 text-sm text-white focus:border-[#C9A96E] focus:outline-none rounded-xl"
               >
-                <option value="women">Women</option>
-                <option value="men">Men</option>
-                <option value="accessories">Accessories</option>
-                <option value="timepieces">Timepieces</option>
+                <option value="Handbags">Handbags</option>
+                <option value="Accessories">Accessories</option>
+                <option value="Decor">Decor & Cushions</option>
+                <option value="Artwork">Artwork & Tapestries</option>
               </select>
             </div>
 

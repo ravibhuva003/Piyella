@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { useCatalogStore } from '@/lib/store/catalog-store';
 import { Product } from '@/types/product';
 import { formatPrice } from '@/lib/utils';
-import { Plus, Search, Trash2, Edit3, Eye, Package, Sparkles, X, Check } from 'lucide-react';
+import { Plus, Search, Trash2, Edit3, Eye, Package, Sparkles, X, Check, Flame, Tag } from 'lucide-react';
 
 export default function AdminProductsPage() {
   const { products, updateProduct, deleteProduct, isLoaded } = useCatalogStore();
@@ -37,7 +37,10 @@ export default function AdminProductsPage() {
       compareAtPrice: editingProduct.compareAtPrice ? Number(editingProduct.compareAtPrice) : undefined,
       category: editingProduct.category,
       inventory: Number(editingProduct.inventory),
-    });
+      isNew: editingProduct.isNew,
+      isBestSeller: (editingProduct as any).isBestSeller,
+      isSale: (editingProduct as any).isSale,
+    } as any);
 
     setEditingProduct(null);
     alert(`Product "${editingProduct.name}" updated successfully!`);
@@ -85,6 +88,7 @@ export default function AdminProductsPage() {
               <tr>
                 <th className="px-6 py-4">Product</th>
                 <th className="px-6 py-4">Category</th>
+                <th className="px-6 py-4">Placements</th>
                 <th className="px-6 py-4">Price</th>
                 <th className="px-6 py-4">Stock</th>
                 <th className="px-6 py-4 text-right">Actions</th>
@@ -93,6 +97,10 @@ export default function AdminProductsPage() {
             <tbody className="divide-y divide-border text-foreground">
               {filteredProducts.map((prod) => {
                 const img = prod.images?.find((i) => i.isPrimary)?.url || prod.images?.[0]?.url || 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?q=80&w=1000&auto=format&fit=crop';
+                const isNewProd = prod.isNew || (prod as any).isNewArrival;
+                const isBest = (prod as any).isBestSeller || prod.ratings >= 4.8;
+                const isSal = (prod as any).isSale || (prod.compareAtPrice && prod.compareAtPrice > prod.price);
+
                 return (
                   <tr key={prod.id} className="hover:bg-background/50 transition-colors">
                     <td className="px-6 py-4 flex items-center gap-4">
@@ -105,8 +113,16 @@ export default function AdminProductsPage() {
                       </div>
                     </td>
 
-                    <td className="px-6 py-4 text-xs uppercase tracking-wider text-foreground-muted">
+                    <td className="px-6 py-4 text-xs uppercase tracking-wider text-foreground-muted font-semibold">
                       {prod.category}
+                    </td>
+
+                    <td className="px-6 py-4">
+                      <div className="flex flex-wrap gap-1">
+                        {isNewProd && <span className="px-2 py-0.5 text-[9px] uppercase font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full">New Arrival</span>}
+                        {isBest && <span className="px-2 py-0.5 text-[9px] uppercase font-bold bg-purple-500/10 text-purple-400 border border-purple-500/20 rounded-full">Best Seller</span>}
+                        {isSal && <span className="px-2 py-0.5 text-[9px] uppercase font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-full">Sale</span>}
+                      </div>
                     </td>
 
                     <td className="px-6 py-4 font-medium text-foreground">
@@ -165,7 +181,7 @@ export default function AdminProductsPage() {
       {/* Edit Product Modal */}
       {editingProduct && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
-          <div className="relative w-full max-w-lg bg-surface border border-border rounded-2xl p-6 sm:p-8 space-y-6 shadow-2xl">
+          <div className="relative w-full max-w-lg bg-surface border border-border rounded-2xl p-6 sm:p-8 space-y-6 shadow-2xl max-h-[90vh] overflow-y-auto">
             <button
               onClick={() => setEditingProduct(null)}
               className="absolute top-4 right-4 text-foreground-muted hover:text-foreground p-2"
@@ -190,6 +206,42 @@ export default function AdminProductsPage() {
                 />
               </div>
 
+              {/* Placement Checkboxes */}
+              <div className="p-4 bg-background border border-border rounded-xl space-y-3">
+                <span className="text-xs uppercase tracking-wider text-[#C9A96E] font-semibold block">Storefront Placements</span>
+                <div className="space-y-2 text-xs">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={editingProduct.isNew}
+                      onChange={(e) => setEditingProduct({ ...editingProduct, isNew: e.target.checked })}
+                      className="w-4 h-4 accent-[#C9A96E]"
+                    />
+                    <span>1. Show in <b>New Arrivals</b> Collection</span>
+                  </label>
+
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={(editingProduct as any).isBestSeller ?? false}
+                      onChange={(e) => setEditingProduct({ ...editingProduct, isBestSeller: e.target.checked } as any)}
+                      className="w-4 h-4 accent-[#C9A96E]"
+                    />
+                    <span>2. Show in <b>Best Sellers</b> Collection</span>
+                  </label>
+
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={(editingProduct as any).isSale ?? false}
+                      onChange={(e) => setEditingProduct({ ...editingProduct, isSale: e.target.checked } as any)}
+                      className="w-4 h-4 accent-[#C9A96E]"
+                    />
+                    <span>3. Show in <b>Special Sale</b> Collection</span>
+                  </label>
+                </div>
+              </div>
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs uppercase tracking-widest text-foreground-muted mb-1 font-medium">Price (₹)</label>
@@ -198,7 +250,7 @@ export default function AdminProductsPage() {
                     required
                     value={editingProduct.price}
                     onChange={(e) => setEditingProduct({ ...editingProduct, price: Number(e.target.value) })}
-                    className="w-full bg-background border border-border px-4 py-2.5 text-sm text-foreground focus:border-[#C9A96E] focus:outline-none rounded-xl"
+                    className="w-full bg-background border border-border px-4 py-2.5 text-sm text-foreground focus:border-[#C9A96E] focus:outline-none rounded-xl font-mono"
                   />
                 </div>
 
@@ -209,7 +261,7 @@ export default function AdminProductsPage() {
                     required
                     value={editingProduct.inventory}
                     onChange={(e) => setEditingProduct({ ...editingProduct, inventory: Number(e.target.value) })}
-                    className="w-full bg-background border border-border px-4 py-2.5 text-sm text-foreground focus:border-[#C9A96E] focus:outline-none rounded-xl"
+                    className="w-full bg-background border border-border px-4 py-2.5 text-sm text-foreground focus:border-[#C9A96E] focus:outline-none rounded-xl font-mono"
                   />
                 </div>
               </div>
