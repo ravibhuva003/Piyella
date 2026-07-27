@@ -6,11 +6,20 @@ const isProtectedRoute = createRouteMatcher([
   '/checkout(.*)',
 ]);
 
+// Explicitly match /admin dashboard routes while excluding /admin-login
 const isAdminRoute = createRouteMatcher([
-  '/admin(.*)',
+  '/admin',
+  '/admin/(.*)',
 ]);
 
 export default clerkMiddleware(async (auth, req) => {
+  const pathname = req.nextUrl.pathname;
+
+  // Never match /admin-login as an admin protected route
+  if (pathname.startsWith('/admin-login')) {
+    return NextResponse.next();
+  }
+
   const { userId } = await auth();
   const adminCookie = req.cookies.get('piyella_admin_session')?.value;
 
