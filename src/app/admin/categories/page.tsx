@@ -2,14 +2,15 @@
 
 import React, { useState, useRef } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useCatalogStore } from '@/lib/store/catalog-store';
 import { Collection } from '@/types/collection';
 import { Product } from '@/types/product';
 import { formatPrice } from '@/lib/utils';
-import { Plus, Trash2, FolderTree, Upload, Edit3, X, Check, Sparkles, Flame, Tag, CheckCircle2, Circle } from 'lucide-react';
+import { Plus, Trash2, FolderTree, Upload, Edit3, X, Check, Sparkles, Flame, Tag, CheckCircle2, Circle, Eye, Layers } from 'lucide-react';
 
 export default function AdminCategoriesPage() {
-  const { collections, addCollection, deleteCollection, saveCollections, products, updateProduct, isLoaded } = useCatalogStore();
+  const { collections, addCollection, deleteCollection, saveCollections, products, updateProduct, deleteProduct, isLoaded } = useCatalogStore();
   
   // Navigation Tab State
   const [activeTab, setActiveTab] = useState<'taxonomy' | 'sections'>('sections');
@@ -22,6 +23,9 @@ export default function AdminCategoriesPage() {
   const [description, setDescription] = useState('');
   const [image, setImage] = useState('');
   const [editingCategory, setEditingCategory] = useState<Collection | null>(null);
+
+  // Product Edit Modal State
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const editFileInputRef = useRef<HTMLInputElement>(null);
@@ -84,8 +88,29 @@ export default function AdminCategoriesPage() {
     alert(`Category "${editingCategory.name}" updated successfully!`);
   };
 
+  const handleSaveProductEdit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingProduct) return;
+
+    updateProduct(editingProduct.id, {
+      name: editingProduct.name,
+      price: Number(editingProduct.price),
+      compareAtPrice: editingProduct.compareAtPrice ? Number(editingProduct.compareAtPrice) : undefined,
+      category: editingProduct.category,
+      collectionId: editingProduct.collectionId,
+      inventory: Number(editingProduct.inventory),
+      isNew: editingProduct.isNew,
+      isBestSeller: (editingProduct as any).isBestSeller,
+      isSale: (editingProduct as any).isSale,
+    } as any);
+
+    setEditingProduct(null);
+    alert(`Product "${editingProduct.name}" updated successfully!`);
+  };
+
   // Toggle product membership in featured sections
-  const handleToggleProductSection = (product: Product, section: 'new-arrivals' | 'best-sellers' | 'sale') => {
+  const handleToggleProductSection = (product: Product, section: 'new-arrivals' | 'best-sellers' | 'sale', e: React.MouseEvent) => {
+    e.stopPropagation();
     let update: Partial<Product> = {};
 
     if (section === 'new-arrivals') {
@@ -163,7 +188,7 @@ export default function AdminCategoriesPage() {
                 </span>
               </div>
               <p className="text-xs text-foreground-muted font-light">
-                Products featured under /collections/new-arrivals
+                Manage products featured under /collections/new-arrivals
               </p>
             </button>
 
@@ -182,7 +207,7 @@ export default function AdminCategoriesPage() {
                 </span>
               </div>
               <p className="text-xs text-foreground-muted font-light">
-                Top performing pieces under /collections/best-sellers
+                Manage top performing pieces under /collections/best-sellers
               </p>
             </button>
 
@@ -201,7 +226,7 @@ export default function AdminCategoriesPage() {
                 </span>
               </div>
               <p className="text-xs text-foreground-muted font-light">
-                Discounted creations under /collections/sale
+                Manage discounted creations under /collections/sale
               </p>
             </button>
           </div>
@@ -211,10 +236,10 @@ export default function AdminCategoriesPage() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-border">
               <div>
                 <h2 className="font-serif text-2xl text-foreground font-medium capitalize">
-                  Manage {featuredSection.replace('-', ' ')} Catalog Placements
+                  Manage {featuredSection.replace('-', ' ')} Items & Details
                 </h2>
                 <p className="text-xs text-foreground-muted font-light">
-                  Click the toggle on any product to instantly add or remove it from this storefront section.
+                  Toggle section activation or click Edit to modify item details, prices, or inventory directly.
                 </p>
               </div>
             </div>
@@ -231,8 +256,7 @@ export default function AdminCategoriesPage() {
                 return (
                   <div
                     key={prod.id}
-                    onClick={() => handleToggleProductSection(prod, featuredSection)}
-                    className={`p-4 rounded-xl border cursor-pointer transition-all duration-200 flex items-center justify-between gap-4 ${
+                    className={`p-4 rounded-xl border transition-all duration-200 flex flex-col justify-between gap-4 ${
                       isSelected
                         ? featuredSection === 'new-arrivals' ? 'bg-emerald-500/10 border-emerald-500/40 shadow-md' :
                           featuredSection === 'best-sellers' ? 'bg-purple-500/10 border-purple-500/40 shadow-md' :
@@ -240,33 +264,66 @@ export default function AdminCategoriesPage() {
                         : 'bg-background/60 border-border hover:border-border/80'
                     }`}
                   >
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div className="relative w-12 h-14 rounded-lg overflow-hidden bg-background shrink-0 border border-border">
-                        <Image src={img} alt={prod.name} fill className="object-cover" />
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="relative w-12 h-16 rounded-lg overflow-hidden bg-background shrink-0 border border-border">
+                          <Image src={img} alt={prod.name} fill className="object-cover" />
+                        </div>
+                        <div className="min-w-0">
+                          <h4 className="font-serif text-sm font-medium text-foreground truncate">{prod.name}</h4>
+                          <span className="text-[11px] text-foreground-muted font-mono">{formatPrice(prod.price, prod.currency)}</span>
+                          <span className="text-[10px] text-[#C9A96E] block font-mono">Collection: {prod.collectionId || 'default'}</span>
+                        </div>
                       </div>
-                      <div className="min-w-0">
-                        <h4 className="font-serif text-sm font-medium text-foreground truncate">{prod.name}</h4>
-                        <span className="text-[11px] text-foreground-muted font-mono">{formatPrice(prod.price, prod.currency)}</span>
-                        <span className="text-[10px] text-[#C9A96E] block font-mono">Collection: {prod.collectionId || 'default'}</span>
-                      </div>
+
+                      {/* Section Toggle Pill */}
+                      <button
+                        type="button"
+                        onClick={(e) => handleToggleProductSection(prod, featuredSection, e)}
+                        title="Toggle Section Placement"
+                        className="shrink-0"
+                      >
+                        {isSelected ? (
+                          <div className={`px-2.5 py-1 rounded-full font-semibold flex items-center gap-1 text-[10px] uppercase tracking-wider ${
+                            featuredSection === 'new-arrivals' ? 'bg-emerald-500 text-black' :
+                            featuredSection === 'best-sellers' ? 'bg-purple-500 text-white' :
+                            'bg-amber-500 text-black'
+                          }`}>
+                            <CheckCircle2 className="w-3.5 h-3.5" />
+                            <span>Active</span>
+                          </div>
+                        ) : (
+                          <div className="px-2.5 py-1 rounded-full text-foreground-muted hover:text-foreground flex items-center gap-1 text-[10px] uppercase tracking-wider border border-border bg-background">
+                            <Circle className="w-3.5 h-3.5" />
+                            <span>Off</span>
+                          </div>
+                        )}
+                      </button>
                     </div>
 
-                    <div className="shrink-0">
-                      {isSelected ? (
-                        <div className={`p-2 rounded-full font-semibold flex items-center gap-1 text-[11px] uppercase tracking-wider ${
-                          featuredSection === 'new-arrivals' ? 'bg-emerald-500 text-black' :
-                          featuredSection === 'best-sellers' ? 'bg-purple-500 text-white' :
-                          'bg-amber-500 text-black'
-                        }`}>
-                          <CheckCircle2 className="w-4 h-4" />
-                          <span className="hidden sm:inline">Active</span>
-                        </div>
-                      ) : (
-                        <div className="p-2 rounded-full text-foreground-muted hover:text-foreground flex items-center gap-1 text-[11px] uppercase tracking-wider border border-border">
-                          <Circle className="w-4 h-4" />
-                          <span className="hidden sm:inline">Off</span>
-                        </div>
-                      )}
+                    {/* Action Toolbar for directly managing item */}
+                    <div className="pt-2 border-t border-border/40 flex items-center justify-between gap-2">
+                      <span className="text-[10px] text-foreground-muted font-mono">Stock: {prod.inventory} units</span>
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          onClick={() => setEditingProduct(prod)}
+                          className="px-2.5 py-1 bg-[#C9A96E]/10 hover:bg-[#C9A96E]/20 text-[#C9A96E] border border-[#C9A96E]/30 rounded-lg text-[10px] font-semibold uppercase tracking-wider transition-colors inline-flex items-center gap-1"
+                        >
+                          <Edit3 className="w-3 h-3" />
+                          <span>Edit Item</span>
+                        </button>
+                        <button
+                          onClick={() => {
+                            if (confirm(`Are you sure you want to delete ${prod.name}?`)) {
+                              deleteProduct(prod.id);
+                            }
+                          }}
+                          className="p-1 text-foreground-muted hover:text-red-400 transition-colors"
+                          title="Delete Item"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 );
@@ -406,6 +463,147 @@ export default function AdminCategoriesPage() {
                 <p className="text-xs text-foreground-muted font-light">Create categories using the form on the left to organize your handcrafted catalog.</p>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Edit Product Modal */}
+      {editingProduct && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
+          <div className="relative w-full max-w-lg bg-surface border border-border rounded-2xl p-6 sm:p-8 space-y-6 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <button
+              onClick={() => setEditingProduct(null)}
+              className="absolute top-4 right-4 text-foreground-muted hover:text-foreground p-2"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="space-y-1">
+              <span className="text-[#C9A96E] text-[10px] uppercase tracking-widest font-semibold block">Edit Product</span>
+              <h2 className="font-serif text-2xl text-foreground font-medium">Modify Item Details</h2>
+            </div>
+
+            <form onSubmit={handleSaveProductEdit} className="space-y-4">
+              <div>
+                <label className="block text-xs uppercase tracking-widest text-foreground-muted mb-1 font-medium">Product Title</label>
+                <input
+                  type="text"
+                  required
+                  value={editingProduct.name}
+                  onChange={(e) => setEditingProduct({ ...editingProduct, name: e.target.value })}
+                  className="w-full bg-background border border-border px-4 py-2.5 text-sm text-foreground focus:border-[#C9A96E] focus:outline-none rounded-xl"
+                />
+              </div>
+
+              {/* Target Collection Selection */}
+              <div>
+                <label className="block text-xs uppercase tracking-widest text-foreground-muted mb-1 font-medium flex items-center gap-1.5">
+                  <Layers className="w-3.5 h-3.5 text-[#C9A96E]" />
+                  <span>Target Collection Curation</span>
+                </label>
+                <select
+                  value={editingProduct.collectionId || 'col_heritage_embroidery'}
+                  onChange={(e) => setEditingProduct({ ...editingProduct, collectionId: e.target.value })}
+                  className="w-full bg-background border border-border px-4 py-2.5 text-sm text-[#C9A96E] font-medium focus:border-[#C9A96E] focus:outline-none rounded-xl"
+                >
+                  <option value="col_heritage_embroidery">Heritage Embroidery Curation (heritage-embroidery)</option>
+                  <option value="col_handbags">Artisanal Handbags & Purses (handbags)</option>
+                  <option value="col_silk_scarves">Silk Scarves & Wraps (silk-scarves)</option>
+                  <option value="col_velvet_decor">Velvet Home Decor (decor)</option>
+                  <option value="col_new_arrivals">New Arrivals (new-arrivals)</option>
+                  <option value="col_best_sellers">Best Sellers (best-sellers)</option>
+                  <option value="col_sale">Special Sale (sale)</option>
+                </select>
+              </div>
+
+              {/* Placement Checkboxes */}
+              <div className="p-4 bg-background border border-border rounded-xl space-y-3">
+                <span className="text-xs uppercase tracking-wider text-[#C9A96E] font-semibold block font-medium">Storefront Section Placements</span>
+                <div className="space-y-2 text-xs">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={editingProduct.isNew}
+                      onChange={(e) => setEditingProduct({ ...editingProduct, isNew: e.target.checked })}
+                      className="w-4 h-4 accent-[#C9A96E]"
+                    />
+                    <span>1. Show in <b>New Arrivals</b> Collection</span>
+                  </label>
+
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={(editingProduct as any).isBestSeller ?? false}
+                      onChange={(e) => setEditingProduct({ ...editingProduct, isBestSeller: e.target.checked } as any)}
+                      className="w-4 h-4 accent-[#C9A96E]"
+                    />
+                    <span>2. Show in <b>Best Sellers</b> Collection</span>
+                  </label>
+
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={(editingProduct as any).isSale ?? false}
+                      onChange={(e) => setEditingProduct({ ...editingProduct, isSale: e.target.checked } as any)}
+                      className="w-4 h-4 accent-[#C9A96E]"
+                    />
+                    <span>3. Show in <b>Special Sale</b> Collection</span>
+                  </label>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs uppercase tracking-widest text-foreground-muted mb-1 font-medium">Price (₹)</label>
+                  <input
+                    type="number"
+                    required
+                    value={editingProduct.price}
+                    onChange={(e) => setEditingProduct({ ...editingProduct, price: Number(e.target.value) })}
+                    className="w-full bg-background border border-border px-4 py-2.5 text-sm text-foreground focus:border-[#C9A96E] focus:outline-none rounded-xl font-mono"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs uppercase tracking-widest text-foreground-muted mb-1 font-medium">Stock Count</label>
+                  <input
+                    type="number"
+                    required
+                    value={editingProduct.inventory}
+                    onChange={(e) => setEditingProduct({ ...editingProduct, inventory: Number(e.target.value) })}
+                    className="w-full bg-background border border-border px-4 py-2.5 text-sm text-foreground focus:border-[#C9A96E] focus:outline-none rounded-xl font-mono"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs uppercase tracking-widest text-foreground-muted mb-1 font-medium">Category</label>
+                <input
+                  type="text"
+                  required
+                  value={editingProduct.category}
+                  onChange={(e) => setEditingProduct({ ...editingProduct, category: e.target.value })}
+                  className="w-full bg-background border border-border px-4 py-2.5 text-sm text-foreground focus:border-[#C9A96E] focus:outline-none rounded-xl"
+                />
+              </div>
+
+              <div className="flex justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setEditingProduct(null)}
+                  className="px-5 py-2.5 border border-border text-foreground text-xs uppercase tracking-wider rounded-xl hover:bg-background"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-6 py-2.5 bg-[#C9A96E] hover:bg-[#D4B87C] text-black font-semibold text-xs uppercase tracking-widest rounded-xl transition-all shadow-md flex items-center gap-1.5"
+                >
+                  <Check className="w-4 h-4" />
+                  <span>Save Item Details</span>
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
