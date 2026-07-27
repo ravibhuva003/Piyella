@@ -1,27 +1,30 @@
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
+import { NextResponse } from 'next/server';
 
 const isProtectedRoute = createRouteMatcher([
   '/account(.*)',
   '/checkout(.*)',
-  '/api/checkout(.*)',
-  '/api/payment(.*)',
-  '/api/shipping(.*)',
 ]);
 
 const isAdminRoute = createRouteMatcher([
   '/admin(.*)',
-  '/api/admin(.*)',
 ]);
 
 export default clerkMiddleware(async (auth, req) => {
+  const { userId } = await auth();
+
   // Guard Customer Protected Routes
-  if (isProtectedRoute(req)) {
-    await auth.protect();
+  if (isProtectedRoute(req) && !userId) {
+    const signInUrl = new URL('/sign-in', req.url);
+    signInUrl.searchParams.set('redirect_url', req.nextUrl.pathname);
+    return NextResponse.redirect(signInUrl);
   }
 
-  // Guard Admin Protected Routes - Require sign-in for /admin
-  if (isAdminRoute(req)) {
-    await auth.protect();
+  // Guard Admin Protected Routes - Redirect to local /sign-in page if unauthenticated
+  if (isAdminRoute(req) && !userId) {
+    const signInUrl = new URL('/sign-in', req.url);
+    signInUrl.searchParams.set('redirect_url', req.nextUrl.pathname);
+    return NextResponse.redirect(signInUrl);
   }
 });
 
