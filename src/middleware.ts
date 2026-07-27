@@ -19,9 +19,9 @@ export default clerkMiddleware(async (auth, req) => {
     await auth.protect();
   }
 
-  // Guard Admin Protected Routes
+  // Guard Admin Protected Routes - Require sign-in for /admin
   if (isAdminRoute(req)) {
-    await auth.protect((has) => has({ role: 'admin' }));
+    await auth.protect();
   }
 });
 
