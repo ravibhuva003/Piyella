@@ -10,6 +10,7 @@ import { useScrollDirection } from '@/hooks/use-scroll-direction';
 import { useMediaQuery } from '@/hooks/use-media-query';
 import { mainNavItems } from '@/constants/navigation';
 import { Container } from '@/components/layout/container';
+import { ThemeToggle } from '@/components/shared/theme-toggle';
 
 import { MobileMenu } from './mobile-menu';
 import { NavbarSearch } from './navbar-search';
@@ -60,58 +61,51 @@ export function Navbar() {
                 className="absolute right-4 p-1 hover:text-[#C9A96E] transition-colors"
                 aria-label="Close announcement"
               >
-                <X className="w-4 h-4" />
+                <X className="w-3.5 h-3.5" />
               </button>
             </motion.div>
           )}
         </AnimatePresence>
 
         <Container>
-          <div className="flex h-16 md:h-20 items-center justify-between">
-            {/* Mobile Menu Button */}
+          <div className="flex items-center justify-between h-20">
+            {/* Left Mobile Menu Button */}
             {!isDesktop && (
               <button
                 onClick={() => setIsMobileMenuOpen(true)}
-                className="p-2 -ml-2 text-foreground/80 hover:text-foreground transition-colors"
-                aria-label="Open menu"
+                className="text-foreground p-2 -ml-2 hover:text-[#C9A96E] transition-colors"
+                aria-label="Open navigation menu"
               >
-                <Menu className="w-5 h-5" />
+                <Menu className="w-6 h-6" />
               </button>
             )}
 
-            {/* Logo */}
-            <Link 
-              href="/" 
-              className={cn(
-                "font-heading uppercase tracking-[0.3em] font-semibold text-lg md:text-xl",
-                !isDesktop ? "absolute left-1/2 -translate-x-1/2" : ""
-              )}
+            {/* Brand Logo */}
+            <Link
+              href="/"
+              className="font-serif text-2xl md:text-3xl font-bold tracking-[0.25em] text-foreground hover:opacity-90 transition-opacity uppercase"
             >
               PIYELLA
             </Link>
 
-            {/* Desktop Navigation */}
+            {/* Desktop Navigation Links */}
             {isDesktop && (
-              <nav className="hidden lg:flex items-center space-x-8">
+              <nav className="flex items-center space-x-8">
                 {mainNavItems.map((item) => (
-                  <div 
+                  <div
                     key={item.title}
-                    className="relative group"
+                    className="relative"
                     onMouseEnter={() => item.children && setActiveDropdown(item.title)}
-                    onMouseLeave={() => item.children && setActiveDropdown(null)}
+                    onMouseLeave={() => setActiveDropdown(null)}
                   >
                     <Link
                       href={item.href}
-                      className="flex items-center space-x-1 text-sm font-medium text-foreground/80 hover:text-foreground transition-colors py-2"
+                      className="flex items-center space-x-1 text-xs uppercase tracking-[0.2em] font-medium text-foreground/80 hover:text-[#C9A96E] transition-colors py-2"
                     >
                       <span>{item.title}</span>
-                      {item.children && <ChevronDown className="w-3 h-3" />}
+                      {item.children && <ChevronDown className="w-3.5 h-3.5 ml-1" />}
                     </Link>
-                    
-                    {/* Hover Underline */}
-                    <span className="absolute left-0 bottom-1 w-0 h-px bg-foreground transition-all duration-300 ease-out group-hover:w-full" />
 
-                    {/* Dropdown Menu */}
                     {item.children && (
                       <AnimatePresence>
                         {activeDropdown === item.title && (
@@ -120,13 +114,13 @@ export function Navbar() {
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: 10 }}
                             transition={{ duration: 0.2 }}
-                            className="absolute top-full left-1/2 -translate-x-1/2 w-48 py-2 mt-1 bg-background border border-border shadow-lg rounded-sm"
+                            className="absolute top-full left-1/2 -translate-x-1/2 w-56 py-3 bg-[#0a0a0a] border border-white/10 shadow-2xl rounded-xl z-50"
                           >
                             {item.children.map((child) => (
                               <Link
                                 key={child.title}
                                 href={child.href}
-                                className="block px-4 py-2 text-sm text-foreground/70 hover:text-foreground hover:bg-muted/50 transition-colors"
+                                className="block px-4 py-2 text-xs uppercase tracking-wider text-white/70 hover:text-[#C9A96E] hover:bg-white/5 transition-colors"
                               >
                                 {child.title}
                               </Link>
@@ -141,10 +135,12 @@ export function Navbar() {
             )}
 
             {/* Right Icons */}
-            <div className="flex items-center space-x-4 md:space-x-6">
+            <div className="flex items-center space-x-4 md:space-x-5">
+              <ThemeToggle className="text-foreground/80 hover:text-[#C9A96E]" />
+
               <button 
                 onClick={() => setIsSearchOpen(true)}
-                className="text-foreground/80 hover:text-foreground transition-colors"
+                className="text-foreground/80 hover:text-[#C9A96E] transition-colors"
                 aria-label="Search"
               >
                 <Search className="w-5 h-5" />
@@ -152,10 +148,10 @@ export function Navbar() {
               
               {isDesktop && (
                 <>
-                  <Link href="/account/wishlist" className="text-foreground/80 hover:text-foreground transition-colors" aria-label="Wishlist">
+                  <Link href="/wishlist" className="text-foreground/80 hover:text-[#C9A96E] transition-colors" aria-label="Wishlist">
                     <Heart className="w-5 h-5" />
                   </Link>
-                  <Link href="/account" className="text-foreground/80 hover:text-foreground transition-colors" aria-label="Account">
+                  <Link href="/account" className="text-foreground/80 hover:text-[#C9A96E] transition-colors" aria-label="Account">
                     <User className="w-5 h-5" />
                   </Link>
                 </>
