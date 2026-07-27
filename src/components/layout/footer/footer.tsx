@@ -1,14 +1,13 @@
 import Link from 'next/link';
-import { Mail, MapPin, Phone } from 'lucide-react';
+import { ShieldCheck } from 'lucide-react';
 import { IconInstagram, IconTwitterX, IconFacebook } from '@/components/shared/social-icons';
 import { Container } from '@/components/layout/container';
 import { footerNavItems } from '@/constants/navigation';
 import { FooterNewsletter } from './footer-newsletter';
 
-
 export function Footer() {
   return (
-    <footer className="bg-background border-t border-border/30 pt-16 lg:pt-24 pb-8 overflow-hidden">
+    <footer className="bg-background border-t border-border/30 pt-16 lg:pt-24 pb-8 overflow-hidden text-foreground">
       <Container>
         {/* Newsletter Section */}
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8 mb-16 lg:mb-24">
@@ -66,11 +65,10 @@ export function Footer() {
                   </Link>
                 </li>
               ))}
-              <li><Link href="/track-order" className="text-foreground-muted hover:text-foreground hover:translate-x-1 transition-all inline-block text-sm">Track Order</Link></li>
             </ul>
           </div>
 
-          {/* Company Column */}
+          {/* Company & Admin Column */}
           <div>
             <h3 className="font-semibold mb-6 uppercase tracking-wider text-sm">Company</h3>
             <ul className="flex flex-col gap-4">
@@ -81,30 +79,27 @@ export function Footer() {
                   </Link>
                 </li>
               ))}
-              <li><Link href="/sustainability" className="text-foreground-muted hover:text-foreground hover:translate-x-1 transition-all inline-block text-sm">Sustainability</Link></li>
+              <li>
+                <Link href="/admin" className="text-[#C9A96E] font-medium hover:underline inline-flex items-center gap-1.5 text-sm pt-2">
+                  <ShieldCheck className="w-4 h-4" />
+                  <span>Admin Portal</span>
+                </Link>
+              </li>
             </ul>
           </div>
         </div>
 
         {/* Bottom Bar */}
         <div className="pt-8 border-t border-border flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex flex-col md:flex-row items-center gap-4 text-sm text-foreground-muted">
-            <p>&copy; {new Date().getFullYear()} Piyella. All rights reserved.</p>
-            <div className="hidden md:block w-1 h-1 rounded-full bg-border"></div>
-            <div className="flex gap-4">
-              {footerNavItems.legal.map((item) => (
-                <Link key={item.title} href={item.href} className="hover:text-foreground transition-colors">
-                  {item.title}
-                </Link>
-              ))}
-            </div>
-          </div>
-          <div className="flex items-center gap-3 opacity-60 grayscale hover:grayscale-0 transition-all duration-300">
-            {/* Simple text spans for payment methods */}
-            <span className="px-2 py-1 border border-border rounded text-xs font-medium">VISA</span>
-            <span className="px-2 py-1 border border-border rounded text-xs font-medium">MASTERCARD</span>
-            <span className="px-2 py-1 border border-border rounded text-xs font-medium">UPI</span>
-            <span className="px-2 py-1 border border-border rounded text-xs font-medium">RAZORPAY</span>
+          <p className="text-xs text-foreground-muted">
+            &copy; {new Date().getFullYear()} PIYELLA Atelier. All rights reserved.
+          </p>
+          <div className="flex items-center gap-6">
+            {footerNavItems.legal.map((item) => (
+              <Link key={item.title} href={item.href} className="text-xs text-foreground-muted hover:text-foreground transition-colors">
+                {item.title}
+              </Link>
+            ))}
           </div>
         </div>
       </Container>
