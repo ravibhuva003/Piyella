@@ -48,7 +48,10 @@ export default function RootLayout({
         <head>
           <JsonLd data={orgSchema} />
         </head>
-        <body className="font-body min-h-screen flex flex-col bg-background text-foreground selection:bg-[#C9A96E] selection:text-black">
+        <body
+          className="font-body min-h-screen flex flex-col bg-background text-foreground selection:bg-[#C9A96E] selection:text-black"
+          suppressHydrationWarning
+        >
           <AccessibilityProvider>
             <div id="main-content" className="flex-1 flex flex-col">
               {children}
