@@ -1,12 +1,12 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ShieldCheck, Lock, Mail, ArrowRight, AlertCircle, KeyRound } from 'lucide-react';
+import { ShieldCheck, Lock, Mail, ArrowRight, AlertCircle } from 'lucide-react';
 import { Container } from '@/components/layout/container';
 
 export default function AdminLoginPage() {
-  const [email, setEmail] = useState('piyella@gmail.com');
-  const [password, setPassword] = useState('piyella@123');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -28,7 +28,7 @@ export default function AdminLoginPage() {
       // Hard browser redirect to Executive Admin Portal
       window.location.href = '/admin';
     } else {
-      setErrorMsg('Invalid Credentials. Access restricted to Parent Admin piyella@gmail.com');
+      setErrorMsg('Invalid admin email or password. Access restricted to authorized parent administrator.');
       setLoading(false);
     }
   };
@@ -54,7 +54,7 @@ export default function AdminLoginPage() {
                 Admin Authentication
               </h1>
               <p className="text-xs text-foreground-muted font-light leading-relaxed">
-                Enter Parent Admin credentials to access store controls.
+                Enter your admin credentials to access executive controls.
               </p>
             </div>
 
@@ -77,7 +77,7 @@ export default function AdminLoginPage() {
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="piyella@gmail.com"
+                    placeholder="Enter your admin email"
                     className="w-full bg-background border border-border pl-10 pr-4 py-3 text-sm text-foreground focus:border-[#C9A96E] focus:outline-none rounded-xl"
                   />
                 </div>
@@ -94,7 +94,7 @@ export default function AdminLoginPage() {
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="piyella@123"
+                    placeholder="••••••••"
                     className="w-full bg-background border border-border pl-10 pr-4 py-3 text-sm text-foreground focus:border-[#C9A96E] focus:outline-none rounded-xl"
                   />
                 </div>
