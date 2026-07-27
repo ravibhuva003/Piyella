@@ -19,6 +19,10 @@ export const mainNavItems: NavItem[] = [
     title: 'Contact',
     href: '/contact',
   },
+  {
+    title: 'Admin',
+    href: '/admin-login',
+  },
 ];
 
 export const footerNavItems = {

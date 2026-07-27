@@ -12,10 +12,15 @@ const isAdminRoute = createRouteMatcher([
 
 export default clerkMiddleware(async (auth, req) => {
   const { userId } = await auth();
+  const adminCookie = req.cookies.get('piyella_admin_session')?.value;
 
-  // Block and redirect any attempt to access /admin back to Homepage
+  // Protect /admin routes - Require piyella_admin_session cookie OR authenticated Clerk admin
   if (isAdminRoute(req)) {
-    return NextResponse.redirect(new URL('/', req.url));
+    if (adminCookie === 'true' || userId) {
+      return NextResponse.next();
+    }
+    const adminLoginUrl = new URL('/admin-login', req.url);
+    return NextResponse.redirect(adminLoginUrl);
   }
 
   // Guard Customer Protected Routes

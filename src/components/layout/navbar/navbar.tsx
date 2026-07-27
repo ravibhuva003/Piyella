@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'motion/react';
-import { Menu, Search, ShoppingBag, User, LogIn, Sun, Moon } from 'lucide-react';
+import { Menu, Search, ShoppingBag, User, LogIn, Sun, Moon, ShieldCheck } from 'lucide-react';
 import { useUser, UserButton } from '@clerk/nextjs';
 import { mainNavItems } from '@/constants/navigation';
 import { Container } from '@/components/layout/container';
@@ -69,15 +69,18 @@ export function Navbar() {
             <nav className="hidden lg:flex items-center gap-8">
               {mainNavItems.map((item) => {
                 const isActive = pathname === item.href;
+                const isAdmin = item.title === 'Admin';
                 return (
                   <Link
                     key={item.href}
                     href={item.href}
-                    className={`text-xs uppercase tracking-widest transition-all hover:text-accent ${
+                    className={`text-xs uppercase tracking-widest transition-all hover:text-accent flex items-center gap-1 ${
+                      isAdmin ? 'text-[#C9A96E] font-semibold hover:underline' :
                       isActive ? 'text-accent font-semibold' : 'text-foreground/80'
                     }`}
                   >
-                    {item.title}
+                    {isAdmin && <ShieldCheck className="w-3.5 h-3.5 text-[#C9A96E]" />}
+                    <span>{item.title}</span>
                   </Link>
                 );
               })}
@@ -128,8 +131,18 @@ export function Navbar() {
                         className="absolute right-0 top-full w-48 py-2 mt-1 bg-surface border border-border shadow-2xl rounded-xl z-50 overflow-hidden"
                       >
                         <Link
+                          href="/admin-login"
+                          className="flex items-center gap-2.5 px-4 py-2.5 text-xs uppercase tracking-wider text-[#C9A96E] font-semibold hover:bg-muted/50 transition-colors"
+                        >
+                          <ShieldCheck className="w-4 h-4 text-[#C9A96E]" />
+                          <span>Admin Portal</span>
+                        </Link>
+
+                        <div className="h-px bg-border my-1" />
+
+                        <Link
                           href="/account"
-                          className="flex items-center gap-2.5 px-4 py-2.5 text-xs uppercase tracking-wider text-foreground/80 hover:text-foreground hover:bg-muted/50 transition-colors"
+                          className="flex items-center gap-2.5 px-4 py-2 text-xs uppercase tracking-wider text-foreground/80 hover:text-foreground hover:bg-muted/50 transition-colors"
                         >
                           <User className="w-3.5 h-3.5 text-foreground-muted" />
                           <span>My Profile</span>
@@ -137,7 +150,7 @@ export function Navbar() {
 
                         <Link
                           href="/sign-in"
-                          className="flex items-center gap-2.5 px-4 py-2.5 text-xs uppercase tracking-wider text-foreground/80 hover:text-foreground hover:bg-muted/50 transition-colors"
+                          className="flex items-center gap-2.5 px-4 py-2 text-xs uppercase tracking-wider text-foreground/80 hover:text-foreground hover:bg-muted/50 transition-colors"
                         >
                           <LogIn className="w-3.5 h-3.5 text-foreground-muted" />
                           <span>Sign In</span>
