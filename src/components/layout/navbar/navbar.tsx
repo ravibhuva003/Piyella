@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'motion/react';
-import { Search, User, Menu, X, Heart, ChevronDown } from 'lucide-react';
+import { Search, User, Menu, X, Heart, ShieldCheck, LogIn } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 import { useScrollDirection } from '@/hooks/use-scroll-direction';
@@ -18,12 +18,11 @@ import { NavbarCart } from './navbar-cart';
 
 export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
-  const { direction: scrollDirection } = useScrollDirection();
   const isDesktop = useMediaQuery('(min-width: 1024px)');
   
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const [showUserDropdown, setShowUserDropdown] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -33,8 +32,6 @@ export function Navbar() {
     handleScroll();
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-
-  const hideNav = scrollDirection === 'down' && isScrolled;
 
   return (
     <>
@@ -72,44 +69,13 @@ export function Navbar() {
             {isDesktop && (
               <nav className="flex items-center space-x-8">
                 {mainNavItems.map((item) => (
-                  <div
+                  <Link
                     key={item.title}
-                    className="relative"
-                    onMouseEnter={() => item.children && setActiveDropdown(item.title)}
-                    onMouseLeave={() => setActiveDropdown(null)}
+                    href={item.href}
+                    className="text-xs uppercase tracking-[0.2em] font-medium text-foreground/80 hover:text-[#C9A96E] transition-colors py-2"
                   >
-                    <Link
-                      href={item.href}
-                      className="flex items-center space-x-1 text-xs uppercase tracking-[0.2em] font-medium text-foreground/80 hover:text-[#C9A96E] transition-colors py-2"
-                    >
-                      <span>{item.title}</span>
-                      {item.children && <ChevronDown className="w-3.5 h-3.5 ml-1" />}
-                    </Link>
-
-                    {item.children && (
-                      <AnimatePresence>
-                        {activeDropdown === item.title && (
-                          <motion.div
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: 10 }}
-                            transition={{ duration: 0.2 }}
-                            className="absolute top-full left-1/2 -translate-x-1/2 w-56 py-3 bg-[#0a0a0a] border border-white/10 shadow-2xl rounded-xl z-50"
-                          >
-                            {item.children.map((child) => (
-                              <Link
-                                key={child.title}
-                                href={child.href}
-                                className="block px-4 py-2 text-xs uppercase tracking-wider text-white/70 hover:text-[#C9A96E] hover:bg-white/5 transition-colors"
-                              >
-                                {child.title}
-                              </Link>
-                            ))}
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    )}
-                  </div>
+                    {item.title}
+                  </Link>
                 ))}
               </nav>
             )}
@@ -131,9 +97,59 @@ export function Navbar() {
                   <Link href="/wishlist" className="text-foreground/80 hover:text-[#C9A96E] transition-colors" aria-label="Wishlist">
                     <Heart className="w-5 h-5" />
                   </Link>
-                  <Link href="/account" className="text-foreground/80 hover:text-[#C9A96E] transition-colors" aria-label="Account">
-                    <User className="w-5 h-5" />
-                  </Link>
+
+                  {/* Account / Admin Dropdown */}
+                  <div
+                    className="relative"
+                    onMouseEnter={() => setShowUserDropdown(true)}
+                    onMouseLeave={() => setShowUserDropdown(false)}
+                  >
+                    <Link
+                      href="/account"
+                      className="text-foreground/80 hover:text-[#C9A96E] transition-colors flex items-center gap-1 py-2"
+                      aria-label="Account"
+                    >
+                      <User className="w-5 h-5" />
+                    </Link>
+
+                    <AnimatePresence>
+                      {showUserDropdown && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: 10 }}
+                          transition={{ duration: 0.2 }}
+                          className="absolute right-0 top-full w-52 py-2 mt-1 bg-surface border border-border shadow-2xl rounded-xl z-50 overflow-hidden"
+                        >
+                          <Link
+                            href="/admin"
+                            className="flex items-center gap-2.5 px-4 py-2.5 text-xs uppercase tracking-wider font-semibold text-[#C9A96E] hover:bg-muted/50 transition-colors"
+                          >
+                            <ShieldCheck className="w-4 h-4 text-[#C9A96E]" />
+                            <span>Admin Portal</span>
+                          </Link>
+                          
+                          <div className="h-px bg-border my-1" />
+
+                          <Link
+                            href="/account"
+                            className="flex items-center gap-2.5 px-4 py-2 text-xs uppercase tracking-wider text-foreground/80 hover:text-foreground hover:bg-muted/50 transition-colors"
+                          >
+                            <User className="w-3.5 h-3.5 text-foreground-muted" />
+                            <span>My Profile</span>
+                          </Link>
+
+                          <Link
+                            href="/sign-in"
+                            className="flex items-center gap-2.5 px-4 py-2 text-xs uppercase tracking-wider text-foreground/80 hover:text-foreground hover:bg-muted/50 transition-colors"
+                          >
+                            <LogIn className="w-3.5 h-3.5 text-foreground-muted" />
+                            <span>Sign In</span>
+                          </Link>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
                 </>
               )}
 
