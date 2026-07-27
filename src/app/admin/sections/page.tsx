@@ -17,11 +17,10 @@ import {
   Check,
   Search,
   Layers,
-  Filter
 } from 'lucide-react';
 
 export default function AdminFeaturedSectionsPage() {
-  const { products, updateProduct, deleteProduct, isLoaded } = useCatalogStore();
+  const { products, collections, updateProduct, deleteProduct, isLoaded } = useCatalogStore();
   
   // Section tab state: 'new-arrivals' | 'best-sellers' | 'sale'
   const [activeSection, setActiveSection] = useState<'new-arrivals' | 'best-sellers' | 'sale'>('new-arrivals');
@@ -59,11 +58,14 @@ export default function AdminFeaturedSectionsPage() {
     e.preventDefault();
     if (!editingProduct) return;
 
+    const selectedCol = collections.find((c) => c.id === editingProduct.collectionId);
+    const categoryName = selectedCol?.name || editingProduct.category || 'General';
+
     updateProduct(editingProduct.id, {
       name: editingProduct.name,
       price: Number(editingProduct.price),
       compareAtPrice: editingProduct.compareAtPrice ? Number(editingProduct.compareAtPrice) : undefined,
-      category: editingProduct.category,
+      category: categoryName,
       collectionId: editingProduct.collectionId,
       inventory: Number(editingProduct.inventory),
       isNew: editingProduct.isNew,
@@ -208,6 +210,7 @@ export default function AdminFeaturedSectionsPage() {
               Boolean((prod as any).isSale || (prod.compareAtPrice && prod.compareAtPrice > prod.price));
 
             const img = prod.images?.find((i) => i.isPrimary)?.url || prod.images?.[0]?.url || 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?q=80&w=1000&auto=format&fit=crop';
+            const assignedCol = collections.find((c) => c.id === prod.collectionId);
 
             return (
               <div
@@ -228,7 +231,9 @@ export default function AdminFeaturedSectionsPage() {
                     <div className="min-w-0">
                       <h4 className="font-serif text-sm font-medium text-foreground truncate">{prod.name}</h4>
                       <span className="text-[11px] text-foreground-muted font-mono">{formatPrice(prod.price, prod.currency)}</span>
-                      <span className="text-[10px] text-[#C9A96E] block font-mono">Collection: {prod.collectionId || 'default'}</span>
+                      <span className="text-[10px] text-[#C9A96E] block font-mono">
+                        Collection: {assignedCol ? assignedCol.name : (prod.collectionId || 'default')}
+                      </span>
                     </div>
                   </div>
 
@@ -315,24 +320,22 @@ export default function AdminFeaturedSectionsPage() {
                 />
               </div>
 
-              {/* Target Collection Selection */}
+              {/* Target Collection Selection (Pulls directly from Admin Collection Settings) */}
               <div>
                 <label className="block text-xs uppercase tracking-widest text-foreground-muted mb-1 font-medium flex items-center gap-1.5">
                   <Layers className="w-3.5 h-3.5 text-[#C9A96E]" />
-                  <span>Target Collection Curation</span>
+                  <span>Target Collection (From Admin Collection Settings)</span>
                 </label>
                 <select
-                  value={editingProduct.collectionId || 'col_heritage_embroidery'}
+                  value={editingProduct.collectionId || collections[0]?.id}
                   onChange={(e) => setEditingProduct({ ...editingProduct, collectionId: e.target.value })}
                   className="w-full bg-background border border-border px-4 py-2.5 text-sm text-[#C9A96E] font-medium focus:border-[#C9A96E] focus:outline-none rounded-xl"
                 >
-                  <option value="col_heritage_embroidery">Heritage Embroidery Curation (heritage-embroidery)</option>
-                  <option value="col_handbags">Artisanal Handbags & Purses (handbags)</option>
-                  <option value="col_silk_scarves">Silk Scarves & Wraps (silk-scarves)</option>
-                  <option value="col_velvet_decor">Velvet Home Decor (decor)</option>
-                  <option value="col_new_arrivals">New Arrivals (new-arrivals)</option>
-                  <option value="col_best_sellers">Best Sellers (best-sellers)</option>
-                  <option value="col_sale">Special Sale (sale)</option>
+                  {collections.map((col) => (
+                    <option key={col.id} value={col.id}>
+                      {col.name} ({col.slug})
+                    </option>
+                  ))}
                 </select>
               </div>
 

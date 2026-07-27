@@ -5,17 +5,16 @@ import { useRouter } from 'next/navigation';
 import { useCatalogStore } from '@/lib/store/catalog-store';
 import { ImageUploader } from '@/components/admin/image-uploader';
 import { ProductImage } from '@/types/product';
-import { ArrowLeft, Sparkles, Check, Layers } from 'lucide-react';
+import { ArrowLeft, Sparkles, Check, Layers, Plus } from 'lucide-react';
 import Link from 'next/link';
 
 export default function NewProductPage() {
   const router = useRouter();
-  const { addProduct } = useCatalogStore();
+  const { addProduct, collections } = useCatalogStore();
 
   const [name, setName] = useState('');
   const [slug, setSlug] = useState('');
-  const [category, setCategory] = useState('Handbags');
-  const [collectionId, setCollectionId] = useState('col_heritage_embroidery');
+  const [collectionId, setCollectionId] = useState(collections[0]?.id || 'col_heritage_embroidery');
   const [price, setPrice] = useState<number>(45000);
   const [compareAtPrice, setCompareAtPrice] = useState<number | undefined>(55000);
   const [sku, setSku] = useState(`PYL-${Math.floor(1000 + Math.random() * 9000)}`);
@@ -53,6 +52,10 @@ export default function NewProductPage() {
       return;
     }
 
+    // Find selected collection details
+    const selectedCollection = collections.find((c) => c.id === collectionId);
+    const categoryName = selectedCollection?.name || 'General';
+
     const tags: string[] = [];
     if (isNew) tags.push('new-arrivals');
     if (isBestSeller) tags.push('best-sellers');
@@ -61,13 +64,13 @@ export default function NewProductPage() {
     addProduct({
       name,
       slug: slug || `product-${Date.now()}`,
-      description: description || 'Handcrafted Italian luxury piece.',
+      description: description || 'Handcrafted luxury piece.',
       shortDescription: shortDescription || 'Bespoke luxury piece.',
       price,
       compareAtPrice: isSale ? (compareAtPrice || price * 1.2) : undefined,
       currency: 'INR',
       images,
-      category,
+      category: categoryName,
       collectionId,
       tags,
       variants: [],
@@ -105,7 +108,7 @@ export default function NewProductPage() {
           Create Luxury Product
         </h1>
         <p className="text-sm text-white/60 font-light">
-          Add a new handcrafted item to the catalog. Select its target collection placement below.
+          Add a new handcrafted item to the catalog. Select its target collection generated in Collection Settings below.
         </p>
       </div>
 
@@ -141,14 +144,23 @@ export default function NewProductPage() {
             </div>
           </div>
 
-          {/* Collection Assignment Box */}
+          {/* Collection Selection Box (Pulls directly from Admin Collection Settings) */}
           <div className="p-5 bg-black/80 border border-[#C9A96E]/40 rounded-2xl space-y-4">
-            <div className="flex items-center gap-2 text-[#C9A96E] text-xs uppercase tracking-widest font-semibold">
-              <Layers className="w-4 h-4" />
-              <span>Target Collection Selection *</span>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-[#C9A96E] text-xs uppercase tracking-widest font-semibold">
+                <Layers className="w-4 h-4" />
+                <span>Target Collection (Created in Admin Collection Settings) *</span>
+              </div>
+              <Link
+                href="/admin/categories"
+                className="text-[11px] text-[#C9A96E] hover:underline uppercase tracking-wider font-mono flex items-center gap-1"
+              >
+                <Plus className="w-3 h-3" />
+                <span>Manage Collections</span>
+              </Link>
             </div>
             <p className="text-xs text-white/60 font-light">
-              Select which storefront collection this product will belong to. It will immediately appear on that collection&apos;s public page.
+              Select which admin-generated collection this product belongs to.
             </p>
 
             <select
@@ -156,13 +168,11 @@ export default function NewProductPage() {
               onChange={(e) => setCollectionId(e.target.value)}
               className="w-full bg-black border border-[#C9A96E]/50 px-4 py-3.5 text-sm text-[#C9A96E] font-medium focus:border-[#C9A96E] focus:outline-none rounded-xl"
             >
-              <option value="col_heritage_embroidery">Heritage Embroidery Curation (heritage-embroidery)</option>
-              <option value="col_handbags">Artisanal Handbags & Purses (handbags)</option>
-              <option value="col_silk_scarves">Silk Scarves & Wraps (silk-scarves)</option>
-              <option value="col_velvet_decor">Velvet Home Decor (decor)</option>
-              <option value="col_new_arrivals">New Arrivals (new-arrivals)</option>
-              <option value="col_best_sellers">Best Sellers (best-sellers)</option>
-              <option value="col_sale">Special Sale (sale)</option>
+              {collections.map((col) => (
+                <option key={col.id} value={col.id}>
+                  {col.name} ({col.slug})
+                </option>
+              ))}
             </select>
           </div>
 
@@ -170,7 +180,7 @@ export default function NewProductPage() {
           <div className="p-5 bg-black/80 border border-white/10 rounded-2xl space-y-4">
             <div className="flex items-center gap-2 text-white/80 text-xs uppercase tracking-widest font-semibold">
               <Sparkles className="w-4 h-4 text-[#C9A96E]" />
-              <span>Special Collection Badges & Placement</span>
+              <span>Special Storefront Placement Badges</span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
@@ -221,23 +231,7 @@ export default function NewProductPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            <div>
-              <label className="block text-xs uppercase tracking-widest text-white/70 mb-2 font-medium">
-                Category
-              </label>
-              <select
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className="w-full bg-black/60 border border-white/10 px-4 py-3 text-sm text-white focus:border-[#C9A96E] focus:outline-none rounded-xl"
-              >
-                <option value="Handbags">Handbags</option>
-                <option value="Accessories">Accessories</option>
-                <option value="Decor">Decor & Cushions</option>
-                <option value="Artwork">Artwork & Tapestries</option>
-              </select>
-            </div>
-
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div>
               <label className="block text-xs uppercase tracking-widest text-white/70 mb-2 font-medium">
                 Price (INR ₹) *

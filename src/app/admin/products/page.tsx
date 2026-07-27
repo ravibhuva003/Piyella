@@ -9,7 +9,7 @@ import { formatPrice } from '@/lib/utils';
 import { Plus, Search, Trash2, Edit3, Eye, Package, Sparkles, X, Check, Flame, Tag, Layers } from 'lucide-react';
 
 export default function AdminProductsPage() {
-  const { products, updateProduct, deleteProduct, isLoaded } = useCatalogStore();
+  const { products, collections, updateProduct, deleteProduct, isLoaded } = useCatalogStore();
   const [search, setSearch] = useState('');
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
 
@@ -23,7 +23,7 @@ export default function AdminProductsPage() {
 
   const filteredProducts = products.filter((p) =>
     p.name.toLowerCase().includes(search.toLowerCase()) ||
-    p.category.toLowerCase().includes(search.toLowerCase()) ||
+    (p.category && p.category.toLowerCase().includes(search.toLowerCase())) ||
     p.sku.toLowerCase().includes(search.toLowerCase())
   );
 
@@ -31,11 +31,14 @@ export default function AdminProductsPage() {
     e.preventDefault();
     if (!editingProduct) return;
 
+    const selectedCol = collections.find((c) => c.id === editingProduct.collectionId);
+    const categoryName = selectedCol?.name || editingProduct.category || 'General';
+
     updateProduct(editingProduct.id, {
       name: editingProduct.name,
       price: Number(editingProduct.price),
       compareAtPrice: editingProduct.compareAtPrice ? Number(editingProduct.compareAtPrice) : undefined,
-      category: editingProduct.category,
+      category: categoryName,
       collectionId: editingProduct.collectionId,
       inventory: Number(editingProduct.inventory),
       isNew: editingProduct.isNew,
@@ -76,7 +79,7 @@ export default function AdminProductsPage() {
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search products by name, category, or SKU..."
+          placeholder="Search products by name, collection, or SKU..."
           className="w-full bg-transparent text-sm text-foreground placeholder:text-foreground-muted focus:outline-none"
         />
       </div>
@@ -88,8 +91,7 @@ export default function AdminProductsPage() {
             <thead className="bg-background text-[10px] uppercase tracking-widest text-foreground-muted border-b border-border">
               <tr>
                 <th className="px-6 py-4">Product</th>
-                <th className="px-6 py-4">Category</th>
-                <th className="px-6 py-4">Collection ID</th>
+                <th className="px-6 py-4">Assigned Collection</th>
                 <th className="px-6 py-4">Placements</th>
                 <th className="px-6 py-4">Price</th>
                 <th className="px-6 py-4">Stock</th>
@@ -102,6 +104,7 @@ export default function AdminProductsPage() {
                 const isNewProd = prod.isNew || (prod as any).isNewArrival;
                 const isBest = (prod as any).isBestSeller || prod.ratings >= 4.8;
                 const isSal = (prod as any).isSale || (prod.compareAtPrice && prod.compareAtPrice > prod.price);
+                const assignedCol = collections.find((c) => c.id === prod.collectionId);
 
                 return (
                   <tr key={prod.id} className="hover:bg-background/50 transition-colors">
@@ -115,12 +118,8 @@ export default function AdminProductsPage() {
                       </div>
                     </td>
 
-                    <td className="px-6 py-4 text-xs uppercase tracking-wider text-foreground-muted font-semibold">
-                      {prod.category}
-                    </td>
-
-                    <td className="px-6 py-4 text-xs font-mono text-[#C9A96E]">
-                      {prod.collectionId || 'default'}
+                    <td className="px-6 py-4 text-xs font-mono text-[#C9A96E] font-medium">
+                      {assignedCol ? `${assignedCol.name} (${assignedCol.slug})` : (prod.collectionId || 'default')}
                     </td>
 
                     <td className="px-6 py-4">
@@ -212,24 +211,22 @@ export default function AdminProductsPage() {
                 />
               </div>
 
-              {/* Target Collection Selection */}
+              {/* Target Collection Selection (Pulls directly from Admin Collection Settings) */}
               <div>
                 <label className="block text-xs uppercase tracking-widest text-foreground-muted mb-1 font-medium flex items-center gap-1.5">
                   <Layers className="w-3.5 h-3.5 text-[#C9A96E]" />
-                  <span>Target Collection Curation</span>
+                  <span>Target Collection (From Admin Collection Settings)</span>
                 </label>
                 <select
-                  value={editingProduct.collectionId || 'col_heritage_embroidery'}
+                  value={editingProduct.collectionId || collections[0]?.id}
                   onChange={(e) => setEditingProduct({ ...editingProduct, collectionId: e.target.value })}
                   className="w-full bg-background border border-border px-4 py-2.5 text-sm text-[#C9A96E] font-medium focus:border-[#C9A96E] focus:outline-none rounded-xl"
                 >
-                  <option value="col_heritage_embroidery">Heritage Embroidery Curation (heritage-embroidery)</option>
-                  <option value="col_handbags">Artisanal Handbags & Purses (handbags)</option>
-                  <option value="col_silk_scarves">Silk Scarves & Wraps (silk-scarves)</option>
-                  <option value="col_velvet_decor">Velvet Home Decor (decor)</option>
-                  <option value="col_new_arrivals">New Arrivals (new-arrivals)</option>
-                  <option value="col_best_sellers">Best Sellers (best-sellers)</option>
-                  <option value="col_sale">Special Sale (sale)</option>
+                  {collections.map((col) => (
+                    <option key={col.id} value={col.id}>
+                      {col.name} ({col.slug})
+                    </option>
+                  ))}
                 </select>
               </div>
 
@@ -291,17 +288,6 @@ export default function AdminProductsPage() {
                     className="w-full bg-background border border-border px-4 py-2.5 text-sm text-foreground focus:border-[#C9A96E] focus:outline-none rounded-xl font-mono"
                   />
                 </div>
-              </div>
-
-              <div>
-                <label className="block text-xs uppercase tracking-widest text-foreground-muted mb-1 font-medium">Category</label>
-                <input
-                  type="text"
-                  required
-                  value={editingProduct.category}
-                  onChange={(e) => setEditingProduct({ ...editingProduct, category: e.target.value })}
-                  className="w-full bg-background border border-border px-4 py-2.5 text-sm text-foreground focus:border-[#C9A96E] focus:outline-none rounded-xl"
-                />
               </div>
 
               <div className="flex justify-end gap-3 pt-2">
