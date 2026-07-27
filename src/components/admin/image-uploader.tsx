@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import Image from 'next/image';
-import { Upload, X, Star, Link as LinkIcon, Plus } from 'lucide-react';
+import { Upload, X, Star, Link as LinkIcon, Plus, ImagePlus } from 'lucide-react';
 import { ProductImage } from '@/types/product';
 
 interface ImageUploaderProps {
@@ -13,13 +13,65 @@ interface ImageUploaderProps {
 export function ImageUploader({ images, onChange }: ImageUploaderProps) {
   const [urlInput, setUrlInput] = useState('');
   const [altInput, setAltInput] = useState('');
+  const [isDragging, setIsDragging] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const processFiles = (files: FileList | File[]) => {
+    const newImages: ProductImage[] = [];
+    const fileArray = Array.from(files);
+
+    fileArray.forEach((file) => {
+      if (!file.type.startsWith('image/')) return;
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const result = event.target?.result as string;
+        if (result) {
+          const newImg: ProductImage = {
+            id: `img_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+            url: result,
+            alt: file.name.replace(/\.[^/.]+$/, '') || 'Product Image',
+            width: 1000,
+            height: 1500,
+            isPrimary: images.length === 0 && newImages.length === 0,
+          };
+
+          onChange([...images, ...newImages, newImg]);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      processFiles(e.target.files);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = () => {
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      processFiles(e.dataTransfer.files);
+    }
+  };
 
   const handleAddImageUrl = (e: React.FormEvent) => {
     e.preventDefault();
     if (!urlInput.trim()) return;
 
     const newImage: ProductImage = {
-      id: `img_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
+      id: `img_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
       url: urlInput.trim(),
       alt: altInput.trim() || 'Luxury Product Photo',
       width: 1000,
@@ -49,25 +101,70 @@ export function ImageUploader({ images, onChange }: ImageUploaderProps) {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 text-foreground">
       <div className="flex items-center justify-between">
-        <label className="text-xs uppercase tracking-widest text-white/70 font-medium">
+        <label className="text-xs uppercase tracking-widest text-foreground/80 font-semibold">
           Product Media Gallery ({images.length} Photos)
         </label>
-        <span className="text-[10px] text-[#C9A96E] font-mono">Cloudinary & Unsplash URL Compatible</span>
+        <span className="text-[10px] text-[#C9A96E] font-mono">Direct File Upload & URL Supported</span>
       </div>
 
-      {/* URL Input Form */}
-      <div className="p-4 bg-white/5 border border-white/10 rounded-xl space-y-3">
+      {/* Hidden File Input */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        multiple
+        onChange={handleFileSelect}
+        className="hidden"
+      />
+
+      {/* Direct File Upload Drag and Drop Zone */}
+      <div
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+        onClick={() => fileInputRef.current?.click()}
+        className={`cursor-pointer p-8 rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center text-center space-y-3 ${
+          isDragging
+            ? 'border-[#C9A96E] bg-[#C9A96E]/10 scale-[1.01]'
+            : 'border-border hover:border-[#C9A96E] bg-surface hover:bg-surface-elevated'
+        }`}
+      >
+        <div className="w-14 h-14 rounded-full bg-accent/10 border border-accent/20 flex items-center justify-center text-[#C9A96E] shadow-md">
+          <Upload className="w-7 h-7" />
+        </div>
+        <div className="space-y-1">
+          <p className="text-sm font-semibold text-foreground">
+            Click to upload photos directly from your computer
+          </p>
+          <p className="text-xs text-foreground-muted font-light">
+            Supports PNG, JPG, WEBP, GIF, and SVG (Drag & drop multiple files supported)
+          </p>
+        </div>
+        <button
+          type="button"
+          className="px-5 py-2.5 bg-[#C9A96E] hover:bg-[#D4B87C] text-black font-semibold text-xs uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center gap-2"
+        >
+          <ImagePlus className="w-4 h-4" />
+          <span>Select Image Files</span>
+        </button>
+      </div>
+
+      {/* Optional URL Input Dropdown / Secondary Option */}
+      <div className="p-4 bg-surface border border-border rounded-xl space-y-3">
+        <span className="text-[10px] uppercase tracking-wider font-semibold text-foreground-muted block">
+          Or Add Photo via Image Web Link:
+        </span>
         <div className="flex gap-2">
           <div className="relative flex-1">
-            <LinkIcon className="w-4 h-4 text-white/40 absolute left-3 top-1/2 -translate-y-1/2" />
+            <LinkIcon className="w-4 h-4 text-foreground-muted absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="url"
               value={urlInput}
               onChange={(e) => setUrlInput(e.target.value)}
               placeholder="Paste Image URL (https://images.unsplash.com/... or Cloudinary URL)"
-              className="w-full bg-black/60 border border-white/10 pl-10 pr-4 py-2.5 text-xs text-white placeholder:text-white/30 focus:border-[#C9A96E] focus:outline-none rounded-lg font-mono"
+              className="w-full bg-background border border-border pl-10 pr-4 py-2.5 text-xs text-foreground placeholder:text-foreground-muted focus:border-[#C9A96E] focus:outline-none rounded-lg font-mono"
             />
           </div>
           <input
@@ -75,15 +172,15 @@ export function ImageUploader({ images, onChange }: ImageUploaderProps) {
             value={altInput}
             onChange={(e) => setAltInput(e.target.value)}
             placeholder="Alt description (optional)"
-            className="w-48 bg-black/60 border border-white/10 px-3 py-2.5 text-xs text-white placeholder:text-white/30 focus:border-[#C9A96E] focus:outline-none rounded-lg hidden sm:block"
+            className="w-48 bg-background border border-border px-3 py-2.5 text-xs text-foreground placeholder:text-foreground-muted focus:border-[#C9A96E] focus:outline-none rounded-lg hidden sm:block"
           />
           <button
             type="button"
             onClick={handleAddImageUrl}
-            className="px-4 py-2.5 bg-[#C9A96E] hover:bg-[#D4B87C] text-black font-semibold text-xs uppercase tracking-wider rounded-lg transition-colors flex items-center gap-1 shrink-0"
+            className="px-4 py-2.5 border border-border hover:border-[#C9A96E] text-foreground font-semibold text-xs uppercase tracking-wider rounded-lg transition-colors flex items-center gap-1 shrink-0"
           >
             <Plus className="w-4 h-4" />
-            <span>Add Photo</span>
+            <span>Add Link</span>
           </button>
         </div>
       </div>
@@ -94,50 +191,54 @@ export function ImageUploader({ images, onChange }: ImageUploaderProps) {
           {images.map((img) => (
             <div
               key={img.id}
-              className={`group relative aspect-[3/4] rounded-xl overflow-hidden bg-white/5 border-2 transition-all ${
-                img.isPrimary ? 'border-[#C9A96E] ring-2 ring-[#C9A96E]/30' : 'border-white/10 hover:border-white/30'
+              className={`group relative aspect-[3/4] rounded-xl overflow-hidden bg-surface border-2 transition-all ${
+                img.isPrimary ? 'border-[#C9A96E] ring-2 ring-[#C9A96E]/30' : 'border-border hover:border-foreground/40'
               }`}
             >
-              <Image src={img.url} alt={img.alt} fill className="object-cover" />
+              <Image
+                src={img.url}
+                alt={img.alt || 'Product Image'}
+                fill
+                className="object-cover"
+              />
 
-              {/* Overlay Controls */}
-              <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity p-2 flex flex-col justify-between">
-                <div className="flex justify-between items-center">
+              {/* Badges */}
+              {img.isPrimary && (
+                <div className="absolute top-2 left-2 z-10">
+                  <span className="px-2 py-0.5 text-[9px] uppercase tracking-wider font-bold bg-[#C9A96E] text-black rounded-full shadow-md">
+                    Cover Photo
+                  </span>
+                </div>
+              )}
+
+              {/* Action Overlays */}
+              <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-3 z-20">
+                <button
+                  type="button"
+                  onClick={() => handleRemoveImage(img.id)}
+                  className="self-end p-1.5 bg-red-500/80 hover:bg-red-600 text-white rounded-full transition-colors"
+                  title="Remove image"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+
+                {!img.isPrimary && (
                   <button
                     type="button"
                     onClick={() => handleSetPrimary(img.id)}
-                    className={`p-1.5 rounded-full transition-colors ${
-                      img.isPrimary ? 'bg-[#C9A96E] text-black' : 'bg-black/60 text-white/70 hover:text-white'
-                    }`}
-                    title={img.isPrimary ? 'Primary Photo' : 'Set as Primary'}
+                    className="w-full py-1.5 bg-[#C9A96E] hover:bg-[#D4B87C] text-black text-[10px] uppercase font-bold tracking-wider rounded-lg transition-colors flex items-center justify-center gap-1"
                   >
-                    <Star className="w-3.5 h-3.5 fill-current" />
+                    <Star className="w-3 h-3 fill-black" />
+                    <span>Set Cover</span>
                   </button>
-
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveImage(img.id)}
-                    className="p-1.5 rounded-full bg-black/60 text-white/70 hover:text-red-400 transition-colors"
-                    title="Remove Photo"
-                  >
-                    <X className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-
-                {img.isPrimary && (
-                  <span className="text-[9px] uppercase tracking-widest bg-[#C9A96E] text-black font-bold px-2 py-0.5 rounded text-center">
-                    Primary Cover
-                  </span>
                 )}
               </div>
             </div>
           ))}
         </div>
       ) : (
-        <div className="py-12 border-2 border-dashed border-white/10 rounded-xl flex flex-col items-center justify-center text-center p-6 text-white/40">
-          <Upload className="w-8 h-8 text-[#C9A96E] mb-3" />
-          <p className="text-xs uppercase tracking-wider mb-1 font-medium text-white/70">No photos added yet</p>
-          <p className="text-[11px] font-light">Paste a Cloudinary or high-res photo URL above to populate the product gallery.</p>
+        <div className="p-8 border border-dashed border-border rounded-xl text-center text-foreground-muted text-xs font-light">
+          No photos uploaded yet. Click above to select image files directly from your device.
         </div>
       )}
     </div>
