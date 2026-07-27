@@ -29,6 +29,7 @@ export default function RootLayout({
         },
         elements: {
           card: 'bg-[#141414] border border-white/20 shadow-2xl rounded-2xl text-white',
+          cardBox: 'bg-[#141414] border border-white/20 shadow-2xl rounded-2xl text-white',
           headerTitle: 'font-serif text-[#C9A96E] text-2xl font-bold',
           headerSubtitle: 'text-white/90 text-sm font-normal',
           socialButtonsBlockButton: 'bg-white/5 border border-white/20 hover:border-[#C9A96E] hover:bg-white/10 transition-colors text-white',

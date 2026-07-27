@@ -99,13 +99,20 @@
 /* ==========================================================================
    Clerk Auth Modal & Card High-Contrast Overrides
    ========================================================================== */
-.cl-card, .cl-userButtonPopoverCard {
+.cl-card,
+.cl-cardBox,
+.cl-rootBox,
+.cl-userButtonPopoverCard {
   background-color: #141414 !important;
   border: 1px solid rgba(255, 255, 255, 0.15) !important;
   color: #FAFAF8 !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7) !important;
+  border-radius: 1rem !important;
 }
 
-.cl-headerTitle {
+.cl-headerTitle,
+.cl-sign-up-title,
+.cl-sign-in-title {
   color: #C9A96E !important;
   font-family: var(--font-heading), Georgia, serif !important;
   font-size: 1.5rem !important;
@@ -158,24 +165,37 @@
   font-weight: 500 !important;
 }
 
-.cl-formButtonPrimary {
+/* Force Gold Theme on ALL Clerk Primary Buttons */
+.cl-formButtonPrimary,
+button.cl-formButtonPrimary,
+button[data-localization-key*="formButtonPrimary"],
+button[data-localization-key*="continue"],
+button[data-localization-key*="signUp"] {
   background-color: #C9A96E !important;
   color: #000000 !important;
   font-weight: 700 !important;
   letter-spacing: 0.1em !important;
   text-transform: uppercase !important;
+  border: none !important;
 }
 
-.cl-formButtonPrimary:hover {
+.cl-formButtonPrimary:hover,
+button.cl-formButtonPrimary:hover,
+button[data-localization-key*="formButtonPrimary"]:hover {
   background-color: #D4B87C !important;
+  color: #000000 !important;
 }
 
-.cl-footerActionLink {
+/* Force Gold Links */
+.cl-footerActionLink,
+.cl-formResendCodeLink,
+a.cl-footerActionLink {
   color: #C9A96E !important;
   font-weight: 600 !important;
 }
 
-.cl-footerActionLink:hover {
+.cl-footerActionLink:hover,
+a.cl-footerActionLink:hover {
   color: #FFFFFF !important;
 }
 
