@@ -53,7 +53,7 @@
     --foreground: #FAFAF8;
     --surface: #141414;
     --surface-elevated: #1A1A1A;
-    --foreground-muted: #8A8A8A;
+    --foreground-muted: #A1A1AA;
     --accent: #D4B87C;
     --accent-hover: #E5C88A;
     --accent-foreground: #0A0A0A;
@@ -94,6 +94,93 @@
   .text-gradient-shimmer {
     @apply bg-clip-text text-transparent bg-gradient-to-r from-accent via-[#FFDF99] to-accent bg-[length:200%_auto] animate-[shimmer_2s_linear_infinite];
   }
+}
+
+/* ==========================================================================
+   Clerk Auth Modal & Card High-Contrast Overrides
+   ========================================================================== */
+.cl-card, .cl-userButtonPopoverCard {
+  background-color: #141414 !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  color: #FAFAF8 !important;
+}
+
+.cl-headerTitle {
+  color: #C9A96E !important;
+  font-family: var(--font-heading), Georgia, serif !important;
+  font-size: 1.5rem !important;
+  font-weight: 700 !important;
+}
+
+.cl-headerSubtitle,
+.cl-formFieldLabel,
+.cl-dividerText,
+.cl-footerActionText,
+.cl-identityPreviewText,
+.cl-userPreviewMainIdentifier,
+.cl-userPreviewSecondaryIdentifier,
+.cl-formHeaderSubtitle,
+.cl-internal-logo {
+  color: rgba(250, 250, 248, 0.9) !important;
+}
+
+.cl-formFieldLabel {
+  font-size: 0.75rem !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.05em !important;
+  text-transform: uppercase !important;
+}
+
+.cl-formFieldInput {
+  background-color: #1A1A1A !important;
+  color: #FFFFFF !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  border-radius: 0.75rem !important;
+}
+
+.cl-formFieldInput::placeholder {
+  color: rgba(255, 255, 255, 0.4) !important;
+}
+
+.cl-formFieldInput:focus {
+  border-color: #C9A96E !important;
+  box-shadow: 0 0 0 1px #C9A96E !important;
+}
+
+.cl-socialButtonsBlockButton {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  color: #FAFAF8 !important;
+}
+
+.cl-socialButtonsBlockButtonText {
+  color: #FAFAF8 !important;
+  font-weight: 500 !important;
+}
+
+.cl-formButtonPrimary {
+  background-color: #C9A96E !important;
+  color: #000000 !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.1em !important;
+  text-transform: uppercase !important;
+}
+
+.cl-formButtonPrimary:hover {
+  background-color: #D4B87C !important;
+}
+
+.cl-footerActionLink {
+  color: #C9A96E !important;
+  font-weight: 600 !important;
+}
+
+.cl-footerActionLink:hover {
+  color: #FFFFFF !important;
+}
+
+.cl-dividerLine {
+  background-color: rgba(255, 255, 255, 0.2) !important;
 }
 
 @keyframes fadeIn {

@@ -3,7 +3,21 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Package, FolderTree, ShoppingBag, Tag, Image as ImageIcon, Users, Palette, Film, ExternalLink, ShieldCheck } from 'lucide-react';
+import { useClerk } from '@clerk/nextjs';
+import {
+  LayoutDashboard,
+  Package,
+  FolderTree,
+  ShoppingBag,
+  Tag,
+  Image as ImageIcon,
+  Users,
+  Palette,
+  Film,
+  ExternalLink,
+  ShieldCheck,
+  LogOut
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const ADMIN_NAV_ITEMS = [
@@ -20,10 +34,27 @@ const ADMIN_NAV_ITEMS = [
 
 export function AdminSidebar() {
   const pathname = usePathname();
+  const { signOut } = useClerk();
+
+  const handleSignOut = async () => {
+    // Clear custom admin session cookie & localStorage
+    document.cookie = 'piyella_admin_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+    try {
+      localStorage.removeItem('piyella_admin_session');
+    } catch {}
+
+    // Sign out of Clerk if active
+    try {
+      await signOut();
+    } catch {}
+
+    // Redirect to Admin Login page
+    window.location.href = '/admin-login';
+  };
 
   return (
     <aside className="w-64 bg-[#0a0a0a] border-r border-white/10 flex flex-col justify-between h-screen sticky top-0 shrink-0">
-      <div className="p-6 space-y-8">
+      <div className="p-6 space-y-8 overflow-y-auto">
         {/* Brand Header */}
         <div>
           <Link href="/" className="font-serif tracking-[0.3em] uppercase text-xl font-bold text-white block mb-1">
@@ -60,19 +91,27 @@ export function AdminSidebar() {
         </nav>
       </div>
 
-      {/* Footer Section */}
-      <div className="p-6 border-t border-white/10 space-y-4">
+      {/* Footer Section with Storefront Link & Sign Out Button */}
+      <div className="p-6 border-t border-white/10 space-y-3">
         <Link
           href="/"
           target="_blank"
-          className="flex items-center justify-between p-3 rounded-lg bg-white/5 border border-white/10 text-xs text-white/80 hover:text-[#C9A96E] hover:border-[#C9A96E]/50 transition-colors"
+          className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/10 text-xs text-white/80 hover:text-[#C9A96E] hover:border-[#C9A96E]/50 transition-colors"
         >
           <span>View Public Storefront</span>
           <ExternalLink className="w-3.5 h-3.5" />
         </Link>
 
-        <p className="text-[10px] text-white/30 text-center font-mono">
-          Piyella Admin v2.4 &bull; Next 15
+        <button
+          onClick={handleSignOut}
+          className="w-full flex items-center justify-center gap-2 p-3 rounded-xl bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-xs font-semibold text-red-400 uppercase tracking-wider transition-all duration-200"
+        >
+          <LogOut className="w-3.5 h-3.5" />
+          <span>Sign Out Admin</span>
+        </button>
+
+        <p className="text-[10px] text-white/30 text-center font-mono pt-1">
+          Piyella Admin Executive v2.4
         </p>
       </div>
     </aside>
