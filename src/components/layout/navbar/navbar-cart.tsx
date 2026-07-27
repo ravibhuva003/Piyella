@@ -1,12 +1,20 @@
 'use client';
 
+import React, { useState, useEffect } from 'react';
 import { ShoppingBag } from 'lucide-react';
 import { motion } from 'motion/react';
 import Link from 'next/link';
-// For demo purposes, we'll hardcode a count of 2. In a real app, this would come from a cart store/context.
+import { useCart } from '@/hooks/use-cart';
 
 export function NavbarCart() {
-  const count = 2; // Mock count
+  const { itemCount } = useCart();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const count = mounted ? itemCount : 0;
 
   return (
     <Link href="/cart" className="relative p-1 text-foreground/80 hover:text-foreground transition-colors" aria-label="Cart">

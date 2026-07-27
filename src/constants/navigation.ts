@@ -19,17 +19,13 @@ export const mainNavItems: NavItem[] = [
     title: 'Contact',
     href: '/contact',
   },
-  {
-    title: 'Admin',
-    href: '/admin-login',
-  },
 ];
 
 export const footerNavItems = {
   company: [
     { title: 'Behind the Stitch', href: '/story' },
     { title: 'Commission Artwork', href: '/custom-artwork' },
-    { title: 'Atelier Cinema Reels', href: '/reels' },
+    { title: 'Cinema Reels', href: '/reels' },
     { title: 'About Us', href: '/about' },
   ],
   customerService: [
