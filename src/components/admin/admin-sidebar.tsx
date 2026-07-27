@@ -14,6 +14,7 @@ import {
   Users,
   Palette,
   Film,
+  PhoneCall,
   ExternalLink,
   ShieldCheck,
   LogOut
@@ -27,6 +28,7 @@ const ADMIN_NAV_ITEMS = [
   { title: 'Customer Orders', href: '/admin/orders', icon: ShoppingBag },
   { title: 'Custom Artworks', href: '/admin/custom-artworks', icon: Palette },
   { title: 'Instagram Reels', href: '/admin/reels', icon: Film },
+  { title: 'Contact & Social Links', href: '/admin/contact', icon: PhoneCall },
   { title: 'Promotions & Coupons', href: '/admin/coupons', icon: Tag },
   { title: 'Homepage Banners', href: '/admin/banners', icon: ImageIcon },
   { title: 'User Management', href: '/admin/users', icon: Users },
@@ -37,18 +39,15 @@ export function AdminSidebar() {
   const { signOut } = useClerk();
 
   const handleSignOut = async () => {
-    // Clear custom admin session cookie & localStorage
     document.cookie = 'piyella_admin_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
     try {
       localStorage.removeItem('piyella_admin_session');
     } catch {}
 
-    // Sign out of Clerk if active
     try {
       await signOut();
     } catch {}
 
-    // Redirect to Admin Login page
     window.location.href = '/admin-login';
   };
 
@@ -91,7 +90,7 @@ export function AdminSidebar() {
         </nav>
       </div>
 
-      {/* Footer Section with Storefront Link & Sign Out Button */}
+      {/* Footer Section */}
       <div className="p-6 border-t border-white/10 space-y-3">
         <Link
           href="/"

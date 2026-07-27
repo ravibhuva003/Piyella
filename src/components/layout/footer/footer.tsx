@@ -1,10 +1,16 @@
+'use client';
+
+import React from 'react';
 import Link from 'next/link';
 import { IconInstagram, IconTwitterX, IconFacebook } from '@/components/shared/social-icons';
 import { Container } from '@/components/layout/container';
 import { footerNavItems } from '@/constants/navigation';
 import { FooterNewsletter } from './footer-newsletter';
+import { useContactStore } from '@/lib/store/contact-store';
 
 export function Footer() {
+  const { settings } = useContactStore();
+
   return (
     <footer className="bg-background border-t border-border/30 pt-16 lg:pt-24 pb-8 overflow-hidden text-foreground">
       <Container>
@@ -29,16 +35,40 @@ export function Footer() {
             <p className="text-foreground-muted text-sm leading-relaxed max-w-xs">
               Redefining modern luxury. Exquisite craftsmanship meets contemporary design, creating timeless pieces for the discerning individual.
             </p>
-            <div className="flex items-center gap-4 mt-2">
-              <a href="#" className="p-2 rounded-full border border-border hover:border-[#C9A96E] hover:text-[#C9A96E] transition-colors" aria-label="Instagram">
-                <IconInstagram className="w-4 h-4" />
-              </a>
-              <a href="#" className="p-2 rounded-full border border-border hover:border-[#C9A96E] hover:text-[#C9A96E] transition-colors" aria-label="Twitter">
-                <IconTwitterX className="w-4 h-4" />
-              </a>
-              <a href="#" className="p-2 rounded-full border border-border hover:border-[#C9A96E] hover:text-[#C9A96E] transition-colors" aria-label="Facebook">
-                <IconFacebook className="w-4 h-4" />
-              </a>
+            <div className="flex items-center gap-3 mt-2">
+              {settings.socials.instagram && (
+                <a 
+                  href={settings.socials.instagram} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="p-2 rounded-full border border-border hover:border-[#C9A96E] hover:text-[#C9A96E] transition-colors" 
+                  aria-label="Instagram"
+                >
+                  <IconInstagram className="w-4 h-4" />
+                </a>
+              )}
+              {settings.socials.twitter && (
+                <a 
+                  href={settings.socials.twitter} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="p-2 rounded-full border border-border hover:border-[#C9A96E] hover:text-[#C9A96E] transition-colors" 
+                  aria-label="Twitter"
+                >
+                  <IconTwitterX className="w-4 h-4" />
+                </a>
+              )}
+              {settings.socials.facebook && (
+                <a 
+                  href={settings.socials.facebook} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="p-2 rounded-full border border-border hover:border-[#C9A96E] hover:text-[#C9A96E] transition-colors" 
+                  aria-label="Facebook"
+                >
+                  <IconFacebook className="w-4 h-4" />
+                </a>
+              )}
             </div>
           </div>
 
@@ -69,7 +99,7 @@ export function Footer() {
 
           {/* Company Column */}
           <div>
-            <h3 className="font-semibold mb-6 uppercase tracking-wider text-sm">Company</h3>
+            <h3 className="font-semibold mb-6 uppercase tracking-wider text-sm">Company & Atelier</h3>
             <ul className="flex flex-col gap-4">
               {footerNavItems.company.map((item) => (
                 <li key={item.title}>
@@ -78,6 +108,10 @@ export function Footer() {
                   </Link>
                 </li>
               ))}
+              <li className="text-xs text-foreground-muted pt-2 border-t border-border/20">
+                <span className="block font-medium text-foreground">{settings.phone}</span>
+                <span className="block">{settings.email}</span>
+              </li>
             </ul>
           </div>
         </div>
