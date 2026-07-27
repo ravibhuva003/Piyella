@@ -7,6 +7,9 @@ export default function SignInPage() {
         signUpUrl="/sign-up"
         forceRedirectUrl="/"
         fallbackRedirectUrl="/"
+        initialValues={{
+          emailAddress: '',
+        }}
         appearance={{
           variables: {
             colorPrimary: '#C9A96E',
