@@ -24,7 +24,6 @@ export function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
-  const [showAnnouncement, setShowAnnouncement] = useState(true);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -48,25 +47,6 @@ export function Navbar() {
         animate={{ y: hideNav ? -120 : 0 }}
         transition={{ duration: 0.3, ease: 'easeInOut' }}
       >
-        <AnimatePresence>
-          {showAnnouncement && (
-            <motion.div
-              initial={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              className="bg-foreground text-background relative flex items-center justify-center px-4 py-2 text-xs md:text-sm font-medium tracking-wide"
-            >
-              <p className="text-[#C9A96E]">Free Shipping on Orders Above ₹2,999</p>
-              <button
-                onClick={() => setShowAnnouncement(false)}
-                className="absolute right-4 p-1 hover:text-[#C9A96E] transition-colors"
-                aria-label="Close announcement"
-              >
-                <X className="w-3.5 h-3.5" />
-              </button>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
         <Container>
           <div className="flex items-center justify-between h-20">
             {/* Left Mobile Menu Button */}
@@ -140,7 +120,7 @@ export function Navbar() {
 
               <button 
                 onClick={() => setIsSearchOpen(true)}
-                className="text-foreground/80 hover:text-[#C9A96E] transition-colors"
+                className="text-[#C9A96E] transition-colors"
                 aria-label="Search"
               >
                 <Search className="w-5 h-5" />

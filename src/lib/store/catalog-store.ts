@@ -58,8 +58,8 @@ const INITIAL_COUPONS: Coupon[] = [
 ];
 
 const INITIAL_BANNER: BannerConfig = {
-  announcementText: 'Complimentary Express Worldwide Shipping on Orders Above ₹2,999',
-  announcementActive: true,
+  announcementText: 'Handcrafted Bespoke Luxury Collection',
+  announcementActive: false,
   heroHeadline: 'Mastery of Bespoke Luxury',
   heroSubtitle: 'Handcrafted in Italian ateliers with rare calfskin, 100% pure Mulberry silk, and Swiss automatic movements.',
 };
