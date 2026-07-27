@@ -43,10 +43,10 @@ export function ProductCard({ product }: ProductCardProps) {
   return (
     <motion.div
       whileHover={{ y: -6 }}
-      className="group relative flex flex-col rounded-xl overflow-hidden bg-background/50 border border-white/5 shadow-xl transition-shadow hover:shadow-2xl hover:shadow-[#C9A96E]/5"
+      className="group relative flex flex-col rounded-xl overflow-hidden bg-surface border border-border shadow-xl transition-all hover:shadow-2xl hover:shadow-[#C9A96E]/10"
     >
       {/* Images & Overlay */}
-      <div className="relative aspect-[3/4] overflow-hidden bg-white/5">
+      <div className="relative aspect-[3/4] overflow-hidden bg-muted/20">
         <Link href={href} className="absolute inset-0 z-10">
           <span className="sr-only">View {product.name}</span>
         </Link>
@@ -86,7 +86,7 @@ export function ProductCard({ product }: ProductCardProps) {
             e.preventDefault();
             toggleWishlist(product);
           }}
-          className="absolute top-4 right-4 z-20 p-2 rounded-full bg-black/20 backdrop-blur-md border border-white/10 text-white/70 hover:text-[#C9A96E] hover:border-[#C9A96E]/50 transition-colors"
+          className="absolute top-4 right-4 z-20 p-2 rounded-full bg-background/60 backdrop-blur-md border border-border text-foreground hover:text-[#C9A96E] transition-colors"
           aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
         >
           <Heart
@@ -101,7 +101,7 @@ export function ProductCard({ product }: ProductCardProps) {
               e.preventDefault();
               addItem(product);
             }}
-            className="w-full flex items-center justify-center gap-2 py-3 bg-black/80 backdrop-blur-xl border border-white/10 text-white text-sm font-medium hover:bg-[#C9A96E] hover:text-black hover:border-transparent transition-all duration-300"
+            className="w-full flex items-center justify-center gap-2 py-3 bg-[#C9A96E] hover:bg-[#D4B87C] text-black text-xs uppercase tracking-widest font-semibold rounded-lg shadow-lg transition-all duration-300"
           >
             <ShoppingBag className="w-4 h-4" />
             <span>Add to Bag</span>
@@ -111,28 +111,28 @@ export function ProductCard({ product }: ProductCardProps) {
 
       {/* Details */}
       <div className="p-5 flex flex-col flex-grow">
-        <span className="text-[10px] uppercase tracking-[0.2em] text-white/50 mb-2">
+        <span className="text-[10px] uppercase tracking-[0.2em] text-foreground-muted mb-2 font-medium">
           {product.category}
         </span>
         
         <Link href={href} className="group-hover:text-[#C9A96E] transition-colors">
-          <h3 className="font-serif text-lg text-white font-medium line-clamp-1 mb-1">
+          <h3 className="font-serif text-lg text-foreground font-medium line-clamp-1 mb-1">
             {product.name}
           </h3>
         </Link>
         
         <div className="flex items-center gap-1 mb-3">
           <Star className="w-3.5 h-3.5 fill-[#C9A96E] text-[#C9A96E]" />
-          <span className="text-xs font-medium text-white/90">{product.ratings}</span>
-          <span className="text-xs text-white/40">({product.reviewCount})</span>
+          <span className="text-xs font-medium text-foreground">{product.ratings}</span>
+          <span className="text-xs text-foreground-muted">({product.reviewCount})</span>
         </div>
         
         <div className="mt-auto flex items-center gap-2">
-          <span className="text-white font-medium">
+          <span className="text-foreground font-medium">
             {formatPrice(product.price)}
           </span>
           {product.compareAtPrice && product.compareAtPrice > product.price && (
-            <span className="text-sm text-white/40 line-through">
+            <span className="text-sm text-foreground-muted line-through">
               {formatPrice(product.compareAtPrice)}
             </span>
           )}

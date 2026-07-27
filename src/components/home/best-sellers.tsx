@@ -8,14 +8,13 @@ import { Container } from '@/components/layout/container';
 import { ProductCard } from '@/components/product/ProductCard';
 import { Product } from '@/types/product';
 import { useCatalogStore } from '@/lib/store/catalog-store';
-import { cn } from '@/lib/utils';
 
 interface BestSellersProps {
   products?: Product[];
 }
 
 export function BestSellers({ products: initialProducts }: BestSellersProps) {
-  const { products: storeProducts, isLoaded } = useCatalogStore();
+  const { products: storeProducts } = useCatalogStore();
   const products = storeProducts.length > 0 ? storeProducts : (initialProducts || []);
 
   const [activeTab, setActiveTab] = useState('All');
@@ -26,7 +25,7 @@ export function BestSellers({ products: initialProducts }: BestSellersProps) {
   }).slice(0, 8);
 
   return (
-    <section className="py-24 md:py-32 bg-[#0a0a0a] border-t border-white/5 text-white">
+    <section className="py-24 md:py-32 bg-background border-t border-border text-foreground transition-colors duration-300">
       <Container>
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-8">
@@ -34,7 +33,7 @@ export function BestSellers({ products: initialProducts }: BestSellersProps) {
             <span className="text-[#C9A96E] text-xs uppercase tracking-[0.3em] font-medium block mb-3">
               Most Coveted
             </span>
-            <h2 className="font-serif text-3xl sm:text-5xl text-white font-medium tracking-tight">
+            <h2 className="font-serif text-3xl sm:text-5xl text-foreground font-medium tracking-tight">
               Best Sellers
             </h2>
           </div>
@@ -48,13 +47,13 @@ export function BestSellers({ products: initialProducts }: BestSellersProps) {
             ))}
           </motion.div>
         ) : (
-          <div className="py-16 bg-black border border-dashed border-white/10 rounded-3xl text-center space-y-4 max-w-xl mx-auto p-8">
-            <div className="w-16 h-16 rounded-full bg-white/5 text-[#C9A96E] flex items-center justify-center mx-auto border border-white/10">
+          <div className="py-16 bg-surface border border-dashed border-border rounded-3xl text-center space-y-4 max-w-xl mx-auto p-8 shadow-inner">
+            <div className="w-16 h-16 rounded-full bg-accent/10 text-[#C9A96E] flex items-center justify-center mx-auto border border-accent/20">
               <PackagePlus className="w-8 h-8" />
             </div>
             <div className="space-y-1">
-              <h3 className="font-serif text-2xl text-white">No Products Published Yet</h3>
-              <p className="text-xs text-white/50 font-light">
+              <h3 className="font-serif text-2xl text-foreground">No Products Published Yet</h3>
+              <p className="text-xs text-foreground-muted font-light">
                 Administrators can create products, upload high-res images, set prices, and configure variants in the Admin Dashboard.
               </p>
             </div>

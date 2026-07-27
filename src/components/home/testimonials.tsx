@@ -55,64 +55,69 @@ export function TestimonialsSection() {
   };
 
   return (
-    <section className="py-24 md:py-32 bg-[#0a0a0a] border-t border-white/5 relative overflow-hidden">
+    <section className="py-24 md:py-32 bg-background border-t border-border relative overflow-hidden text-foreground transition-colors duration-300">
       <Container>
         <div className="max-w-4xl mx-auto text-center flex flex-col items-center">
           
-          <Quote className="w-12 h-12 text-[#C9A96E]/40 mb-8" />
-          
-          <div className="min-h-[220px] sm:min-h-[200px] flex items-center justify-center w-full">
+          {/* Quote Icon */}
+          <div className="w-16 h-16 rounded-full bg-accent/10 border border-accent/20 text-[#C9A96E] flex items-center justify-center mb-8 shadow-lg">
+            <Quote className="w-7 h-7" />
+          </div>
+
+          {/* Testimonial Card Slider */}
+          <div className="relative min-h-[220px] sm:min-h-[180px] w-full flex items-center justify-center">
             <AnimatePresence mode="wait">
               <motion.div
-                key={current}
+                key={TESTIMONIALS[current].id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                className="flex flex-col items-center"
+                transition={{ duration: 0.5, ease: 'easeOut' }}
+                className="space-y-6"
               >
                 {/* Rating Stars */}
-                <div className="flex gap-1 text-[#C9A96E] mb-6">
+                <div className="flex items-center justify-center gap-1.5">
                   {[...Array(TESTIMONIALS[current].rating)].map((_, i) => (
-                    <Star key={i} size={18} fill="currentColor" />
+                    <Star key={i} className="w-4 h-4 fill-[#C9A96E] text-[#C9A96E]" />
                   ))}
                 </div>
 
                 {/* Quote Text */}
-                <blockquote className="font-serif text-2xl sm:text-4xl text-white font-light leading-snug italic max-w-3xl mb-8">
-                  "{TESTIMONIALS[current].quote}"
-                </blockquote>
+                <p className="font-serif text-xl sm:text-3xl md:text-4xl text-foreground font-medium italic leading-relaxed max-w-3xl">
+                  &ldquo;{TESTIMONIALS[current].quote}&rdquo;
+                </p>
 
                 {/* Author Info */}
-                <div>
-                  <cite className="not-italic font-medium text-white text-base block mb-1">
+                <div className="pt-2">
+                  <h4 className="text-sm sm:text-base font-semibold uppercase tracking-[0.2em] text-[#C9A96E]">
                     {TESTIMONIALS[current].author}
-                  </cite>
-                  <span className="text-xs uppercase tracking-[0.2em] text-[#C9A96E] font-light">
+                  </h4>
+                  <p className="text-xs text-foreground-muted font-light mt-1">
                     {TESTIMONIALS[current].title}
-                  </span>
+                  </p>
                 </div>
               </motion.div>
             </AnimatePresence>
           </div>
 
-          {/* Navigation Controls */}
+          {/* Controls */}
           <div className="flex items-center gap-6 mt-12">
             <button
               onClick={prevTestimonial}
-              className="p-3 rounded-full border border-white/10 text-white/60 hover:text-white hover:border-[#C9A96E] hover:bg-white/5 transition-all"
+              className="p-3 rounded-full border border-border text-foreground-muted hover:text-foreground hover:border-[#C9A96E] transition-all"
               aria-label="Previous quote"
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
 
+            {/* Dots */}
             <div className="flex gap-2">
-              {TESTIMONIALS.map((_, idx) => (
+              {TESTIMONIALS.map((t, idx) => (
                 <button
-                  key={idx}
+                  key={t.id}
                   onClick={() => setCurrent(idx)}
                   className={`h-1.5 rounded-full transition-all duration-300 ${
-                    current === idx ? 'w-8 bg-[#C9A96E]' : 'w-2 bg-white/20'
+                    current === idx ? 'w-8 bg-[#C9A96E]' : 'w-2 bg-foreground-muted/30'
                   }`}
                   aria-label={`Go to slide ${idx + 1}`}
                 />
@@ -121,7 +126,7 @@ export function TestimonialsSection() {
 
             <button
               onClick={nextTestimonial}
-              className="p-3 rounded-full border border-white/10 text-white/60 hover:text-white hover:border-[#C9A96E] hover:bg-white/5 transition-all"
+              className="p-3 rounded-full border border-border text-foreground-muted hover:text-foreground hover:border-[#C9A96E] transition-all"
               aria-label="Next quote"
             >
               <ChevronRight className="w-5 h-5" />
