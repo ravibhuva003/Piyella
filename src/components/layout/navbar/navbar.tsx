@@ -40,11 +40,11 @@ export function Navbar() {
     <>
       <motion.header
         className={cn(
-          'fixed inset-x-0 top-0 z-50 flex flex-col w-full transition-colors duration-300',
-          isScrolled ? 'bg-background/80 backdrop-blur-xl border-b border-border/50 shadow-sm' : 'bg-transparent'
+          'fixed inset-x-0 top-0 z-50 flex flex-col w-full transition-all duration-300',
+          isScrolled ? 'bg-background/90 backdrop-blur-xl border-b border-border/50 shadow-md' : 'bg-transparent'
         )}
         initial={{ y: 0 }}
-        animate={{ y: hideNav ? -120 : 0 }}
+        animate={{ y: 0 }}
         transition={{ duration: 0.3, ease: 'easeInOut' }}
       >
         <Container>
