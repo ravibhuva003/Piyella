@@ -69,17 +69,14 @@ export function Navbar() {
             <nav className="hidden lg:flex items-center gap-8">
               {mainNavItems.map((item) => {
                 const isActive = pathname === item.href;
-                const isAdmin = item.title === 'Admin';
                 return (
                   <Link
                     key={item.href}
                     href={item.href}
-                    className={`text-xs uppercase tracking-widest transition-all hover:text-accent flex items-center gap-1 ${
-                      isAdmin ? 'text-[#C9A96E] font-semibold hover:underline' :
+                    className={`text-xs uppercase tracking-widest transition-all hover:text-accent ${
                       isActive ? 'text-accent font-semibold' : 'text-foreground/80'
                     }`}
                   >
-                    {isAdmin && <ShieldCheck className="w-3.5 h-3.5 text-[#C9A96E]" />}
                     <span>{item.title}</span>
                   </Link>
                 );
