@@ -29,6 +29,7 @@ export interface AdminUser {
   ordersCount: number;
   totalSpent: number;
   createdAt: string;
+  isParentAdmin?: boolean;
 }
 
 export interface AdminOrder {
@@ -61,10 +62,11 @@ const INITIAL_BANNER: BannerConfig = {
 
 const INITIAL_USERS: AdminUser[] = [
   {
-    id: 'u_piyella_admin',
-    name: 'Piyella Admin',
+    id: 'u_piyella_parent_admin',
+    name: 'Piyella Parent Admin',
     email: 'piyella@gmail.com',
     role: 'admin',
+    isParentAdmin: true,
     ordersCount: 0,
     totalSpent: 0,
     createdAt: '2026-07-27T12:00:00Z',
@@ -220,6 +222,19 @@ export function useCatalogStore() {
     saveUsers(updated);
   };
 
+  const addAdminUser = (name: string, email: string, role: AdminUser['role'] = 'admin') => {
+    const newUser: AdminUser = {
+      id: `u_${Date.now()}`,
+      name,
+      email,
+      role,
+      ordersCount: 0,
+      totalSpent: 0,
+      createdAt: new Date().toISOString(),
+    };
+    saveUsers([newUser, ...users]);
+  };
+
   const addOrder = (order: AdminOrder) => {
     saveOrders([order, ...orders]);
   };
@@ -255,6 +270,7 @@ export function useCatalogStore() {
     toggleCoupon,
     deleteCoupon,
     updateUserRole,
+    addAdminUser,
     addOrder,
     saveOrders,
     saveCoupons,
