@@ -23,16 +23,24 @@ export default function RootLayout({
       appearance={{
         variables: {
           colorPrimary: '#C9A96E',
-          colorBackground: '#0A0A0A',
-          borderRadius: '0.5rem',
+          colorBackground: '#141414',
+          colorNeutral: '#FAFAF8',
+          borderRadius: '0.75rem',
         },
         elements: {
-          card: 'bg-[#0A0A0A] border border-white/10 shadow-2xl rounded-2xl',
+          card: 'bg-[#141414] border border-white/20 shadow-2xl rounded-2xl text-white',
           headerTitle: 'font-serif text-[#C9A96E]',
-          headerSubtitle: 'text-white/60 font-light',
-          socialButtonsBlockButton: 'border border-white/10 hover:border-[#C9A96E] hover:bg-white/5 transition-colors text-white',
+          headerSubtitle: 'text-white/80 font-light',
+          socialButtonsBlockButton: 'border border-white/20 hover:border-[#C9A96E] hover:bg-white/10 transition-colors text-white',
           formButtonPrimary: 'bg-[#C9A96E] hover:bg-[#D4B87C] text-black font-semibold uppercase tracking-widest text-xs',
           footerActionLink: 'text-[#C9A96E] hover:text-white transition-colors',
+          userButtonPopoverCard: 'bg-[#141414] border border-white/20 shadow-2xl rounded-2xl text-white',
+          userButtonPopoverActionButton: 'text-white hover:bg-white/10 hover:text-[#C9A96E] transition-colors',
+          userButtonPopoverActionButtonText: 'text-white font-medium text-xs',
+          userButtonPopoverActionButtonIcon: 'text-[#C9A96E]',
+          userButtonPopoverFooter: 'hidden',
+          userPreviewMainIdentifier: 'text-white font-semibold text-sm',
+          userPreviewSecondaryIdentifier: 'text-white/80 text-xs',
         },
       }}
     >
