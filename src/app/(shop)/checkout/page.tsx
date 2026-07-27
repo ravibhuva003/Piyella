@@ -88,7 +88,7 @@ export default function CheckoutPage({ searchParams }: CheckoutPageProps) {
           key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'rzp_test_mockkey12345',
           amount: grandTotal * 100,
           currency: 'INR',
-          name: 'Piyella Luxury Atelier',
+          name: 'Piyella Luxury',
           description: `Order #${orderId}`,
           handler: () => {
             finalizeOrder(orderId);

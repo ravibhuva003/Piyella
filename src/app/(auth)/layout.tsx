@@ -19,7 +19,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       </div>
 
       <p className="relative z-10 text-xs text-white/40 font-light mt-8">
-        &copy; {new Date().getFullYear()} Piyella Atelier. All Rights Reserved.
+        &copy; {new Date().getFullYear()} Piyella. All Rights Reserved.
       </p>
     </main>
   );

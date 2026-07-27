@@ -31,11 +31,11 @@ export default async function CollectionsPage() {
         <div className="relative z-10 text-center px-4 max-w-4xl mx-auto space-y-4">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#C9A96E]/10 border border-[#C9A96E]/30 text-[#C9A96E] text-xs font-semibold uppercase tracking-widest">
             <Sparkles className="w-4 h-4" />
-            <span>Master Atelier Curations</span>
+            <span>Master Curations</span>
           </div>
 
           <h1 className="font-heading text-4xl sm:text-6xl font-light text-white leading-tight">
-            All Atelier Collections
+            All Collections
           </h1>
 
           <p className="text-white/70 font-light text-sm sm:text-base leading-relaxed max-w-xl mx-auto">

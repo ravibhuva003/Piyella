@@ -99,7 +99,7 @@ export function Footer() {
 
           {/* Company Column */}
           <div>
-            <h3 className="font-semibold mb-6 uppercase tracking-wider text-sm">Company & Atelier</h3>
+            <h3 className="font-semibold mb-6 uppercase tracking-wider text-sm">Company</h3>
             <ul className="flex flex-col gap-4">
               {footerNavItems.company.map((item) => (
                 <li key={item.title}>
@@ -119,7 +119,7 @@ export function Footer() {
         {/* Bottom Bar */}
         <div className="pt-8 border-t border-border flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-xs text-foreground-muted">
-            &copy; {new Date().getFullYear()} PIYELLA Atelier. All rights reserved.
+            &copy; {new Date().getFullYear()} PIYELLA. All rights reserved.
           </p>
           <div className="flex items-center gap-6">
             {footerNavItems.legal.map((item) => (

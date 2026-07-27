@@ -29,7 +29,7 @@ export default function StoryPage() {
     },
     {
       number: '04',
-      title: 'Velvet Lining & Atelier Signature Seal',
+      title: 'Velvet Lining & Signature Crest Seal',
       description: 'Every purse and tapestry is hand-stitched with Mulberry silk lining, sealed with our brass crest, and inspected for perfection.',
       image: 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?q=80&w=800&auto=format&fit=crop',
     },
@@ -43,7 +43,7 @@ export default function StoryPage() {
         <div className="max-w-3xl mx-auto text-center mb-20 space-y-6">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#C9A96E]/10 border border-[#C9A96E]/30 text-[#C9A96E] text-xs font-semibold uppercase tracking-widest">
             <Feather className="w-4 h-4" />
-            <span>The Handcrafted Atelier Legacy</span>
+            <span>The Handcrafted Legacy</span>
           </div>
           <h1 className="font-serif text-4xl sm:text-6xl text-white font-medium leading-tight">
             Handcrafted with Soul, Thread & Devotion

@@ -65,7 +65,7 @@ export function HeroSection() {
               transition={{ duration: 0.8, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
               className="text-base sm:text-lg md:text-xl text-white/70 font-light max-w-2xl mx-auto leading-relaxed mb-12"
             >
-              Handcrafted in Italian ateliers with rare calfskin, 100% pure Mulberry silk, and Swiss automatic movements. Designed for those who appreciate perfection.
+              Handcrafted in Italian workshops with rare calfskin, 100% pure Mulberry silk, and Swiss automatic movements. Designed for those who appreciate perfection.
             </motion.p>
 
             {/* CTA Buttons */}
@@ -90,7 +90,7 @@ export function HeroSection() {
                 <div className="w-6 h-6 rounded-full bg-white/10 group-hover:bg-[#C9A96E] group-hover:text-black flex items-center justify-center transition-colors">
                   <Play className="w-3 h-3 fill-current ml-0.5" />
                 </div>
-                <span>The Atelier Film</span>
+                <span>The Brand Film</span>
               </button>
             </motion.div>
 

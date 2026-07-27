@@ -135,8 +135,8 @@ export const products: Product[] = [
   },
   {
     id: 'prod_5',
-    name: 'Atelier Gold-Foil Needlework Tapestry',
-    slug: 'atelier-gold-foil-needlework-tapestry',
+    name: 'Royal Gold-Foil Needlework Tapestry',
+    slug: 'royal-gold-foil-needlework-tapestry',
     description: 'Framed silk embroidery artwork featuring 120+ hours of continuous French knot needlework.',
     shortDescription: 'Framed silk embroidery artwork featuring 120+ hours of French knot needlework.',
     price: 85000,

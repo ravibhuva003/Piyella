@@ -44,7 +44,7 @@ export function AboutContent() {
       icon: Gem,
       title: 'Bespoke Customization',
       description:
-        'Access our Master Atelier for custom-commissioned artwork, personalized monograms, and one-of-a-kind bespoke creations.',
+        'Access our Master Studio for custom-commissioned artwork, personalized monograms, and one-of-a-kind bespoke creations.',
     },
     {
       icon: ShieldCheck,
@@ -68,7 +68,7 @@ export function AboutContent() {
     {
       step: '03',
       title: 'Master Needlework',
-      desc: 'Over 100 hours of continuous hand-stitching by master embroiderers in our atelier.',
+      desc: 'Over 100 hours of continuous hand-stitching by master embroiderers in our studio.',
     },
     {
       step: '04',
@@ -144,7 +144,7 @@ export function AboutContent() {
           >
             <Image
               src="https://images.unsplash.com/photo-1548036328-c9fa89d128fa?q=80&w=1000&auto=format&fit=crop"
-              alt="Atelier Craftsmanship"
+              alt="Piyella Craftsmanship"
               fill
               className="object-cover hover:scale-105 transition-transform duration-700"
             />

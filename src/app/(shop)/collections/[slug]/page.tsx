@@ -43,7 +43,7 @@ export default async function SingleCollectionPage({ params }: PageProps) {
             className="inline-flex items-center gap-2 text-xs uppercase tracking-widest text-[#C9A96E] hover:text-white transition-colors bg-black/40 backdrop-blur-md px-4 py-1.5 rounded-full border border-[#C9A96E]/30 mb-2"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
-            <span>All Atelier Collections</span>
+            <span>All Collections</span>
           </Link>
 
           <h1 className="font-heading text-4xl sm:text-6xl font-light text-white leading-tight">

@@ -57,7 +57,7 @@ export function ContactClient() {
             className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#C9A96E]/10 border border-[#C9A96E]/30 text-[#C9A96E] text-xs font-semibold uppercase tracking-widest"
           >
             <Sparkles className="w-4 h-4" />
-            <span>Atelier Concierge & Advisory</span>
+            <span>Concierge & Advisory</span>
           </motion.div>
 
           <motion.h1
@@ -151,7 +151,7 @@ export function ContactClient() {
               <div className="w-12 h-12 rounded-2xl bg-[#C9A96E]/10 border border-[#C9A96E]/30 flex items-center justify-center text-[#C9A96E] group-hover:scale-110 transition-transform">
                 <MapPin className="w-6 h-6" />
               </div>
-              <h3 className="font-serif text-xl text-white font-medium">Flagship Atelier</h3>
+              <h3 className="font-serif text-xl text-white font-medium">Flagship Store</h3>
               <div className="space-y-2 text-xs text-white/70 font-light">
                 <p className="text-white font-medium">{settings.address}</p>
                 <p>{settings.cityCountry}</p>
@@ -226,7 +226,7 @@ export function ContactClient() {
                 Bespoke Client Inquiry
               </h2>
               <p className="text-xs text-white/60 font-light">
-                Fill out the form below and our Atelier Concierge team will respond within 24 hours.
+                Fill out the form below and our Concierge team will respond within 24 hours.
               </p>
             </div>
 
@@ -235,7 +235,7 @@ export function ContactClient() {
                 <CheckCircle2 className="w-10 h-10 text-emerald-400 mx-auto" />
                 <h3 className="font-serif text-xl text-white font-medium">Enquiry Received</h3>
                 <p className="text-xs text-white/70 leading-relaxed">
-                  Thank you for reaching out to Piyella Atelier. A client advisor has been assigned to your message and will contact you shortly.
+                  Thank you for reaching out to Piyella. A client advisor has been assigned to your message and will contact you shortly.
                 </p>
                 <button
                   type="button"
@@ -286,7 +286,7 @@ export function ContactClient() {
                     onChange={(e) => setFormState({ ...formState, subject: e.target.value })}
                     className="w-full bg-black border border-white/15 rounded-xl px-4 py-3.5 text-sm text-white focus:border-[#C9A96E] focus:outline-none"
                   >
-                    <option value="General Inquiry">General Atelier Inquiry</option>
+                    <option value="General Inquiry">General Inquiry</option>
                     <option value="Custom Order">Custom Artwork / Bespoke Order</option>
                     <option value="VIP Appointment">Private Appointment Request</option>
                     <option value="Press">Press & Media Relations</option>
@@ -329,7 +329,7 @@ export function ContactClient() {
           >
             <div className="space-y-4">
               <span className="text-[#C9A96E] text-xs uppercase tracking-[0.3em] font-semibold block">
-                Visit Our Atelier
+                Visit Our Flagship Store
               </span>
               <h2 className="font-heading text-3xl font-light text-white">
                 Flagship Sanctuary

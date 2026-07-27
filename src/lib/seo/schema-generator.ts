@@ -6,7 +6,7 @@ export function generateOrganizationSchema() {
   return {
     '@context': 'https://schema.org',
     '@type': 'LuxuryGoodsStore',
-    name: 'Piyella Bespoke Luxury Atelier',
+    name: 'Piyella Bespoke Luxury',
     url: baseUrl,
     logo: `${baseUrl}/images/og-image.jpg`,
     description: 'Premier Italian luxury fashion, horology, fine leather goods, and haute couture.',
@@ -49,7 +49,7 @@ export function generateProductSchema(product: Product) {
       availability: product.inventory > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
       seller: {
         '@type': 'Organization',
-        name: 'Piyella Luxury Atelier',
+        name: 'Piyella Luxury',
       },
     },
     aggregateRating: {

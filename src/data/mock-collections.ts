@@ -6,7 +6,7 @@ export const collections: Collection[] = [
     name: 'Heritage Embroidery Curation',
     title: 'Heritage Embroidery Curation',
     slug: 'heritage-embroidery',
-    description: 'Hand-stitched needlework using 24K gold foil thread and pure Mulberry silk from Italian ateliers.',
+    description: 'Hand-stitched needlework using 24K gold foil thread and pure Mulberry silk from Italian workshops.',
     image: 'https://images.unsplash.com/photo-1584992236310-6edddc08acff?q=80&w=1000&auto=format&fit=crop',
     productCount: 8,
     isFeatured: true,

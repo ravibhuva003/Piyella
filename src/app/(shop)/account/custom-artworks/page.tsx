@@ -94,7 +94,7 @@ export default function CustomerArtworksPage() {
 
                   {/* Quote Price & Contact */}
                   <div className="space-y-3 bg-black/60 p-5 rounded-xl border border-white/10">
-                    <span className="text-[10px] uppercase tracking-widest text-[#C9A96E] font-bold block">Atelier Quote & Timeline</span>
+                    <span className="text-[10px] uppercase tracking-widest text-[#C9A96E] font-bold block">Master Quote & Timeline</span>
                     {req.quotePrice ? (
                       <div>
                         <div className="font-serif text-2xl font-bold text-white mb-1">{formatPrice(req.quotePrice)}</div>
@@ -111,7 +111,7 @@ export default function CustomerArtworksPage() {
                     )}
 
                     <a
-                      href={`https://wa.me/919876543210?text=${encodeURIComponent(`Hello Atelier, inquiring about Commission #${req.id} (${req.material})`)}`}
+                      href={`https://wa.me/919876543210?text=${encodeURIComponent(`Hello Piyella, inquiring about Commission #${req.id} (${req.material})`)}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-[11px] uppercase tracking-wider rounded-lg transition-colors flex items-center justify-center gap-2"
