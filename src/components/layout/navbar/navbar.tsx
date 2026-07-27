@@ -100,6 +100,16 @@ export function Navbar() {
                 <Search className="w-5 h-5" />
               </button>
 
+              {/* Admin Portal Access Button */}
+              <Link
+                href="/admin-login"
+                className="px-3 py-1.5 bg-[#C9A96E]/10 hover:bg-[#C9A96E]/20 border border-[#C9A96E]/40 text-[#C9A96E] text-xs uppercase font-semibold tracking-wider rounded-lg transition-all flex items-center gap-1.5 shadow-sm"
+                title="Admin Executive Portal Login"
+              >
+                <ShieldCheck className="w-3.5 h-3.5 text-[#C9A96E]" />
+                <span>Admin</span>
+              </Link>
+
               {/* User Profile Action */}
               {isSignedIn ? (
                 <div className="flex items-center">
