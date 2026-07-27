@@ -2,8 +2,11 @@ import { SignUp } from '@clerk/nextjs';
 
 export default function SignUpPage() {
   return (
-    <div className="flex justify-center">
+    <div className="flex justify-center w-full">
       <SignUp
+        signInUrl="/sign-in"
+        forceRedirectUrl="/"
+        fallbackRedirectUrl="/"
         appearance={{
           variables: {
             colorPrimary: '#C9A96E',

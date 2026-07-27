@@ -150,10 +150,20 @@ export function Navbar() {
 
                         <Link
                           href="/sign-in"
+                          onClick={() => setIsUserMenuOpen(false)}
                           className="flex items-center gap-2.5 px-4 py-2.5 text-xs uppercase tracking-wider text-foreground/80 hover:text-foreground hover:bg-muted/50 transition-colors"
                         >
                           <LogIn className="w-3.5 h-3.5 text-foreground-muted" />
                           <span>Sign In</span>
+                        </Link>
+
+                        <Link
+                          href="/sign-up"
+                          onClick={() => setIsUserMenuOpen(false)}
+                          className="flex items-center gap-2.5 px-4 py-2.5 text-xs uppercase tracking-wider text-[#C9A96E] hover:text-[#D4B87C] hover:bg-muted/50 transition-colors font-semibold"
+                        >
+                          <User className="w-3.5 h-3.5 text-[#C9A96E]" />
+                          <span>Sign Up</span>
                         </Link>
                       </motion.div>
                     )}
