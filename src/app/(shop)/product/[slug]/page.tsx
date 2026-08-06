@@ -182,7 +182,7 @@ export default function ProductDetailPage({ params }: PageProps) {
                     <Star key={i} size={16} fill={i < Math.floor(product.ratings || 5) ? "currentColor" : "none"} />
                   ))}
                 </div>
-                <span className="text-sm text-zinc-400 font-light">{product.reviewCount || 128} Client Reviews</span>
+                <span className="text-sm text-zinc-400 font-light">{product.reviewCount || 0} Client Reviews</span>
               </div>
 
               <div className="flex items-end gap-4">

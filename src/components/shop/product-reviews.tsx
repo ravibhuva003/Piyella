@@ -2,82 +2,49 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Star, ShieldCheck, Plus, X, ThumbsUp, CheckCircle2 } from 'lucide-react';
-import { Product } from '@/types/product';
-
-interface Review {
-  id: string;
-  author: string;
-  rating: number;
-  date: string;
-  title: string;
-  comment: string;
-  isVerified: boolean;
-  likes: number;
-}
-
-const SAMPLE_REVIEWS: Review[] = [
-  {
-    id: 'r1',
-    author: 'Victoria Sterling',
-    rating: 5,
-    date: '2 weeks ago',
-    title: 'Absolute Perfection & Incredible Craftsmanship',
-    comment: 'The drape and quality of Mulberry silk is beyond comparison. Wore this to an evening gala in Geneva and received endless compliments.',
-    isVerified: true,
-    likes: 24,
-  },
-  {
-    id: 'r2',
-    author: 'Marcus Vance',
-    rating: 5,
-    date: '1 month ago',
-    title: 'Exceeded My Highest Expectations',
-    comment: 'Impeccable tailoring, luxurious lining, and fast express shipping to Milan. Truly an investment piece.',
-    isVerified: true,
-    likes: 18,
-  },
-  {
-    id: 'r3',
-    author: 'Sophia Chen',
-    rating: 4,
-    date: '1 month ago',
-    title: 'Beautiful Texture & Fit',
-    comment: 'Extremely well packaged in a signature luxury box with garment sleeve. Fits true to size.',
-    isVerified: true,
-    likes: 11,
-  },
-];
+import { Star, ShieldCheck, Plus, X, ThumbsUp, CheckCircle2, MessageSquare } from 'lucide-react';
+import { Product, ProductReview } from '@/types/product';
+import { useCatalogStore } from '@/lib/store/catalog-store';
 
 interface ProductReviewsProps {
   product: Product;
 }
 
 export function ProductReviews({ product }: ProductReviewsProps) {
-  const [reviews, setReviews] = useState<Review[]>(SAMPLE_REVIEWS);
+  const { reviews, addReview, isLoaded } = useCatalogStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newRating, setNewRating] = useState(5);
   const [newTitle, setNewTitle] = useState('');
   const [newComment, setNewComment] = useState('');
   const [newName, setNewName] = useState('');
+  const [newEmail, setNewEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
+
+  // Filter reviews for this specific product (only approved ones)
+  const productReviews = reviews.filter(
+    (r) => (r.productId === product.id || r.productId === product.slug) && (r.status === 'Approved' || !r.status)
+  );
+
+  const avgRating = productReviews.length > 0
+    ? Number((productReviews.reduce((sum, r) => sum + r.rating, 0) / productReviews.length).toFixed(1))
+    : 0;
 
   const handleAddReview = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newTitle || !newComment || !newName) return;
 
-    const review: Review = {
-      id: `r_${Date.now()}`,
+    addReview({
+      productId: product.id,
+      productName: product.name,
       author: newName,
+      email: newEmail,
       rating: newRating,
-      date: 'Just now',
       title: newTitle,
       comment: newComment,
       isVerified: true,
-      likes: 0,
-    };
+      status: 'Approved',
+    });
 
-    setReviews([review, ...reviews]);
     setSubmitted(true);
     setTimeout(() => {
       setSubmitted(false);
@@ -85,6 +52,7 @@ export function ProductReviews({ product }: ProductReviewsProps) {
       setNewTitle('');
       setNewComment('');
       setNewName('');
+      setNewEmail('');
     }, 1500);
   };
 
@@ -97,11 +65,17 @@ export function ProductReviews({ product }: ProductReviewsProps) {
           <div className="flex items-center gap-3">
             <div className="flex text-[#C9A96E]">
               {[...Array(5)].map((_, i) => (
-                <Star key={i} size={18} fill="currentColor" />
+                <Star key={i} size={18} fill={i < Math.round(avgRating) ? "currentColor" : "none"} />
               ))}
             </div>
-            <span className="text-xl font-bold font-serif text-white">{product.ratings || 4.9} out of 5</span>
-            <span className="text-xs text-white/50 font-light">({reviews.length + (product.reviewCount || 40)} Verified Client Reviews)</span>
+            {productReviews.length > 0 ? (
+              <>
+                <span className="text-xl font-bold font-serif text-white">{avgRating} out of 5</span>
+                <span className="text-xs text-white/50 font-light">({productReviews.length} Verified Client {productReviews.length === 1 ? 'Review' : 'Reviews'})</span>
+              </>
+            ) : (
+              <span className="text-xs text-white/50 font-light">(No reviews submitted yet for this creation)</span>
+            )}
           </div>
         </div>
 
@@ -115,40 +89,52 @@ export function ProductReviews({ product }: ProductReviewsProps) {
       </div>
 
       {/* Review List */}
-      <div className="space-y-6">
-        {reviews.map((rev) => (
-          <div key={rev.id} className="bg-[#0a0a0a] border border-white/10 p-6 rounded-2xl space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="flex text-[#C9A96E]">
-                  {[...Array(rev.rating)].map((_, i) => (
-                    <Star key={i} size={14} fill="currentColor" />
-                  ))}
+      {productReviews.length > 0 ? (
+        <div className="space-y-6">
+          {productReviews.map((rev) => (
+            <div key={rev.id} className="bg-[#0a0a0a] border border-white/10 p-6 rounded-2xl space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="flex text-[#C9A96E]">
+                    {[...Array(rev.rating)].map((_, i) => (
+                      <Star key={i} size={14} fill="currentColor" />
+                    ))}
+                  </div>
+                  <h3 className="font-serif text-lg font-medium text-white">{rev.title}</h3>
                 </div>
-                <h3 className="font-serif text-lg font-medium text-white">{rev.title}</h3>
-              </div>
-              <span className="text-xs text-white/40 font-light">{rev.date}</span>
-            </div>
-
-            <p className="text-sm text-white/70 font-light leading-relaxed">{rev.comment}</p>
-
-            <div className="flex items-center justify-between pt-2 text-xs text-white/50">
-              <div className="flex items-center gap-2">
-                <span className="font-medium text-white/90">{rev.author}</span>
-                {rev.isVerified && (
-                  <span className="inline-flex items-center gap-1 text-[10px] text-emerald-400 font-medium bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
-                    <ShieldCheck size={12} /> Verified Purchaser
-                  </span>
-                )}
+                <span className="text-xs text-white/40 font-light">
+                  {new Date(rev.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                </span>
               </div>
 
-              <button className="inline-flex items-center gap-1 hover:text-white transition-colors">
-                <ThumbsUp size={12} /> Helpful ({rev.likes})
-              </button>
+              <p className="text-sm text-white/70 font-light leading-relaxed">{rev.comment}</p>
+
+              <div className="flex items-center justify-between pt-2 text-xs text-white/50">
+                <div className="flex items-center gap-2">
+                  <span className="font-medium text-white/90">{rev.author}</span>
+                  {rev.isVerified && (
+                    <span className="inline-flex items-center gap-1 text-[10px] text-emerald-400 font-medium bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                      <ShieldCheck size={12} /> Verified Buyer
+                    </span>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-1 text-white/40 font-mono text-[11px]">
+                  <span>Status: Verified</span>
+                </div>
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      ) : (
+        <div className="py-16 text-center bg-[#0a0a0a] border border-white/10 rounded-2xl space-y-3">
+          <MessageSquare className="w-10 h-10 text-[#C9A96E]/50 mx-auto" />
+          <h3 className="font-serif text-xl text-white font-medium">Be the first to review this artwork</h3>
+          <p className="text-xs text-white/50 max-w-md mx-auto">
+            Share your experience with fit, materials, and craftsmanship to assist fellow connoisseurs.
+          </p>
+        </div>
+      )}
 
       {/* Write a Review Modal */}
       <AnimatePresence>
@@ -178,7 +164,7 @@ export function ProductReviews({ product }: ProductReviewsProps) {
                 <div className="py-8 text-center text-emerald-400 space-y-2">
                   <CheckCircle2 className="w-12 h-12 mx-auto" />
                   <p className="font-serif text-xl">Thank you for your review!</p>
-                  <p className="text-xs text-white/60">Your review has been published successfully.</p>
+                  <p className="text-xs text-white/60">Your review has been published live for this product.</p>
                 </div>
               ) : (
                 <form onSubmit={handleAddReview} className="space-y-4">
@@ -199,7 +185,7 @@ export function ProductReviews({ product }: ProductReviewsProps) {
                   </div>
 
                   <div>
-                    <label className="block text-xs uppercase tracking-widest text-white/70 mb-2 font-medium">Your Name *</label>
+                    <label className="block text-xs uppercase tracking-widest text-white/70 mb-2 font-medium font-semibold">Your Name *</label>
                     <input
                       type="text"
                       required
@@ -211,19 +197,19 @@ export function ProductReviews({ product }: ProductReviewsProps) {
                   </div>
 
                   <div>
-                    <label className="block text-xs uppercase tracking-widest text-white/70 mb-2 font-medium">Review Title *</label>
+                    <label className="block text-xs uppercase tracking-widest text-white/70 mb-2 font-medium font-semibold">Review Title *</label>
                     <input
                       type="text"
                       required
                       value={newTitle}
                       onChange={(e) => setNewTitle(e.target.value)}
-                      placeholder="e.g. Unmatched Quality & Fit"
+                      placeholder="e.g. Unmatched Quality & Craftsmanship"
                       className="w-full bg-black/60 border border-white/10 px-4 py-3 text-sm text-white focus:border-[#C9A96E] focus:outline-none rounded-xl"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs uppercase tracking-widest text-white/70 mb-2 font-medium">Your Feedback *</label>
+                    <label className="block text-xs uppercase tracking-widest text-white/70 mb-2 font-medium font-semibold">Your Feedback *</label>
                     <textarea
                       rows={4}
                       required

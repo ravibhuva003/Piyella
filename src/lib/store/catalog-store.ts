@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Product } from '@/types/product';
+import { Product, ProductReview } from '@/types/product';
 import { Collection } from '@/types/collection';
 
 export interface Coupon {
@@ -96,6 +96,7 @@ const INITIAL_USERS: AdminUser[] = [
 export function useCatalogStore() {
   const [products, setProducts] = useState<Product[]>([]);
   const [collections, setCollections] = useState<Collection[]>([]);
+  const [reviews, setReviews] = useState<ProductReview[]>([]);
   const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [banners, setBanners] = useState<BannerConfig>(INITIAL_BANNER);
   const [users, setUsers] = useState<AdminUser[]>([]);
@@ -105,16 +106,14 @@ export function useCatalogStore() {
   useEffect(() => {
     async function loadGlobalState() {
       try {
-        // 1. Fetch products from global server API
         const prodRes = await fetch('/api/products').then((res) => res.json()).catch(() => ({ products: [] }));
-        // 2. Fetch collections from global server API
         const colRes = await fetch('/api/collections').then((res) => res.json()).catch(() => ({ collections: [] }));
-        // 3. Fetch banners from global server API
+        const revRes = await fetch('/api/reviews').then((res) => res.json()).catch(() => ({ reviews: [] }));
         const bannerRes = await fetch('/api/banners').then((res) => res.json()).catch(() => ({ banners: INITIAL_BANNER }));
 
-        // Local storage fallbacks
         const savedProds = localStorage.getItem('piyella_admin_products');
         const savedCols = localStorage.getItem('piyella_admin_collections');
+        const savedRevs = localStorage.getItem('piyella_admin_reviews');
         const savedCoupons = localStorage.getItem('piyella_admin_coupons');
         const savedBanners = localStorage.getItem('piyella_admin_banners');
         const savedUsers = localStorage.getItem('piyella_admin_users');
@@ -122,6 +121,7 @@ export function useCatalogStore() {
 
         const apiProds: Product[] = prodRes.products || [];
         const apiCols: Collection[] = colRes.collections || [];
+        const apiRevs: ProductReview[] = revRes.reviews || [];
 
         const localProds: Product[] = savedProds 
           ? JSON.parse(savedProds).filter((p: any) => !p.id.startsWith('prod_')) 
@@ -131,22 +131,25 @@ export function useCatalogStore() {
           ? JSON.parse(savedCols).filter((c: any) => !c.id.startsWith('col_')) 
           : [];
 
-        // Merge API & local data (server takes precedence for multi-device sync)
+        const localRevs: ProductReview[] = savedRevs ? JSON.parse(savedRevs) : [];
+
         const finalProds = apiProds.length > 0 ? apiProds : localProds;
         const finalCols = apiCols.length > 0 ? apiCols : localCols;
+        const finalRevs = apiRevs.length > 0 ? apiRevs : localRevs;
         const finalBanners = bannerRes.banners || (savedBanners ? JSON.parse(savedBanners) : INITIAL_BANNER);
 
         setProducts(finalProds);
         setCollections(finalCols);
+        setReviews(finalRevs);
         setBanners(finalBanners);
 
         setCoupons(savedCoupons ? JSON.parse(savedCoupons) : INITIAL_COUPONS);
         setUsers(savedUsers ? JSON.parse(savedUsers) : INITIAL_USERS);
         setOrders(savedOrders ? JSON.parse(savedOrders) : []);
 
-        // Sync local storage
         localStorage.setItem('piyella_admin_products', JSON.stringify(finalProds));
         localStorage.setItem('piyella_admin_collections', JSON.stringify(finalCols));
+        localStorage.setItem('piyella_admin_reviews', JSON.stringify(finalRevs));
         localStorage.setItem('piyella_admin_banners', JSON.stringify(finalBanners));
       } catch (e) {
         console.error('Error initializing admin store:', e);
@@ -178,6 +181,18 @@ export function useCatalogStore() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'SYNC', collections: newCollections }),
+      }).catch(() => {});
+    } catch {}
+  };
+
+  const saveReviews = (newReviews: ProductReview[]) => {
+    setReviews(newReviews);
+    try {
+      localStorage.setItem('piyella_admin_reviews', JSON.stringify(newReviews));
+      fetch('/api/reviews', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'SYNC', reviews: newReviews }),
       }).catch(() => {});
     } catch {}
   };
@@ -247,6 +262,57 @@ export function useCatalogStore() {
     saveCollections(collections.filter((c) => c.id !== id));
   };
 
+  const addReview = (rev: Omit<ProductReview, 'id' | 'createdAt'>) => {
+    const newRev: ProductReview = {
+      ...rev,
+      id: `rev_${Date.now()}`,
+      createdAt: new Date().toISOString(),
+    };
+    const updated = [newRev, ...reviews];
+    saveReviews(updated);
+
+    // Update product ratings and count
+    const prodRevs = updated.filter((r) => r.productId === rev.productId && r.status === 'Approved');
+    const avgRating = prodRevs.length > 0 ? prodRevs.reduce((acc, curr) => acc + curr.rating, 0) / prodRevs.length : 5;
+    updateProduct(rev.productId, { ratings: Number(avgRating.toFixed(1)), reviewCount: prodRevs.length });
+  };
+
+  const deleteReview = (id: string) => {
+    const targetRev = reviews.find((r) => r.id === id);
+    const updated = reviews.filter((r) => r.id !== id);
+    saveReviews(updated);
+
+    if (targetRev) {
+      const prodRevs = updated.filter((r) => r.productId === targetRev.productId && r.status === 'Approved');
+      const avgRating = prodRevs.length > 0 ? prodRevs.reduce((acc, curr) => acc + curr.rating, 0) / prodRevs.length : 5;
+      updateProduct(targetRev.productId, { ratings: Number(avgRating.toFixed(1)), reviewCount: prodRevs.length });
+    }
+  };
+
+  const toggleReviewStatus = (id: string) => {
+    const updated = reviews.map((r) => (r.id === id ? { ...r, status: r.status === 'Approved' ? 'Pending' : 'Approved' } : r));
+    saveReviews(updated as any);
+
+    const targetRev = reviews.find((r) => r.id === id);
+    if (targetRev) {
+      const prodRevs = updated.filter((r) => r.productId === targetRev.productId && r.status === 'Approved');
+      const avgRating = prodRevs.length > 0 ? prodRevs.reduce((acc, curr) => acc + curr.rating, 0) / prodRevs.length : 5;
+      updateProduct(targetRev.productId, { ratings: Number(avgRating.toFixed(1)), reviewCount: prodRevs.length });
+    }
+  };
+
+  const clearAllReviews = () => {
+    saveReviews([]);
+    try {
+      localStorage.removeItem('piyella_admin_reviews');
+      fetch('/api/reviews', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'SYNC', reviews: [] }),
+      }).catch(() => {});
+    } catch {}
+  };
+
   const addCoupon = (cp: Omit<Coupon, 'id' | 'usedCount'>) => {
     const newCp: Coupon = {
       ...cp,
@@ -290,9 +356,11 @@ export function useCatalogStore() {
   const clearAllCatalog = () => {
     saveProducts([]);
     saveCollections([]);
+    saveReviews([]);
     try {
       localStorage.removeItem('piyella_admin_products');
       localStorage.removeItem('piyella_admin_collections');
+      localStorage.removeItem('piyella_admin_reviews');
       fetch('/api/products', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -302,6 +370,11 @@ export function useCatalogStore() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'SYNC', collections: [] }),
+      }).catch(() => {});
+      fetch('/api/reviews', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'SYNC', reviews: [] }),
       }).catch(() => {});
     } catch {}
   };
@@ -314,6 +387,7 @@ export function useCatalogStore() {
   return {
     products,
     collections,
+    reviews,
     coupons,
     banners,
     users,
@@ -324,6 +398,10 @@ export function useCatalogStore() {
     deleteProduct,
     addCollection,
     deleteCollection,
+    addReview,
+    deleteReview,
+    toggleReviewStatus,
+    clearAllReviews,
     addCoupon,
     toggleCoupon,
     deleteCoupon,
@@ -332,6 +410,7 @@ export function useCatalogStore() {
     addOrder,
     saveProducts,
     saveCollections,
+    saveReviews,
     saveOrders,
     saveCoupons,
     saveBanners,

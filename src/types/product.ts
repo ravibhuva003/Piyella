@@ -1,3 +1,18 @@
+export interface ProductReview {
+  id: string;
+  productId: string;
+  productName?: string;
+  author: string;
+  email?: string;
+  rating: number;
+  title: string;
+  comment: string;
+  isVerified: boolean;
+  status: 'Approved' | 'Pending' | 'Rejected';
+  createdAt: string;
+  likes?: number;
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -20,6 +35,7 @@ export interface Product {
   isNew: boolean;
   ratings: number;
   reviewCount: number;
+  reviews?: ProductReview[];
   createdAt: string;
   updatedAt: string;
 }

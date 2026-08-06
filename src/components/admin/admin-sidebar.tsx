@@ -18,7 +18,8 @@ import {
   PhoneCall,
   ExternalLink,
   ShieldCheck,
-  LogOut
+  LogOut,
+  Star
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -27,6 +28,7 @@ const ADMIN_NAV_ITEMS = [
   { title: 'Products Catalog', href: '/admin/products', icon: Package },
   { title: 'Featured Sections', href: '/admin/sections', icon: Sparkles },
   { title: 'Categories & Collections', href: '/admin/categories', icon: FolderTree },
+  { title: 'Product Reviews', href: '/admin/reviews', icon: Star },
   { title: 'Customer Orders', href: '/admin/orders', icon: ShoppingBag },
   { title: 'Custom Artworks', href: '/admin/custom-artworks', icon: Palette },
   { title: 'Instagram Reels', href: '/admin/reels', icon: Film },
