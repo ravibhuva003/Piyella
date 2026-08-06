@@ -46,7 +46,7 @@ export async function getCollections(): Promise<Collection[]> {
 
 export async function getCollectionBySlug(slug: string): Promise<Collection | null> {
   const all = getLiveCollections();
-  const found = all.find((c) => c.slug === slug || c.id === slug);
+  const found = all.find((c) => c.slug === slug || c.id === slug || c.name.toLowerCase() === slug.toLowerCase());
   if (found) return found;
 
   // Fallback: Smart collection generator so no collection URL ever 404s
@@ -62,48 +62,53 @@ export async function getCollectionBySlug(slug: string): Promise<Collection | nu
     slug: slug,
     description: `Explore our curated selection of luxury ${formattedTitle.toLowerCase()} creations, handcrafted with unyielding devotion.`,
     image: 'https://images.unsplash.com/photo-1584992236310-6edddc08acff?q=80&w=1000&auto=format&fit=crop',
-    productCount: 6,
+    productCount: 0,
     isFeatured: true,
     sortOrder: 99,
-    createdAt: '2026-07-01T12:00:00Z',
+    createdAt: new Date().toISOString(),
   };
 }
 
 export async function getProductsByCollection(collectionSlugOrId: string): Promise<Product[]> {
   const allProducts = getLiveProducts();
-  const collection = await getCollectionBySlug(collectionSlugOrId);
+  const collections = getLiveCollections();
+
+  const collection = collections.find(
+    (c) => c.slug === collectionSlugOrId || c.id === collectionSlugOrId || c.name.toLowerCase() === collectionSlugOrId.toLowerCase()
+  ) || await getCollectionBySlug(collectionSlugOrId);
+
   const targetId = collection ? collection.id : collectionSlugOrId;
   const slug = collection ? collection.slug : collectionSlugOrId;
+  const name = collection ? collection.name : collectionSlugOrId;
 
-  // 1. Direct Collection ID match
-  let list = allProducts.filter((p) => p.collectionId === targetId || p.collectionId === collectionSlugOrId);
-  if (list.length > 0) return list;
-
-  // 2. Category or Tag match
-  list = allProducts.filter(
-    (p) =>
-      p.category.toLowerCase() === slug.toLowerCase() ||
-      p.category.toLowerCase().includes(slug.toLowerCase()) ||
-      p.tags?.some((t) => t.toLowerCase() === slug.toLowerCase() || slug.toLowerCase().includes(t.toLowerCase()))
-  );
-  if (list.length > 0) return list;
-
-  // 3. Special Slugs filter
+  // 1. Special Slugs filter (New Arrivals, Best Sellers, Sale)
   if (slug === 'new-arrivals') {
-    const newItems = allProducts.filter((p) => p.isNew || (p as any).isNewArrival);
-    if (newItems.length > 0) return newItems;
+    return allProducts.filter((p) => p.isNew || (p as any).isNewArrival || p.tags?.includes('new-arrivals'));
   }
   if (slug === 'best-sellers') {
-    const bestItems = allProducts.filter((p) => (p.ratings && p.ratings >= 4.8) || (p as any).isBestSeller);
-    if (bestItems.length > 0) return bestItems;
+    return allProducts.filter((p) => (p as any).isBestSeller || (p.ratings && p.ratings >= 4.8) || p.tags?.includes('best-sellers'));
   }
   if (slug === 'sale') {
-    const saleItems = allProducts.filter((p) => (p.compareAtPrice && p.compareAtPrice > p.price) || ((p as any).originalPrice && (p as any).originalPrice > p.price));
-    if (saleItems.length > 0) return saleItems;
+    return allProducts.filter((p) => (p as any).isSale || (p.compareAtPrice && p.compareAtPrice > p.price) || p.tags?.includes('sale'));
   }
 
-  // 4. Return all products if specific collection filter yields no subset
-  return allProducts;
+  // 2. Collection matching by ID, Slug, Category, or Tags
+  const matched = allProducts.filter((p) => {
+    const matchId = p.collectionId === targetId || p.collectionId === slug || p.collectionId === name;
+    const matchCat = p.category && (
+      p.category.toLowerCase() === slug.toLowerCase() ||
+      p.category.toLowerCase() === name.toLowerCase() ||
+      p.category.toLowerCase().includes(slug.toLowerCase()) ||
+      slug.toLowerCase().includes(p.category.toLowerCase())
+    );
+    const matchTags = p.tags?.some((t) => 
+      t.toLowerCase() === slug.toLowerCase() || 
+      t.toLowerCase() === name.toLowerCase()
+    );
+    return matchId || matchCat || matchTags;
+  });
+
+  return matched;
 }
 
 export function searchProducts(query: string): Product[] {
