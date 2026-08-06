@@ -19,6 +19,7 @@ export interface BannerConfig {
   announcementActive: boolean;
   heroHeadline: string;
   heroSubtitle: string;
+  heroBackgroundImage?: string;
 }
 
 export interface AdminUser {
@@ -58,6 +59,7 @@ const INITIAL_BANNER: BannerConfig = {
   announcementActive: false,
   heroHeadline: 'Mastery of Bespoke Luxury',
   heroSubtitle: 'Handcrafted in Italian ateliers with rare calfskin, 100% pure Mulberry silk, and Swiss automatic movements.',
+  heroBackgroundImage: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=2000&auto=format&fit=crop',
 };
 
 const INITIAL_USERS: AdminUser[] = [
@@ -101,47 +103,70 @@ export function useCatalogStore() {
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    try {
-      const savedProds = localStorage.getItem('piyella_admin_products');
-      const savedCols = localStorage.getItem('piyella_admin_collections');
-      const savedCoupons = localStorage.getItem('piyella_admin_coupons');
-      const savedBanners = localStorage.getItem('piyella_admin_banners');
-      const savedUsers = localStorage.getItem('piyella_admin_users');
-      const savedOrders = localStorage.getItem('piyella_admin_orders');
+    async function loadGlobalState() {
+      try {
+        // 1. Fetch products from global server API
+        const prodRes = await fetch('/api/products').then((res) => res.json()).catch(() => ({ products: [] }));
+        // 2. Fetch collections from global server API
+        const colRes = await fetch('/api/collections').then((res) => res.json()).catch(() => ({ collections: [] }));
+        // 3. Fetch banners from global server API
+        const bannerRes = await fetch('/api/banners').then((res) => res.json()).catch(() => ({ banners: INITIAL_BANNER }));
 
-      // Purge any dummy/mock items starting with prod_ or col_
-      const cleanProds: Product[] = savedProds 
-        ? JSON.parse(savedProds).filter((p: any) => !p.id.startsWith('prod_')) 
-        : [];
-      
-      const cleanCols: Collection[] = savedCols 
-        ? JSON.parse(savedCols).filter((c: any) => !c.id.startsWith('col_')) 
-        : [];
+        // Local storage fallbacks
+        const savedProds = localStorage.getItem('piyella_admin_products');
+        const savedCols = localStorage.getItem('piyella_admin_collections');
+        const savedCoupons = localStorage.getItem('piyella_admin_coupons');
+        const savedBanners = localStorage.getItem('piyella_admin_banners');
+        const savedUsers = localStorage.getItem('piyella_admin_users');
+        const savedOrders = localStorage.getItem('piyella_admin_orders');
 
-      setProducts(cleanProds);
-      setCollections(cleanCols);
-      setCoupons(savedCoupons ? JSON.parse(savedCoupons) : INITIAL_COUPONS);
-      setBanners(savedBanners ? JSON.parse(savedBanners) : INITIAL_BANNER);
-      setUsers(savedUsers ? JSON.parse(savedUsers) : INITIAL_USERS);
-      setOrders(savedOrders ? JSON.parse(savedOrders) : []);
+        const apiProds: Product[] = prodRes.products || [];
+        const apiCols: Collection[] = colRes.collections || [];
 
-      // Re-save clean catalog to localStorage
-      localStorage.setItem('piyella_admin_products', JSON.stringify(cleanProds));
-      localStorage.setItem('piyella_admin_collections', JSON.stringify(cleanCols));
-    } catch (e) {
-      console.error('Error initializing admin store:', e);
-      setProducts([]);
-      setCollections([]);
-      setUsers(INITIAL_USERS);
-    } finally {
-      setIsLoaded(true);
+        const localProds: Product[] = savedProds 
+          ? JSON.parse(savedProds).filter((p: any) => !p.id.startsWith('prod_')) 
+          : [];
+        
+        const localCols: Collection[] = savedCols 
+          ? JSON.parse(savedCols).filter((c: any) => !c.id.startsWith('col_')) 
+          : [];
+
+        // Merge API & local data (server takes precedence for multi-device sync)
+        const finalProds = apiProds.length > 0 ? apiProds : localProds;
+        const finalCols = apiCols.length > 0 ? apiCols : localCols;
+        const finalBanners = bannerRes.banners || (savedBanners ? JSON.parse(savedBanners) : INITIAL_BANNER);
+
+        setProducts(finalProds);
+        setCollections(finalCols);
+        setBanners(finalBanners);
+
+        setCoupons(savedCoupons ? JSON.parse(savedCoupons) : INITIAL_COUPONS);
+        setUsers(savedUsers ? JSON.parse(savedUsers) : INITIAL_USERS);
+        setOrders(savedOrders ? JSON.parse(savedOrders) : []);
+
+        // Sync local storage
+        localStorage.setItem('piyella_admin_products', JSON.stringify(finalProds));
+        localStorage.setItem('piyella_admin_collections', JSON.stringify(finalCols));
+        localStorage.setItem('piyella_admin_banners', JSON.stringify(finalBanners));
+      } catch (e) {
+        console.error('Error initializing admin store:', e);
+      } finally {
+        setIsLoaded(true);
+      }
     }
+
+    loadGlobalState();
   }, []);
 
   const saveProducts = (newProducts: Product[]) => {
     setProducts(newProducts);
     try {
       localStorage.setItem('piyella_admin_products', JSON.stringify(newProducts));
+      fetch('/api/products', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'SYNC', products: newProducts }),
+      }).catch(() => {});
     } catch {}
   };
 
@@ -149,6 +174,11 @@ export function useCatalogStore() {
     setCollections(newCollections);
     try {
       localStorage.setItem('piyella_admin_collections', JSON.stringify(newCollections));
+      fetch('/api/collections', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'SYNC', collections: newCollections }),
+      }).catch(() => {});
     } catch {}
   };
 
@@ -170,6 +200,11 @@ export function useCatalogStore() {
     setBanners(newBanners);
     try {
       localStorage.setItem('piyella_admin_banners', JSON.stringify(newBanners));
+      fetch('/api/banners', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ banners: newBanners }),
+      }).catch(() => {});
     } catch {}
   };
 
@@ -258,6 +293,16 @@ export function useCatalogStore() {
     try {
       localStorage.removeItem('piyella_admin_products');
       localStorage.removeItem('piyella_admin_collections');
+      fetch('/api/products', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'SYNC', products: [] }),
+      }).catch(() => {});
+      fetch('/api/collections', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'SYNC', collections: [] }),
+      }).catch(() => {});
     } catch {}
   };
 

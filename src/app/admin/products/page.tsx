@@ -6,7 +6,8 @@ import Image from 'next/image';
 import { useCatalogStore } from '@/lib/store/catalog-store';
 import { Product } from '@/types/product';
 import { formatPrice } from '@/lib/utils';
-import { Plus, Search, Trash2, Edit3, Eye, Package, Sparkles, X, Check, Flame, Tag, Layers } from 'lucide-react';
+import { ImageUploader } from '@/components/admin/image-uploader';
+import { Plus, Search, Trash2, Edit3, Eye, Package, Sparkles, X, Check, Flame, Tag, Layers, Percent } from 'lucide-react';
 
 export default function AdminProductsPage() {
   const { products, collections, updateProduct, deleteProduct, isLoaded } = useCatalogStore();
@@ -36,18 +37,28 @@ export default function AdminProductsPage() {
 
     updateProduct(editingProduct.id, {
       name: editingProduct.name,
+      slug: editingProduct.slug,
+      description: editingProduct.description,
+      shortDescription: editingProduct.shortDescription,
       price: Number(editingProduct.price),
       compareAtPrice: editingProduct.compareAtPrice ? Number(editingProduct.compareAtPrice) : undefined,
       category: categoryName,
       collectionId: editingProduct.collectionId,
       inventory: Number(editingProduct.inventory),
+      sku: editingProduct.sku,
+      images: editingProduct.images,
       isNew: editingProduct.isNew,
       isBestSeller: (editingProduct as any).isBestSeller,
-      isSale: (editingProduct as any).isSale,
+      isSale: Boolean((editingProduct as any).isSale || (editingProduct.compareAtPrice && editingProduct.compareAtPrice > editingProduct.price)),
     } as any);
 
     setEditingProduct(null);
-    alert(`Product "${editingProduct.name}" updated successfully!`);
+    alert(`Product "${editingProduct.name}" updated successfully across all devices!`);
+  };
+
+  const calculateDiscountPercent = (price: number, compareAt?: number) => {
+    if (!compareAt || compareAt <= price) return 0;
+    return Math.round(((compareAt - price) / compareAt) * 100);
   };
 
   return (
@@ -93,7 +104,7 @@ export default function AdminProductsPage() {
                 <th className="px-6 py-4">Product</th>
                 <th className="px-6 py-4">Assigned Collection</th>
                 <th className="px-6 py-4">Placements</th>
-                <th className="px-6 py-4">Price</th>
+                <th className="px-6 py-4">Price & Discount</th>
                 <th className="px-6 py-4">Stock</th>
                 <th className="px-6 py-4 text-right">Actions</th>
               </tr>
@@ -105,6 +116,7 @@ export default function AdminProductsPage() {
                 const isBest = (prod as any).isBestSeller || prod.ratings >= 4.8;
                 const isSal = (prod as any).isSale || (prod.compareAtPrice && prod.compareAtPrice > prod.price);
                 const assignedCol = collections.find((c) => c.id === prod.collectionId);
+                const disc = calculateDiscountPercent(prod.price, prod.compareAtPrice);
 
                 return (
                   <tr key={prod.id} className="hover:bg-background/50 transition-colors">
@@ -130,8 +142,16 @@ export default function AdminProductsPage() {
                       </div>
                     </td>
 
-                    <td className="px-6 py-4 font-medium text-foreground">
-                      {formatPrice(prod.price, prod.currency)}
+                    <td className="px-6 py-4">
+                      <div className="space-y-0.5">
+                        <span className="font-medium text-foreground block">{formatPrice(prod.price, prod.currency)}</span>
+                        {prod.compareAtPrice && prod.compareAtPrice > prod.price && (
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-[11px] text-foreground-muted line-through font-mono">{formatPrice(prod.compareAtPrice, prod.currency)}</span>
+                            {disc > 0 && <span className="text-[9px] font-bold text-amber-400 font-mono">({disc}% OFF)</span>}
+                          </div>
+                        )}
+                      </div>
                     </td>
 
                     <td className="px-6 py-4">
@@ -152,7 +172,7 @@ export default function AdminProductsPage() {
                           title="Edit Product"
                         >
                           <Edit3 className="w-3.5 h-3.5" />
-                          <span>Edit</span>
+                          <span>Edit All Details</span>
                         </button>
                         <Link
                           href={`/product/${prod.slug}`}
@@ -183,10 +203,10 @@ export default function AdminProductsPage() {
         </div>
       </div>
 
-      {/* Edit Product Modal */}
+      {/* Full Feature Edit Product Modal */}
       {editingProduct && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
-          <div className="relative w-full max-w-lg bg-surface border border-border rounded-2xl p-6 sm:p-8 space-y-6 shadow-2xl max-h-[90vh] overflow-y-auto">
+          <div className="relative w-full max-w-3xl bg-surface border border-border rounded-2xl p-6 sm:p-8 space-y-6 shadow-2xl max-h-[90vh] overflow-y-auto">
             <button
               onClick={() => setEditingProduct(null)}
               className="absolute top-4 right-4 text-foreground-muted hover:text-foreground p-2"
@@ -195,23 +215,39 @@ export default function AdminProductsPage() {
             </button>
 
             <div className="space-y-1">
-              <span className="text-[#C9A96E] text-[10px] uppercase tracking-widest font-semibold block">Edit Product</span>
-              <h2 className="font-serif text-2xl text-foreground font-medium">Modify Product Specifications</h2>
+              <span className="text-[#C9A96E] text-[10px] uppercase tracking-widest font-semibold block">Full Edit Suite</span>
+              <h2 className="font-serif text-2xl text-foreground font-medium">Modify Product Details & Photos</h2>
             </div>
 
-            <form onSubmit={handleSaveEdit} className="space-y-4">
-              <div>
-                <label className="block text-xs uppercase tracking-widest text-foreground-muted mb-1 font-medium">Product Name</label>
-                <input
-                  type="text"
-                  required
-                  value={editingProduct.name}
-                  onChange={(e) => setEditingProduct({ ...editingProduct, name: e.target.value })}
-                  className="w-full bg-background border border-border px-4 py-2.5 text-sm text-foreground focus:border-[#C9A96E] focus:outline-none rounded-xl"
-                />
+            <form onSubmit={handleSaveEdit} className="space-y-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs uppercase tracking-widest text-foreground-muted mb-1 font-medium">Product Name *</label>
+                  <input
+                    type="text"
+                    required
+                    value={editingProduct.name}
+                    onChange={(e) => setEditingProduct({
+                      ...editingProduct,
+                      name: e.target.value,
+                      slug: e.target.value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+                    })}
+                    className="w-full bg-background border border-border px-4 py-2.5 text-sm text-foreground focus:border-[#C9A96E] focus:outline-none rounded-xl"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs uppercase tracking-widest text-foreground-muted mb-1 font-medium">URL Slug</label>
+                  <input
+                    type="text"
+                    value={editingProduct.slug}
+                    onChange={(e) => setEditingProduct({ ...editingProduct, slug: e.target.value })}
+                    className="w-full bg-background border border-border px-4 py-2.5 text-sm text-foreground-muted font-mono focus:border-[#C9A96E] focus:outline-none rounded-xl"
+                  />
+                </div>
               </div>
 
-              {/* Target Collection Selection (Pulls directly from Admin Collection Settings) */}
+              {/* Target Collection Selection */}
               <div>
                 <label className="block text-xs uppercase tracking-widest text-foreground-muted mb-1 font-medium flex items-center gap-1.5">
                   <Layers className="w-3.5 h-3.5 text-[#C9A96E]" />
@@ -230,56 +266,146 @@ export default function AdminProductsPage() {
                 </select>
               </div>
 
+              {/* Pricing & Discount Calculator */}
+              <div className="p-4 bg-background border border-[#C9A96E]/30 rounded-xl space-y-4">
+                <span className="text-xs uppercase tracking-wider text-[#C9A96E] font-semibold block flex items-center gap-1">
+                  <Tag className="w-3.5 h-3.5" /> Pricing & Discount Percentage Calculator
+                </span>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-[11px] uppercase tracking-widest text-foreground-muted mb-1 font-medium">Final Selling Price (₹) *</label>
+                    <input
+                      type="number"
+                      required
+                      value={editingProduct.price}
+                      onChange={(e) => {
+                        const newPrice = Number(e.target.value);
+                        const orig = editingProduct.compareAtPrice;
+                        setEditingProduct({
+                          ...editingProduct,
+                          price: newPrice,
+                        });
+                      }}
+                      className="w-full bg-surface border border-border px-4 py-2.5 text-sm text-foreground focus:border-[#C9A96E] focus:outline-none rounded-xl font-mono"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] uppercase tracking-widest text-[#C9A96E] mb-1 font-medium flex items-center gap-1">
+                      <Percent className="w-3 h-3" /> Discount (%)
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      max="99"
+                      value={calculateDiscountPercent(editingProduct.price, editingProduct.compareAtPrice)}
+                      onChange={(e) => {
+                        const disc = Number(e.target.value);
+                        if (disc > 0 && editingProduct.price > 0) {
+                          const newCompare = Math.round(editingProduct.price / (1 - disc / 100));
+                          setEditingProduct({
+                            ...editingProduct,
+                            compareAtPrice: newCompare,
+                            isSale: true,
+                          } as any);
+                        } else {
+                          setEditingProduct({
+                            ...editingProduct,
+                            compareAtPrice: undefined,
+                            isSale: false,
+                          } as any);
+                        }
+                      }}
+                      placeholder="e.g. 20"
+                      className="w-full bg-surface border border-[#C9A96E]/40 px-4 py-2.5 text-sm text-[#C9A96E] font-medium focus:border-[#C9A96E] focus:outline-none rounded-xl font-mono"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] uppercase tracking-widest text-foreground-muted mb-1 font-medium">Struck-Through Original Price (₹)</label>
+                    <input
+                      type="number"
+                      value={editingProduct.compareAtPrice || ''}
+                      onChange={(e) => {
+                        const val = e.target.value ? Number(e.target.value) : undefined;
+                        setEditingProduct({
+                          ...editingProduct,
+                          compareAtPrice: val,
+                          isSale: Boolean(val && val > editingProduct.price),
+                        } as any);
+                      }}
+                      placeholder="Auto calculated"
+                      className="w-full bg-surface border border-border px-4 py-2.5 text-sm text-foreground-muted focus:border-[#C9A96E] focus:outline-none rounded-xl font-mono"
+                    />
+                  </div>
+                </div>
+
+                <div className="p-3 bg-surface rounded-lg flex items-center justify-between text-xs">
+                  <span className="text-foreground-muted">Customer Pricing Preview:</span>
+                  <div className="flex items-center gap-2">
+                    <span className="font-serif text-foreground font-bold">{formatPrice(editingProduct.price, 'INR')}</span>
+                    {editingProduct.compareAtPrice && editingProduct.compareAtPrice > editingProduct.price && (
+                      <span className="text-foreground-muted line-through font-mono">{formatPrice(editingProduct.compareAtPrice, 'INR')}</span>
+                    )}
+                    {calculateDiscountPercent(editingProduct.price, editingProduct.compareAtPrice) > 0 && (
+                      <span className="text-amber-400 font-mono font-bold">
+                        ({calculateDiscountPercent(editingProduct.price, editingProduct.compareAtPrice)}% OFF)
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+
               {/* Placement Checkboxes */}
               <div className="p-4 bg-background border border-border rounded-xl space-y-3">
-                <span className="text-xs uppercase tracking-wider text-[#C9A96E] font-semibold block">Storefront Placements</span>
-                <div className="space-y-2 text-xs">
-                  <label className="flex items-center gap-2 cursor-pointer">
+                <span className="text-xs uppercase tracking-wider text-[#C9A96E] font-semibold block">Storefront Badges & Placements</span>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                  <label className="flex items-center gap-2 cursor-pointer p-2 rounded-lg bg-surface border border-border">
                     <input
                       type="checkbox"
                       checked={editingProduct.isNew}
                       onChange={(e) => setEditingProduct({ ...editingProduct, isNew: e.target.checked })}
                       className="w-4 h-4 accent-[#C9A96E]"
                     />
-                    <span>1. Show in <b>New Arrivals</b> Collection</span>
+                    <span>1. New Arrival</span>
                   </label>
 
-                  <label className="flex items-center gap-2 cursor-pointer">
+                  <label className="flex items-center gap-2 cursor-pointer p-2 rounded-lg bg-surface border border-border">
                     <input
                       type="checkbox"
                       checked={(editingProduct as any).isBestSeller ?? false}
                       onChange={(e) => setEditingProduct({ ...editingProduct, isBestSeller: e.target.checked } as any)}
                       className="w-4 h-4 accent-[#C9A96E]"
                     />
-                    <span>2. Show in <b>Best Sellers</b> Collection</span>
+                    <span>2. Best Seller</span>
                   </label>
 
-                  <label className="flex items-center gap-2 cursor-pointer">
+                  <label className="flex items-center gap-2 cursor-pointer p-2 rounded-lg bg-surface border border-border">
                     <input
                       type="checkbox"
-                      checked={(editingProduct as any).isSale ?? false}
+                      checked={Boolean((editingProduct as any).isSale || (editingProduct.compareAtPrice && editingProduct.compareAtPrice > editingProduct.price))}
                       onChange={(e) => setEditingProduct({ ...editingProduct, isSale: e.target.checked } as any)}
                       className="w-4 h-4 accent-[#C9A96E]"
                     />
-                    <span>3. Show in <b>Special Sale</b> Collection</span>
+                    <span>3. Special Sale</span>
                   </label>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs uppercase tracking-widest text-foreground-muted mb-1 font-medium">Price (₹)</label>
+                  <label className="block text-xs uppercase tracking-widest text-foreground-muted mb-1 font-medium">SKU Code</label>
                   <input
-                    type="number"
-                    required
-                    value={editingProduct.price}
-                    onChange={(e) => setEditingProduct({ ...editingProduct, price: Number(e.target.value) })}
-                    className="w-full bg-background border border-border px-4 py-2.5 text-sm text-foreground focus:border-[#C9A96E] focus:outline-none rounded-xl font-mono"
+                    type="text"
+                    value={editingProduct.sku}
+                    onChange={(e) => setEditingProduct({ ...editingProduct, sku: e.target.value })}
+                    className="w-full bg-background border border-border px-4 py-2.5 text-sm text-foreground font-mono focus:border-[#C9A96E] focus:outline-none rounded-xl"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs uppercase tracking-widest text-foreground-muted mb-1 font-medium">Stock Count</label>
+                  <label className="block text-xs uppercase tracking-widest text-foreground-muted mb-1 font-medium">Stock Inventory Count</label>
                   <input
                     type="number"
                     required
@@ -290,7 +416,28 @@ export default function AdminProductsPage() {
                 </div>
               </div>
 
-              <div className="flex justify-end gap-3 pt-2">
+              <div>
+                <label className="block text-xs uppercase tracking-widest text-foreground-muted mb-1 font-medium">Full Product Description</label>
+                <textarea
+                  rows={3}
+                  value={editingProduct.description || ''}
+                  onChange={(e) => setEditingProduct({ ...editingProduct, description: e.target.value })}
+                  className="w-full bg-background border border-border px-4 py-2.5 text-sm text-foreground focus:border-[#C9A96E] focus:outline-none rounded-xl font-light"
+                />
+              </div>
+
+              {/* Photo Management Component */}
+              <div className="pt-2 border-t border-border">
+                <label className="block text-xs uppercase tracking-widest text-foreground-muted mb-2 font-medium">
+                  Product Photos & Cover Image Upload
+                </label>
+                <ImageUploader
+                  images={editingProduct.images || []}
+                  onChange={(imgs) => setEditingProduct({ ...editingProduct, images: imgs })}
+                />
+              </div>
+
+              <div className="flex justify-end gap-3 pt-4 border-t border-border">
                 <button
                   type="button"
                   onClick={() => setEditingProduct(null)}

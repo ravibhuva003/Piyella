@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { useCatalogStore } from '@/lib/store/catalog-store';
-import { ImageIcon, Save, Sparkles, CheckCircle2 } from 'lucide-react';
+import { ImageIcon, Save, Sparkles, CheckCircle2, Upload, Link as LinkIcon } from 'lucide-react';
 
 export default function AdminBannersPage() {
   const { banners, saveBanners, isLoaded } = useCatalogStore();
@@ -10,6 +11,9 @@ export default function AdminBannersPage() {
   const [announcementActive, setAnnouncementActive] = useState(banners.announcementActive);
   const [heroHeadline, setHeroHeadline] = useState(banners.heroHeadline);
   const [heroSubtitle, setHeroSubtitle] = useState(banners.heroSubtitle);
+  const [heroBackgroundImage, setHeroBackgroundImage] = useState(
+    banners.heroBackgroundImage || 'https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=2000&auto=format&fit=crop'
+  );
   const [savedSuccess, setSavedSuccess] = useState(false);
 
   if (!isLoaded) {
@@ -20,6 +24,19 @@ export default function AdminBannersPage() {
     );
   }
 
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      if (event.target?.result) {
+        setHeroBackgroundImage(event.target.result as string);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
     saveBanners({
@@ -27,10 +44,11 @@ export default function AdminBannersPage() {
       announcementActive,
       heroHeadline,
       heroSubtitle,
+      heroBackgroundImage,
     });
 
     setSavedSuccess(true);
-    setTimeout(() => setSavedSuccess(false), 3000);
+    setTimeout(() => setSavedSuccess(false), 4000);
   };
 
   return (
@@ -40,24 +58,81 @@ export default function AdminBannersPage() {
           Storefront Broadcasting
         </span>
         <h1 className="font-serif text-3xl sm:text-4xl text-white font-medium">
-          Homepage Banner & Announcement Manager
+          Homepage Banner & Hero Image Manager
         </h1>
+        <p className="text-xs text-white/60 font-light mt-1">
+          Update the main homepage hero background photo, marquee announcement bar, and headline text live across all devices.
+        </p>
       </div>
 
       {savedSuccess && (
         <div className="p-4 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-xl flex items-center gap-3">
           <CheckCircle2 className="w-5 h-5 shrink-0" />
-          <span className="text-sm font-medium">Storefront banners updated live! Changes are visible on the public website.</span>
+          <span className="text-sm font-medium">Homepage background and banners updated live across all devices!</span>
         </div>
       )}
 
       <form onSubmit={handleSave} className="bg-[#0a0a0a] border border-white/10 p-8 rounded-2xl space-y-8">
         
+        {/* Homepage Hero Main Background Photo Uploader */}
+        <div className="space-y-4 pb-8 border-b border-white/10">
+          <div className="flex items-center justify-between">
+            <label className="text-xs uppercase tracking-widest text-[#C9A96E] font-semibold flex items-center gap-2">
+              <ImageIcon className="w-4 h-4" />
+              <span>1. Main Homepage Hero Background Photo *</span>
+            </label>
+            <span className="text-[11px] text-white/50 font-mono">Live Sync Across Devices</span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+            {/* Image Live Preview */}
+            <div className="relative w-full h-52 rounded-xl overflow-hidden border border-white/20 bg-black group">
+              <Image
+                src={heroBackgroundImage}
+                alt="Homepage Hero Background Preview"
+                fill
+                className="object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-4">
+                <span className="text-xs font-mono text-white/90 bg-black/60 px-3 py-1 rounded-md border border-white/10">
+                  Live Preview
+                </span>
+              </div>
+            </div>
+
+            {/* Photo Input Controls */}
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs text-white/70 mb-2 font-medium">Upload Image File from Device</label>
+                <label className="flex items-center justify-center gap-2 w-full bg-white/5 hover:bg-white/10 border border-white/20 px-4 py-3 rounded-xl cursor-pointer text-xs text-white uppercase tracking-wider transition-colors">
+                  <Upload className="w-4 h-4 text-[#C9A96E]" />
+                  <span>Choose Photo File...</span>
+                  <input type="file" accept="image/*" onChange={handleFileUpload} className="hidden" />
+                </label>
+              </div>
+
+              <div>
+                <label className="block text-xs text-white/70 mb-2 font-medium flex items-center gap-1">
+                  <LinkIcon className="w-3 h-3 text-[#C9A96E]" />
+                  <span>Or Paste Image Web URL</span>
+                </label>
+                <input
+                  type="text"
+                  value={heroBackgroundImage}
+                  onChange={(e) => setHeroBackgroundImage(e.target.value)}
+                  placeholder="https://..."
+                  className="w-full bg-black/60 border border-white/10 px-4 py-3 text-xs text-white font-mono focus:border-[#C9A96E] focus:outline-none rounded-xl"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Top Marquee Announcement Bar */}
-        <div className="space-y-4 pb-6 border-b border-white/10">
+        <div className="space-y-4 pb-8 border-b border-white/10">
           <div className="flex items-center justify-between">
             <label className="text-xs uppercase tracking-widest text-white/70 font-medium">
-              Top Announcement Bar Marquee
+              2. Top Marquee Announcement Bar
             </label>
             <div className="flex items-center gap-3">
               <span className="text-xs text-white/50">Active Status</span>
@@ -85,7 +160,7 @@ export default function AdminBannersPage() {
         {/* Hero Section Headlines */}
         <div className="space-y-4">
           <label className="text-xs uppercase tracking-widest text-white/70 font-medium block">
-            Homepage Hero Headline & Subtitle
+            3. Homepage Hero Headline & Subtitle Text
           </label>
 
           <div>

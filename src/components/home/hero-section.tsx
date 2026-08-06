@@ -6,9 +6,15 @@ import Link from 'next/link';
 import { motion, AnimatePresence } from 'motion/react';
 import { ArrowRight, Play, X, Sparkles, ShieldCheck } from 'lucide-react';
 import { Container } from '@/components/layout/container';
+import { useCatalogStore } from '@/lib/store/catalog-store';
 
 export function HeroSection() {
+  const { banners } = useCatalogStore();
   const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
+
+  const bgImage = banners?.heroBackgroundImage || 'https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=2000&auto=format&fit=crop';
+  const headline = banners?.heroHeadline || 'Mastery of Bespoke Luxury';
+  const subtitle = banners?.heroSubtitle || 'Handcrafted in Italian workshops with rare calfskin, 100% pure Mulberry silk, and Swiss automatic movements.';
 
   return (
     <>
@@ -16,12 +22,12 @@ export function HeroSection() {
         {/* Background Image with Ambient Glow */}
         <div className="absolute inset-0 z-0">
           <Image
-            src="https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=2000&auto=format&fit=crop"
-            alt="Piyella Luxury Collection"
+            src={bgImage}
+            alt="Piyella Main Hero Background"
             fill
             priority
             quality={90}
-            className="object-cover object-center opacity-40 scale-105 animate-[float_10s_ease-in-out_infinite]"
+            className="object-cover object-center opacity-40 scale-105 transition-all duration-700"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-black/60" />
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#C9A96E]/10 via-transparent to-transparent pointer-events-none" />
@@ -45,27 +51,26 @@ export function HeroSection() {
               <span className="w-1.5 h-1.5 rounded-full bg-[#C9A96E] animate-pulse" />
             </motion.div>
 
-            {/* Apple/Nike Inspired Headline */}
+            {/* Dynamic Headline */}
             <motion.h1
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
               className="font-serif text-4xl sm:text-6xl md:text-7xl lg:text-8xl text-white font-medium tracking-tight leading-[1.08] mb-8"
             >
-              Mastery of <br />
               <span className="bg-clip-text text-transparent bg-gradient-to-r from-white via-[#C9A96E] to-[#FFDF99]">
-                Bespoke Luxury
+                {headline}
               </span>
             </motion.h1>
 
-            {/* Subtitle */}
+            {/* Dynamic Subtitle */}
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
               className="text-base sm:text-lg md:text-xl text-white/70 font-light max-w-2xl mx-auto leading-relaxed mb-12"
             >
-              Handcrafted in Italian workshops with rare calfskin, 100% pure Mulberry silk, and Swiss automatic movements. Designed for those who appreciate perfection.
+              {subtitle}
             </motion.p>
 
             {/* CTA Buttons */}
