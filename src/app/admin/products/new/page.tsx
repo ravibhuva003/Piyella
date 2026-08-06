@@ -16,11 +16,13 @@ export default function NewProductPage() {
   const [name, setName] = useState('');
   const [slug, setSlug] = useState('');
   const [collectionId, setCollectionId] = useState(collections[0]?.id || '');
-  const [price, setPrice] = useState<number>(45000);
-  const [discountPercent, setDiscountPercent] = useState<number>(20);
-  const [compareAtPrice, setCompareAtPrice] = useState<number | undefined>(56250);
+  
+  // String state for text-type inputs to prevent native browser number bugs
+  const [priceStr, setPriceStr] = useState('45000');
+  const [discountStr, setDiscountStr] = useState('20');
+  const [compareAtStr, setCompareAtStr] = useState('56250');
   const [sku, setSku] = useState(`PYL-${Math.floor(1000 + Math.random() * 9000)}`);
-  const [inventory, setInventory] = useState<number>(15);
+  const [inventoryStr, setInventoryStr] = useState('15');
   const [description, setDescription] = useState('');
   const [shortDescription, setShortDescription] = useState('');
   
@@ -47,42 +49,56 @@ export default function NewProductPage() {
     setSlug(val.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''));
   };
 
-  const handlePriceChange = (newPrice: number) => {
-    setPrice(newPrice);
-    if (discountPercent > 0) {
-      const calculatedOrig = Math.round(newPrice / (1 - discountPercent / 100));
-      setCompareAtPrice(calculatedOrig);
+  const handlePriceChange = (valStr: string) => {
+    const cleaned = valStr.replace(/[^0-9.]/g, '');
+    setPriceStr(cleaned);
+    const numPrice = Number(cleaned) || 0;
+    const numDisc = Number(discountStr) || 0;
+    if (numDisc > 0 && numPrice > 0) {
+      const calculatedOrig = Math.round(numPrice / (1 - numDisc / 100));
+      setCompareAtStr(String(calculatedOrig));
     }
   };
 
-  const handleDiscountChange = (newDiscount: number) => {
-    setDiscountPercent(newDiscount);
-    if (newDiscount > 0 && price > 0) {
-      const calculatedOrig = Math.round(price / (1 - newDiscount / 100));
-      setCompareAtPrice(calculatedOrig);
+  const handleDiscountChange = (valStr: string) => {
+    const cleaned = valStr.replace(/[^0-9]/g, '');
+    setDiscountStr(cleaned);
+    const numDisc = Number(cleaned) || 0;
+    const numPrice = Number(priceStr) || 0;
+    if (numDisc > 0 && numPrice > 0) {
+      const calculatedOrig = Math.round(numPrice / (1 - numDisc / 100));
+      setCompareAtStr(String(calculatedOrig));
       setIsSale(true);
     } else {
-      setCompareAtPrice(undefined);
+      setCompareAtStr('');
       setIsSale(false);
     }
   };
 
-  const handleCompareAtChange = (newCompare: number | undefined) => {
-    setCompareAtPrice(newCompare);
-    if (newCompare && newCompare > price) {
-      const calculatedDisc = Math.round(((newCompare - price) / newCompare) * 100);
-      setDiscountPercent(calculatedDisc);
+  const handleCompareAtChange = (valStr: string) => {
+    const cleaned = valStr.replace(/[^0-9.]/g, '');
+    setCompareAtStr(cleaned);
+    const numCompare = Number(cleaned) || 0;
+    const numPrice = Number(priceStr) || 0;
+    if (numCompare > numPrice && numPrice > 0) {
+      const calculatedDisc = Math.round(((numCompare - numPrice) / numCompare) * 100);
+      setDiscountStr(String(calculatedDisc));
       setIsSale(true);
     } else {
-      setDiscountPercent(0);
+      setDiscountStr('0');
       setIsSale(false);
     }
   };
+
+  const priceNum = Number(priceStr) || 0;
+  const compareAtNum = compareAtStr ? Number(compareAtStr) : undefined;
+  const discountNum = Number(discountStr) || 0;
+  const inventoryNum = Number(inventoryStr) || 0;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !price) {
-      alert('Please fill in product name and price');
+    if (!name || !priceNum) {
+      alert('Please fill in product name and valid price');
       return;
     }
 
@@ -100,21 +116,21 @@ export default function NewProductPage() {
       slug: slug || `product-${Date.now()}`,
       description: description || 'Handcrafted luxury piece.',
       shortDescription: shortDescription || 'Bespoke luxury piece.',
-      price,
-      compareAtPrice: (isSale || (discountPercent > 0)) ? (compareAtPrice || price * 1.25) : undefined,
+      price: priceNum,
+      compareAtPrice: (isSale || (discountNum > 0)) ? (compareAtNum || priceNum * 1.25) : undefined,
       currency: 'INR',
       images,
       category: categoryName,
       collectionId: targetCollectionId,
       tags,
       variants: [],
-      inventory,
+      inventory: inventoryNum,
       sku,
       isActive: true,
       isFeatured,
       isNew,
       isBestSeller,
-      isSale: Boolean(isSale || (discountPercent > 0)),
+      isSale: Boolean(isSale || (discountNum > 0)),
       ratings: 5.0,
       reviewCount: 1,
     } as any);
@@ -134,7 +150,7 @@ export default function NewProductPage() {
           <ArrowLeft className="w-4 h-4" />
           <span>Back to Products</span>
         </Link>
-        <span className="text-xs text-[#C9A96E] font-mono">Global Device Sync Active</span>
+        <span className="text-xs text-[#C9A96E] font-mono">Text Input Mode Active</span>
       </div>
 
       <div>
@@ -142,7 +158,7 @@ export default function NewProductPage() {
           Create Luxury Product
         </h1>
         <p className="text-sm text-white/60 font-light">
-          Add a new handcrafted item to the catalog. It will automatically synchronize across all devices.
+          Add a new handcrafted item to the catalog. All price and discount inputs use text format to prevent auto-fill issues.
         </p>
       </div>
 
@@ -178,7 +194,7 @@ export default function NewProductPage() {
             </div>
           </div>
 
-          {/* Collection Selection Box (Pulls directly from Admin Collection Settings) */}
+          {/* Collection Selection Box */}
           <div className="p-5 bg-black/80 border border-[#C9A96E]/40 rounded-2xl space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-[#C9A96E] text-xs uppercase tracking-widest font-semibold">
@@ -216,11 +232,11 @@ export default function NewProductPage() {
             )}
           </div>
 
-          {/* Pricing & Discount Percentage Box */}
+          {/* Pricing & Discount Percentage Box (Text Type Inputs) */}
           <div className="p-5 bg-black/80 border border-[#C9A96E]/30 rounded-2xl space-y-4">
             <div className="flex items-center gap-2 text-[#C9A96E] text-xs uppercase tracking-widest font-semibold">
               <Tag className="w-4 h-4" />
-              <span>Pricing & Discount Calculator</span>
+              <span>Pricing & Discount Calculator (Text Inputs)</span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
@@ -229,10 +245,12 @@ export default function NewProductPage() {
                   Final Selling Price (₹) *
                 </label>
                 <input
-                  type="number"
+                  type="text"
+                  inputMode="numeric"
                   required
-                  value={price}
-                  onChange={(e) => handlePriceChange(Number(e.target.value))}
+                  value={priceStr}
+                  onChange={(e) => handlePriceChange(e.target.value)}
+                  placeholder="e.g. 45000"
                   className="w-full bg-black/60 border border-white/10 px-4 py-3 text-sm text-white focus:border-[#C9A96E] focus:outline-none rounded-xl font-mono"
                 />
               </div>
@@ -243,11 +261,10 @@ export default function NewProductPage() {
                   <span>Discount Percentage (%)</span>
                 </label>
                 <input
-                  type="number"
-                  min="0"
-                  max="99"
-                  value={discountPercent}
-                  onChange={(e) => handleDiscountChange(Number(e.target.value))}
+                  type="text"
+                  inputMode="numeric"
+                  value={discountStr}
+                  onChange={(e) => handleDiscountChange(e.target.value)}
                   placeholder="e.g. 20"
                   className="w-full bg-black/60 border border-[#C9A96E]/40 px-4 py-3 text-sm text-[#C9A96E] font-medium focus:border-[#C9A96E] focus:outline-none rounded-xl font-mono"
                 />
@@ -258,9 +275,10 @@ export default function NewProductPage() {
                   Original Struck-Through Price (₹)
                 </label>
                 <input
-                  type="number"
-                  value={compareAtPrice || ''}
-                  onChange={(e) => handleCompareAtChange(e.target.value ? Number(e.target.value) : undefined)}
+                  type="text"
+                  inputMode="numeric"
+                  value={compareAtStr}
+                  onChange={(e) => handleCompareAtChange(e.target.value)}
                   placeholder="Auto calculated"
                   className="w-full bg-black/60 border border-white/10 px-4 py-3 text-sm text-white/80 focus:border-[#C9A96E] focus:outline-none rounded-xl font-mono"
                 />
@@ -271,15 +289,15 @@ export default function NewProductPage() {
             <div className="p-4 bg-white/5 border border-white/10 rounded-xl flex items-center justify-between">
               <span className="text-xs uppercase tracking-widest text-white/50 font-medium">Customer Price Display Preview:</span>
               <div className="flex items-center gap-3">
-                <span className="text-lg font-serif text-white font-bold">{formatPrice(price, 'INR')}</span>
-                {compareAtPrice && compareAtPrice > price && (
+                <span className="text-lg font-serif text-white font-bold">{formatPrice(priceNum, 'INR')}</span>
+                {compareAtNum && compareAtNum > priceNum && (
                   <span className="text-sm text-white/40 line-through font-mono">
-                    {formatPrice(compareAtPrice, 'INR')}
+                    {formatPrice(compareAtNum, 'INR')}
                   </span>
                 )}
-                {discountPercent > 0 && (
+                {discountNum > 0 && (
                   <span className="px-2 py-0.5 bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[10px] font-bold uppercase rounded-md font-mono">
-                    {discountPercent}% OFF
+                    {discountNum}% OFF
                   </span>
                 )}
               </div>
@@ -359,9 +377,10 @@ export default function NewProductPage() {
                 Initial Inventory Stock
               </label>
               <input
-                type="number"
-                value={inventory}
-                onChange={(e) => setInventory(Number(e.target.value))}
+                type="text"
+                inputMode="numeric"
+                value={inventoryStr}
+                onChange={(e) => setInventoryStr(e.target.value.replace(/[^0-9]/g, ''))}
                 className="w-full bg-black/60 border border-white/10 px-4 py-3 text-sm text-white font-mono focus:border-[#C9A96E] focus:outline-none rounded-xl"
               />
             </div>

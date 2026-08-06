@@ -29,6 +29,12 @@ export default function AdminFeaturedSectionsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
 
+  // String state fields for smooth text-type input editing
+  const [priceStr, setPriceStr] = useState('');
+  const [discountStr, setDiscountStr] = useState('');
+  const [compareAtStr, setCompareAtStr] = useState('');
+  const [inventoryStr, setInventoryStr] = useState('');
+
   if (!isLoaded) {
     return (
       <div className="min-h-[50vh] flex items-center justify-center">
@@ -36,6 +42,65 @@ export default function AdminFeaturedSectionsPage() {
       </div>
     );
   }
+
+  const startEditProduct = (prod: Product) => {
+    setEditingProduct(prod);
+    const pStr = String(prod.price || 0);
+    setPriceStr(pStr);
+
+    if (prod.compareAtPrice && prod.compareAtPrice > prod.price) {
+      const cStr = String(prod.compareAtPrice);
+      const disc = Math.round(((prod.compareAtPrice - prod.price) / prod.compareAtPrice) * 100);
+      setCompareAtStr(cStr);
+      setDiscountStr(String(disc));
+    } else {
+      setCompareAtStr('');
+      setDiscountStr('0');
+    }
+
+    setInventoryStr(String(prod.inventory || 0));
+  };
+
+  const handlePriceChange = (valStr: string) => {
+    const cleaned = valStr.replace(/[^0-9.]/g, '');
+    setPriceStr(cleaned);
+    const numPrice = Number(cleaned) || 0;
+    const numDisc = Number(discountStr) || 0;
+    if (numDisc > 0 && numPrice > 0) {
+      const calculatedOrig = Math.round(numPrice / (1 - numDisc / 100));
+      setCompareAtStr(String(calculatedOrig));
+    }
+  };
+
+  const handleDiscountChange = (valStr: string) => {
+    const cleaned = valStr.replace(/[^0-9]/g, '');
+    setDiscountStr(cleaned);
+    const numDisc = Number(cleaned) || 0;
+    const numPrice = Number(priceStr) || 0;
+    if (numDisc > 0 && numPrice > 0) {
+      const calculatedOrig = Math.round(numPrice / (1 - numDisc / 100));
+      setCompareAtStr(String(calculatedOrig));
+      if (editingProduct) setEditingProduct({ ...editingProduct, isSale: true } as any);
+    } else {
+      setCompareAtStr('');
+      if (editingProduct) setEditingProduct({ ...editingProduct, isSale: false } as any);
+    }
+  };
+
+  const handleCompareAtChange = (valStr: string) => {
+    const cleaned = valStr.replace(/[^0-9.]/g, '');
+    setCompareAtStr(cleaned);
+    const numCompare = Number(cleaned) || 0;
+    const numPrice = Number(priceStr) || 0;
+    if (numCompare > numPrice && numPrice > 0) {
+      const calculatedDisc = Math.round(((numCompare - numPrice) / numCompare) * 100);
+      setDiscountStr(String(calculatedDisc));
+      if (editingProduct) setEditingProduct({ ...editingProduct, isSale: true } as any);
+    } else {
+      setDiscountStr('0');
+      if (editingProduct) setEditingProduct({ ...editingProduct, isSale: false } as any);
+    }
+  };
 
   // Toggle product membership in featured sections
   const handleToggleSection = (product: Product, section: 'new-arrivals' | 'best-sellers' | 'sale', e?: React.MouseEvent) => {
@@ -63,31 +128,35 @@ export default function AdminFeaturedSectionsPage() {
     const selectedCol = collections.find((c) => c.id === editingProduct.collectionId);
     const categoryName = selectedCol?.name || editingProduct.category || 'General';
 
+    const finalPrice = Number(priceStr) || 0;
+    const finalCompare = compareAtStr ? Number(compareAtStr) : undefined;
+    const finalInventory = Number(inventoryStr) || 0;
+    const finalDisc = Number(discountStr) || 0;
+
     updateProduct(editingProduct.id, {
       name: editingProduct.name,
       slug: editingProduct.slug,
       description: editingProduct.description,
       shortDescription: editingProduct.shortDescription,
-      price: Number(editingProduct.price),
-      compareAtPrice: editingProduct.compareAtPrice ? Number(editingProduct.compareAtPrice) : undefined,
+      price: finalPrice,
+      compareAtPrice: (finalCompare && finalCompare > finalPrice) ? finalCompare : undefined,
       category: categoryName,
       collectionId: editingProduct.collectionId,
-      inventory: Number(editingProduct.inventory),
+      inventory: finalInventory,
       sku: editingProduct.sku,
       images: editingProduct.images,
       isNew: editingProduct.isNew,
       isBestSeller: (editingProduct as any).isBestSeller,
-      isSale: Boolean((editingProduct as any).isSale || (editingProduct.compareAtPrice && editingProduct.compareAtPrice > editingProduct.price)),
+      isSale: Boolean((editingProduct as any).isSale || (finalCompare && finalCompare > finalPrice) || finalDisc > 0),
     } as any);
 
     setEditingProduct(null);
     alert(`Product "${editingProduct.name}" updated successfully across all devices!`);
   };
 
-  const calculateDiscountPercent = (price: number, compareAt?: number) => {
-    if (!compareAt || compareAt <= price) return 0;
-    return Math.round(((compareAt - price) / compareAt) * 100);
-  };
+  const priceNum = Number(priceStr) || 0;
+  const compareAtNum = compareAtStr ? Number(compareAtStr) : undefined;
+  const discountNum = Number(discountStr) || 0;
 
   // Section Counts
   const newArrivalsList = products.filter((p) => p.isNew || (p as any).isNewArrival);
@@ -279,7 +348,7 @@ export default function AdminFeaturedSectionsPage() {
                   <span className="text-[10px] text-foreground-muted font-mono">Stock: {prod.inventory} units</span>
                   <div className="flex items-center gap-1.5">
                     <button
-                      onClick={() => setEditingProduct(prod)}
+                      onClick={() => startEditProduct(prod)}
                       className="px-2.5 py-1 bg-[#C9A96E]/10 hover:bg-[#C9A96E]/20 text-[#C9A96E] border border-[#C9A96E]/30 rounded-lg text-[10px] font-semibold uppercase tracking-wider transition-colors inline-flex items-center gap-1"
                     >
                       <Edit3 className="w-3 h-3" />
@@ -304,7 +373,7 @@ export default function AdminFeaturedSectionsPage() {
         </div>
       </div>
 
-      {/* Full Feature Edit Product Details Modal */}
+      {/* Full Feature Edit Product Details Modal (Text Inputs) */}
       {editingProduct && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
           <div className="relative w-full max-w-3xl bg-surface border border-border rounded-2xl p-6 sm:p-8 space-y-6 shadow-2xl max-h-[90vh] overflow-y-auto">
@@ -367,26 +436,22 @@ export default function AdminFeaturedSectionsPage() {
                 </select>
               </div>
 
-              {/* Pricing & Discount Calculator */}
+              {/* Pricing & Discount Calculator (Text Inputs) */}
               <div className="p-4 bg-background border border-[#C9A96E]/30 rounded-xl space-y-4">
                 <span className="text-xs uppercase tracking-wider text-[#C9A96E] font-semibold block flex items-center gap-1">
-                  <Tag className="w-3.5 h-3.5" /> Pricing & Discount Percentage Calculator
+                  <Tag className="w-3.5 h-3.5" /> Pricing & Discount Calculator (Text Inputs)
                 </span>
                 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div>
                     <label className="block text-[11px] uppercase tracking-widest text-foreground-muted mb-1 font-medium">Final Selling Price (₹) *</label>
                     <input
-                      type="number"
+                      type="text"
+                      inputMode="numeric"
                       required
-                      value={editingProduct.price}
-                      onChange={(e) => {
-                        const newPrice = Number(e.target.value);
-                        setEditingProduct({
-                          ...editingProduct,
-                          price: newPrice,
-                        });
-                      }}
+                      value={priceStr}
+                      onChange={(e) => handlePriceChange(e.target.value)}
+                      placeholder="e.g. 45000"
                       className="w-full bg-surface border border-border px-4 py-2.5 text-sm text-foreground focus:border-[#C9A96E] focus:outline-none rounded-xl font-mono"
                     />
                   </div>
@@ -396,27 +461,10 @@ export default function AdminFeaturedSectionsPage() {
                       <Percent className="w-3 h-3" /> Discount (%)
                     </label>
                     <input
-                      type="number"
-                      min="0"
-                      max="99"
-                      value={calculateDiscountPercent(editingProduct.price, editingProduct.compareAtPrice)}
-                      onChange={(e) => {
-                        const disc = Number(e.target.value);
-                        if (disc > 0 && editingProduct.price > 0) {
-                          const newCompare = Math.round(editingProduct.price / (1 - disc / 100));
-                          setEditingProduct({
-                            ...editingProduct,
-                            compareAtPrice: newCompare,
-                            isSale: true,
-                          } as any);
-                        } else {
-                          setEditingProduct({
-                            ...editingProduct,
-                            compareAtPrice: undefined,
-                            isSale: false,
-                          } as any);
-                        }
-                      }}
+                      type="text"
+                      inputMode="numeric"
+                      value={discountStr}
+                      onChange={(e) => handleDiscountChange(e.target.value)}
                       placeholder="e.g. 20"
                       className="w-full bg-surface border border-[#C9A96E]/40 px-4 py-2.5 text-sm text-[#C9A96E] font-medium focus:border-[#C9A96E] focus:outline-none rounded-xl font-mono"
                     />
@@ -425,16 +473,10 @@ export default function AdminFeaturedSectionsPage() {
                   <div>
                     <label className="block text-[11px] uppercase tracking-widest text-foreground-muted mb-1 font-medium">Struck-Through Original Price (₹)</label>
                     <input
-                      type="number"
-                      value={editingProduct.compareAtPrice || ''}
-                      onChange={(e) => {
-                        const val = e.target.value ? Number(e.target.value) : undefined;
-                        setEditingProduct({
-                          ...editingProduct,
-                          compareAtPrice: val,
-                          isSale: Boolean(val && val > editingProduct.price),
-                        } as any);
-                      }}
+                      type="text"
+                      inputMode="numeric"
+                      value={compareAtStr}
+                      onChange={(e) => handleCompareAtChange(e.target.value)}
                       placeholder="Auto calculated"
                       className="w-full bg-surface border border-border px-4 py-2.5 text-sm text-foreground-muted focus:border-[#C9A96E] focus:outline-none rounded-xl font-mono"
                     />
@@ -444,13 +486,13 @@ export default function AdminFeaturedSectionsPage() {
                 <div className="p-3 bg-surface rounded-lg flex items-center justify-between text-xs">
                   <span className="text-foreground-muted">Customer Pricing Preview:</span>
                   <div className="flex items-center gap-2">
-                    <span className="font-serif text-foreground font-bold">{formatPrice(editingProduct.price, 'INR')}</span>
-                    {editingProduct.compareAtPrice && editingProduct.compareAtPrice > editingProduct.price && (
-                      <span className="text-foreground-muted line-through font-mono">{formatPrice(editingProduct.compareAtPrice, 'INR')}</span>
+                    <span className="font-serif text-foreground font-bold">{formatPrice(priceNum, 'INR')}</span>
+                    {compareAtNum && compareAtNum > priceNum && (
+                      <span className="text-foreground-muted line-through font-mono">{formatPrice(compareAtNum, 'INR')}</span>
                     )}
-                    {calculateDiscountPercent(editingProduct.price, editingProduct.compareAtPrice) > 0 && (
+                    {discountNum > 0 && (
                       <span className="text-amber-400 font-mono font-bold">
-                        ({calculateDiscountPercent(editingProduct.price, editingProduct.compareAtPrice)}% OFF)
+                        ({discountNum}% OFF)
                       </span>
                     )}
                   </div>
@@ -484,7 +526,7 @@ export default function AdminFeaturedSectionsPage() {
                   <label className="flex items-center gap-2 cursor-pointer p-2 rounded-lg bg-surface border border-border">
                     <input
                       type="checkbox"
-                      checked={Boolean((editingProduct as any).isSale || (editingProduct.compareAtPrice && editingProduct.compareAtPrice > editingProduct.price))}
+                      checked={Boolean((editingProduct as any).isSale || (compareAtNum && compareAtNum > priceNum) || discountNum > 0)}
                       onChange={(e) => setEditingProduct({ ...editingProduct, isSale: e.target.checked } as any)}
                       className="w-4 h-4 accent-[#C9A96E]"
                     />
@@ -507,10 +549,11 @@ export default function AdminFeaturedSectionsPage() {
                 <div>
                   <label className="block text-xs uppercase tracking-widest text-foreground-muted mb-1 font-medium">Stock Inventory Count</label>
                   <input
-                    type="number"
+                    type="text"
+                    inputMode="numeric"
                     required
-                    value={editingProduct.inventory}
-                    onChange={(e) => setEditingProduct({ ...editingProduct, inventory: Number(e.target.value) })}
+                    value={inventoryStr}
+                    onChange={(e) => setInventoryStr(e.target.value.replace(/[^0-9]/g, ''))}
                     className="w-full bg-background border border-border px-4 py-2.5 text-sm text-foreground focus:border-[#C9A96E] focus:outline-none rounded-xl font-mono"
                   />
                 </div>
