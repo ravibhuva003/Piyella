@@ -36,7 +36,6 @@ export function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Determine navbar background & text colors based on scroll state & page
   const isHeroTransparent = isHomepage && !isScrolled;
 
   return (
@@ -46,7 +45,7 @@ export function Navbar() {
         animate={{ y: 0 }}
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
           isHeroTransparent
-            ? 'bg-gradient-to-b from-black/95 via-black/60 to-transparent py-6 text-white'
+            ? 'bg-gradient-to-b from-black via-black/70 to-transparent py-6 text-white'
             : isScrolled
             ? 'bg-background/95 backdrop-blur-md py-4 border-b border-border/40 shadow-xl text-foreground'
             : 'bg-background/90 backdrop-blur-md py-5 border-b border-border/30 text-foreground'
