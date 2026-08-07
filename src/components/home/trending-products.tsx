@@ -24,7 +24,7 @@ export function TrendingProducts({ products }: TrendingProductsProps) {
   const primaryImage = spotlightProduct.images.find(img => img.isPrimary)?.url || spotlightProduct.images[0]?.url || '/images/placeholder.jpg';
 
   return (
-    <section className="py-24 md:py-32 bg-black border-t border-white/5 relative overflow-hidden">
+    <section className="py-24 md:py-32 bg-background border-t border-border relative overflow-hidden text-foreground">
       <Container>
         {/* Header */}
         <div className="flex items-center justify-between mb-16">
@@ -35,7 +35,7 @@ export function TrendingProducts({ products }: TrendingProductsProps) {
                 Trending Spotlight
               </span>
             </div>
-            <h2 className="font-serif text-3xl sm:text-5xl text-white font-medium tracking-tight">
+            <h2 className="font-serif text-3xl sm:text-5xl text-foreground font-medium tracking-tight">
               Iconic Masterpieces
             </h2>
           </div>
@@ -50,9 +50,9 @@ export function TrendingProducts({ products }: TrendingProductsProps) {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className="lg:col-span-7 bg-[#0a0a0a] border border-white/10 rounded-2xl overflow-hidden p-6 sm:p-10 flex flex-col md:flex-row gap-8 items-center"
+            className="lg:col-span-7 bg-surface border border-border rounded-2xl overflow-hidden p-6 sm:p-10 flex flex-col md:flex-row gap-8 items-center shadow-xl"
           >
-            <div className="relative w-full md:w-1/2 aspect-[4/5] rounded-xl overflow-hidden bg-white/5 shrink-0">
+            <div className="relative w-full md:w-1/2 aspect-[4/5] rounded-xl overflow-hidden bg-background shrink-0 border border-border">
               <Image
                 src={primaryImage}
                 alt={spotlightProduct.name}
@@ -60,7 +60,7 @@ export function TrendingProducts({ products }: TrendingProductsProps) {
                 className="object-cover"
                 sizes="(max-width: 768px) 100vw, 30vw"
               />
-              <div className="absolute top-4 left-4 bg-red-500/20 text-red-400 border border-red-500/30 text-[10px] uppercase font-bold tracking-widest px-3 py-1 rounded-full backdrop-blur-md">
+              <div className="absolute top-4 left-4 bg-red-500/10 text-red-500 border border-red-500/20 text-[10px] uppercase font-bold tracking-widest px-3 py-1 rounded-full backdrop-blur-md">
                 Only 2 Left
               </div>
             </div>
@@ -69,7 +69,7 @@ export function TrendingProducts({ products }: TrendingProductsProps) {
               <span className="text-xs uppercase tracking-[0.2em] text-[#C9A96E] mb-2 font-medium">
                 {spotlightProduct.category}
               </span>
-              <h3 className="font-serif text-2xl sm:text-3xl text-white mb-3">
+              <h3 className="font-serif text-2xl sm:text-3xl text-foreground mb-3">
                 {spotlightProduct.name}
               </h3>
               
@@ -79,19 +79,19 @@ export function TrendingProducts({ products }: TrendingProductsProps) {
                     <Star key={i} size={14} fill="currentColor" />
                   ))}
                 </div>
-                <span className="text-xs text-white/60">({spotlightProduct.reviewCount} Reviews)</span>
+                <span className="text-xs text-foreground-muted">({spotlightProduct.reviewCount || 0} Reviews)</span>
               </div>
 
-              <p className="text-xs sm:text-sm text-white/70 font-light leading-relaxed mb-6 line-clamp-3">
+              <p className="text-xs sm:text-sm text-foreground-muted font-light leading-relaxed mb-6 line-clamp-3">
                 {spotlightProduct.description}
               </p>
 
               <div className="flex items-baseline gap-3 mb-8">
-                <span className="text-2xl font-serif text-white font-medium">
+                <span className="text-2xl font-serif text-foreground font-medium">
                   {formatPrice(spotlightProduct.price, spotlightProduct.currency)}
                 </span>
                 {spotlightProduct.compareAtPrice && spotlightProduct.compareAtPrice > spotlightProduct.price && (
-                  <span className="text-sm text-white/40 line-through">
+                  <span className="text-sm text-foreground-muted line-through">
                     {formatPrice(spotlightProduct.compareAtPrice, spotlightProduct.currency)}
                   </span>
                 )}
@@ -100,7 +100,7 @@ export function TrendingProducts({ products }: TrendingProductsProps) {
               <div className="flex gap-4">
                 <button
                   onClick={() => addItem(spotlightProduct)}
-                  className="flex-1 flex items-center justify-center gap-2 py-3.5 bg-[#C9A96E] hover:bg-[#D4B87C] text-black text-xs font-semibold uppercase tracking-widest transition-colors shadow-lg shadow-[#C9A96E]/20"
+                  className="flex-1 flex items-center justify-center gap-2 py-3.5 bg-[#C9A96E] hover:bg-[#D4B87C] text-black text-xs font-semibold uppercase tracking-widest transition-colors rounded-xl shadow-lg shadow-[#C9A96E]/20"
                 >
                   <ShoppingBag className="w-4 h-4" />
                   <span>Claim Piece</span>
@@ -108,7 +108,7 @@ export function TrendingProducts({ products }: TrendingProductsProps) {
                 
                 <Link
                   href={`/product/${spotlightProduct.slug}`}
-                  className="px-4 py-3.5 border border-white/20 hover:border-white text-white text-xs font-medium uppercase tracking-widest transition-colors flex items-center justify-center"
+                  className="px-4 py-3.5 border border-border hover:border-foreground text-foreground text-xs font-medium uppercase tracking-widest transition-colors rounded-xl flex items-center justify-center bg-background"
                 >
                   <ArrowRight className="w-4 h-4" />
                 </Link>
@@ -127,27 +127,27 @@ export function TrendingProducts({ products }: TrendingProductsProps) {
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.7, delay: idx * 0.15 }}
-                  className="group bg-[#0a0a0a] border border-white/10 hover:border-[#C9A96E]/40 rounded-xl p-4 flex gap-4 items-center transition-all"
+                  className="group bg-surface border border-border hover:border-[#C9A96E]/50 rounded-xl p-4 flex gap-4 items-center transition-all shadow-sm"
                 >
-                  <div className="relative w-20 h-24 rounded-lg overflow-hidden bg-white/5 shrink-0">
+                  <div className="relative w-20 h-24 rounded-lg overflow-hidden bg-background shrink-0 border border-border">
                     <Image src={img} alt={prod.name} fill className="object-cover group-hover:scale-105 transition-transform" />
                   </div>
                   <div className="flex flex-col flex-1 min-w-0">
-                    <span className="text-[10px] uppercase tracking-widest text-[#C9A96E] mb-1">
+                    <span className="text-[10px] uppercase tracking-widest text-[#C9A96E] mb-1 font-medium">
                       {prod.category}
                     </span>
                     <Link href={`/product/${prod.slug}`}>
-                      <h4 className="font-serif text-base text-white truncate group-hover:text-[#C9A96E] transition-colors">
+                      <h4 className="font-serif text-base text-foreground truncate group-hover:text-[#C9A96E] transition-colors">
                         {prod.name}
                       </h4>
                     </Link>
-                    <span className="text-sm font-medium text-white/90 mt-1">
+                    <span className="text-sm font-medium text-foreground mt-1">
                       {formatPrice(prod.price, prod.currency)}
                     </span>
                   </div>
                   <button
                     onClick={() => addItem(prod)}
-                    className="p-3 rounded-full bg-white/5 border border-white/10 text-white/80 hover:text-black hover:bg-[#C9A96E] hover:border-transparent transition-all shrink-0"
+                    className="p-3 rounded-full bg-background border border-border text-foreground hover:text-black hover:bg-[#C9A96E] hover:border-transparent transition-all shrink-0 shadow-sm"
                     aria-label={`Add ${prod.name} to bag`}
                   >
                     <ShoppingBag className="w-4 h-4" />

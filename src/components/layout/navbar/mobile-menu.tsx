@@ -3,10 +3,11 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, ChevronDown, Search, User, Heart } from 'lucide-react';
+import { X, ChevronDown, Search, User, Heart, ShieldCheck } from 'lucide-react';
 import { IconInstagram, IconTwitterX, IconFacebook } from '@/components/shared/social-icons';
 import { mainNavItems } from '@/constants/navigation';
 import { cn } from '@/lib/utils';
+import { useContactStore } from '@/lib/store/contact-store';
 
 interface MobileMenuProps {
   isOpen: boolean;
@@ -15,6 +16,7 @@ interface MobileMenuProps {
 
 export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
   const [expandedItem, setExpandedItem] = useState<string | null>(null);
+  const { settings } = useContactStore();
 
   const toggleExpand = (title: string) => {
     setExpandedItem(expandedItem === title ? null : title);
@@ -28,26 +30,26 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
           animate={{ x: 0 }}
           exit={{ x: '100%' }}
           transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-          className="fixed inset-0 z-[100] flex flex-col bg-background h-[100dvh] w-full"
+          className="fixed inset-0 z-[100] flex flex-col bg-background text-foreground h-[100dvh] w-full"
         >
           <div className="flex items-center justify-between px-6 h-16 md:h-20 border-b border-border/50">
             <Link 
               href="/" 
-              className="font-heading uppercase tracking-[0.3em] font-semibold text-lg"
+              className="font-heading uppercase tracking-[0.3em] font-bold text-lg text-foreground hover:text-[#C9A96E] transition-colors"
               onClick={onClose}
             >
               PIYELLA
             </Link>
             <button
               onClick={onClose}
-              className="p-2 -mr-2 text-foreground/80 hover:text-foreground transition-colors"
+              className="p-2 -mr-2 text-foreground/80 hover:text-foreground transition-colors rounded-full hover:bg-muted"
               aria-label="Close menu"
             >
               <X className="w-6 h-6" />
             </button>
           </div>
 
-          <div className="flex-1 overflow-y-auto px-6 py-8 flex flex-col gap-8">
+          <div className="flex-1 overflow-y-auto px-6 py-8 flex flex-col justify-between gap-8">
             <nav className="flex flex-col gap-6">
               {mainNavItems.map((item, i) => (
                 <motion.div
@@ -60,12 +62,12 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                     <div className="flex flex-col gap-4">
                       <button
                         onClick={() => toggleExpand(item.title)}
-                        className="flex items-center justify-between w-full text-left font-heading text-2xl"
+                        className="flex items-center justify-between w-full text-left font-heading text-2xl text-foreground"
                       >
                         {item.title}
                         <ChevronDown 
                           className={cn(
-                            "w-5 h-5 transition-transform duration-300", 
+                            "w-5 h-5 transition-transform duration-300 text-[#C9A96E]", 
                             expandedItem === item.title ? "rotate-180" : ""
                           )} 
                         />
@@ -83,7 +85,7 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                                 key={child.title}
                                 href={child.href}
                                 onClick={onClose}
-                                className="text-lg text-foreground/70 py-1"
+                                className="text-lg text-foreground-muted hover:text-[#C9A96E] py-1 transition-colors"
                               >
                                 {child.title}
                               </Link>
@@ -96,7 +98,7 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                     <Link
                       href={item.href}
                       onClick={onClose}
-                      className="block font-heading text-2xl"
+                      className="block font-heading text-2xl text-foreground hover:text-[#C9A96E] transition-colors"
                     >
                       {item.title}
                     </Link>
@@ -111,22 +113,31 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
               animate={{ opacity: 1 }}
               transition={{ delay: 0.4 }}
             >
-              <div className="flex flex-col gap-4">
-                <Link href="/search" onClick={onClose} className="flex items-center gap-3 text-lg">
-                  <Search className="w-5 h-5" /> Search
+              <div className="flex flex-col gap-4 text-base font-medium">
+                <Link href="/search" onClick={onClose} className="flex items-center gap-3 text-foreground hover:text-[#C9A96E] transition-colors">
+                  <Search className="w-5 h-5 text-[#C9A96E]" /> Search Catalog
                 </Link>
-                <Link href="/account" onClick={onClose} className="flex items-center gap-3 text-lg">
-                  <User className="w-5 h-5" /> Account
+                <Link href="/wishlist" onClick={onClose} className="flex items-center gap-3 text-foreground hover:text-[#C9A96E] transition-colors">
+                  <Heart className="w-5 h-5 text-[#C9A96E]" /> Saved Wishlist
                 </Link>
-                <Link href="/account/wishlist" onClick={onClose} className="flex items-center gap-3 text-lg">
-                  <Heart className="w-5 h-5" /> Wishlist
+                <Link href="/account" onClick={onClose} className="flex items-center gap-3 text-foreground hover:text-[#C9A96E] transition-colors">
+                  <User className="w-5 h-5 text-[#C9A96E]" /> My Account
+                </Link>
+                <Link href="/admin-login" onClick={onClose} className="flex items-center gap-3 text-[#C9A96E] font-semibold hover:underline">
+                  <ShieldCheck className="w-5 h-5 text-[#C9A96E]" /> Admin Executive Portal
                 </Link>
               </div>
 
-              <div className="flex items-center gap-6 pt-4">
-                <a href="#" className="text-foreground/60 hover:text-[#C9A96E] transition-colors"><IconInstagram className="w-5 h-5" /></a>
-                <a href="#" className="text-foreground/60 hover:text-[#C9A96E] transition-colors"><IconTwitterX className="w-5 h-5" /></a>
-                <a href="#" className="text-foreground/60 hover:text-[#C9A96E] transition-colors"><IconFacebook className="w-5 h-5" /></a>
+              <div className="flex items-center gap-6 pt-4 border-t border-border/30">
+                {settings.socials.instagram && (
+                  <a href={settings.socials.instagram} target="_blank" rel="noopener noreferrer" className="text-foreground-muted hover:text-[#C9A96E] transition-colors"><IconInstagram className="w-5 h-5" /></a>
+                )}
+                {settings.socials.twitter && (
+                  <a href={settings.socials.twitter} target="_blank" rel="noopener noreferrer" className="text-foreground-muted hover:text-[#C9A96E] transition-colors"><IconTwitterX className="w-5 h-5" /></a>
+                )}
+                {settings.socials.facebook && (
+                  <a href={settings.socials.facebook} target="_blank" rel="noopener noreferrer" className="text-foreground-muted hover:text-[#C9A96E] transition-colors"><IconFacebook className="w-5 h-5" /></a>
+                )}
               </div>
             </motion.div>
           </div>
