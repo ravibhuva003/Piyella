@@ -61,9 +61,9 @@ export function SingleCollectionView({ slug, initialCollection, initialProducts 
   }
 
   return (
-    <main className="min-h-screen bg-black text-white pt-24 pb-20 selection:bg-[#C9A96E] selection:text-black">
+    <main className="min-h-screen bg-background text-foreground pt-24 pb-20 selection:bg-[#C9A96E] selection:text-black">
       {/* 1. Collection Hero Section */}
-      <section className="relative h-[45vh] min-h-[350px] w-full flex items-center justify-center overflow-hidden mb-12 border-b border-white/10">
+      <section className="relative h-[45vh] min-h-[350px] w-full flex items-center justify-center overflow-hidden mb-12 border-b border-border">
         <Image
           src={collection.image || 'https://images.unsplash.com/photo-1584992236310-6edddc08acff?q=80&w=1000&auto=format&fit=crop'}
           alt={collection.title || collection.name}
@@ -86,7 +86,7 @@ export function SingleCollectionView({ slug, initialCollection, initialProducts 
             {collection.title || collection.name}
           </h1>
 
-          <p className="text-white/70 font-light text-sm sm:text-base leading-relaxed max-w-2xl mx-auto">
+          <p className="text-white/80 font-light text-sm sm:text-base leading-relaxed max-w-2xl mx-auto">
             {collection.description || 'Discover our curated selection of luxury handcrafted pieces designed for the modern connoisseur.'}
           </p>
         </div>
@@ -94,15 +94,15 @@ export function SingleCollectionView({ slug, initialCollection, initialProducts 
 
       <Container>
         {/* 2. Collection Toolbar */}
-        <div className="flex flex-col sm:flex-row items-center justify-between py-5 border-y border-white/10 mb-12 gap-4">
+        <div className="flex flex-col sm:flex-row items-center justify-between py-5 border-y border-border mb-12 gap-4">
           <div className="flex items-center gap-3">
             <span className="w-2.5 h-2.5 rounded-full bg-[#C9A96E]" />
-            <span className="text-xs uppercase tracking-widest text-white/80 font-medium">
+            <span className="text-xs uppercase tracking-widest text-foreground font-medium">
               Showing {displayProducts.length} {displayProducts.length === 1 ? 'Creation' : 'Handcrafted Creations'}
             </span>
           </div>
 
-          <div className="flex items-center gap-4 text-xs uppercase tracking-widest text-white/60 font-mono">
+          <div className="flex items-center gap-4 text-xs uppercase tracking-widest text-foreground-muted font-mono">
             <span className="flex items-center gap-1.5 text-[#C9A96E]">
               <Sparkles className="w-3.5 h-3.5" />
               <span>Signature Atelier Curation</span>
@@ -118,8 +118,8 @@ export function SingleCollectionView({ slug, initialCollection, initialProducts 
             ))}
           </div>
         ) : (
-          <div className="py-24 text-center bg-[#0a0a0a] border border-white/10 rounded-3xl space-y-4">
-            <p className="text-white/60 text-sm font-light">No items found in this specific collection yet.</p>
+          <div className="py-24 text-center bg-surface border border-border rounded-3xl space-y-4 shadow-sm">
+            <p className="text-foreground-muted text-sm font-light">No items found in this specific collection yet.</p>
             <Link
               href="/collections"
               className="inline-flex items-center gap-2 px-6 py-3 bg-[#C9A96E] hover:bg-[#D4B87C] text-black font-semibold text-xs uppercase tracking-widest rounded-xl transition-all"

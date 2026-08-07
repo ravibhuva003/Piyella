@@ -8,9 +8,8 @@ export const metadata = constructMetadata({
 
 export default function AboutPage() {
   return (
-    <main className="min-h-screen bg-black">
+    <main className="min-h-screen bg-background text-foreground">
       <AboutContent />
     </main>
   );
 }
-

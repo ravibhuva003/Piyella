@@ -68,9 +68,9 @@ export function AllCollectionsView({ initialProducts, initialCollections }: AllC
   const allDisplayCollections = [...featuredCurations, ...customCollectionsList];
 
   return (
-    <main className="min-h-screen bg-black text-white pt-24 pb-20 selection:bg-[#C9A96E] selection:text-black">
+    <main className="min-h-screen bg-background text-foreground pt-24 pb-20 selection:bg-[#C9A96E] selection:text-black">
       {/* 1. Hero Section */}
-      <section className="relative h-[45vh] min-h-[350px] w-full flex items-center justify-center overflow-hidden mb-16 border-b border-white/10">
+      <section className="relative h-[45vh] min-h-[350px] w-full flex items-center justify-center overflow-hidden mb-16 border-b border-border">
         <Image
           src="https://images.unsplash.com/photo-1584992236310-6edddc08acff?q=80&w=1200&auto=format&fit=crop"
           alt="All Piyella Collections"
@@ -90,7 +90,7 @@ export function AllCollectionsView({ initialProducts, initialCollections }: AllC
             All Collections ({allDisplayCollections.length})
           </h1>
 
-          <p className="text-white/70 font-light text-sm sm:text-base leading-relaxed max-w-xl mx-auto">
+          <p className="text-white/80 font-light text-sm sm:text-base leading-relaxed max-w-xl mx-auto">
             Explore our complete curation of luxury handcrafted purses, pure silk scarves, velvet home accents, and bespoke art.
           </p>
         </div>
@@ -99,8 +99,8 @@ export function AllCollectionsView({ initialProducts, initialCollections }: AllC
       <Container>
         {/* 2. Featured & Admin Category Collections Grid */}
         <section className="mb-20 space-y-8">
-          <div className="flex items-center justify-between border-b border-white/10 pb-4">
-            <h2 className="font-heading text-2xl text-white font-light">Explore Curations</h2>
+          <div className="flex items-center justify-between border-b border-border pb-4">
+            <h2 className="font-heading text-2xl text-foreground font-light">Explore Curations</h2>
             <span className="text-xs text-[#C9A96E] font-mono uppercase tracking-wider">Live Storefront Categories</span>
           </div>
 
@@ -109,7 +109,7 @@ export function AllCollectionsView({ initialProducts, initialCollections }: AllC
               <Link
                 key={col.slug}
                 href={`/collections/${col.slug}`}
-                className="group relative h-64 rounded-3xl overflow-hidden border border-white/15 p-6 flex flex-col justify-end transition-all duration-300 hover:border-[#C9A96E]/60 shadow-xl"
+                className="group relative h-64 rounded-3xl overflow-hidden border border-border p-6 flex flex-col justify-end transition-all duration-300 hover:border-[#C9A96E]/60 shadow-xl"
               >
                 <Image
                   src={col.image}
@@ -135,14 +135,14 @@ export function AllCollectionsView({ initialProducts, initialCollections }: AllC
 
         {/* 3. Full Product Catalog */}
         <section className="space-y-8">
-          <div className="flex items-center justify-between py-4 border-y border-white/10">
+          <div className="flex items-center justify-between py-4 border-y border-border">
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-[#C9A96E]" />
-              <span className="text-xs uppercase tracking-widest text-white/80 font-medium">
+              <span className="text-xs uppercase tracking-widest text-foreground font-medium">
                 Full Catalog ({products.length} Products)
               </span>
             </div>
-            <span className="text-xs text-white/40 font-mono">Worldwide Delivery</span>
+            <span className="text-xs text-foreground-muted font-mono">Worldwide Delivery</span>
           </div>
 
           {products.length > 0 ? (
@@ -152,8 +152,8 @@ export function AllCollectionsView({ initialProducts, initialCollections }: AllC
               ))}
             </div>
           ) : (
-            <div className="py-20 text-center bg-[#0a0a0a] border border-white/10 rounded-3xl space-y-4">
-              <p className="text-white/60 text-sm font-light">No products published in the catalog yet.</p>
+            <div className="py-20 text-center bg-surface border border-border rounded-3xl space-y-4 shadow-sm">
+              <p className="text-foreground-muted text-sm font-light">No products published in the catalog yet.</p>
               <Link
                 href="/admin/products/new"
                 className="inline-flex items-center gap-2 px-6 py-3 bg-[#C9A96E] hover:bg-[#D4B87C] text-black font-semibold text-xs uppercase tracking-widest rounded-xl transition-all"

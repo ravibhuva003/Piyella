@@ -46,7 +46,7 @@ export function ContactClient() {
   };
 
   return (
-    <div className="pt-28 pb-24 text-white selection:bg-[#C9A96E] selection:text-black">
+    <div className="pt-28 pb-24 text-foreground selection:bg-[#C9A96E] selection:text-black">
       <Container>
         {/* 1. Hero Section */}
         <div className="max-w-4xl mx-auto text-center mb-20 space-y-6">
@@ -64,7 +64,7 @@ export function ContactClient() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="font-heading text-4xl sm:text-6xl font-light text-white leading-tight"
+            className="font-heading text-4xl sm:text-6xl font-light text-foreground leading-tight"
           >
             {settings.heroTitle || 'Get in Touch with Concierge'}
           </motion.h1>
@@ -73,7 +73,7 @@ export function ContactClient() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-white/70 font-light text-base sm:text-lg leading-relaxed max-w-2xl mx-auto"
+            className="text-foreground-muted font-light text-base sm:text-lg leading-relaxed max-w-2xl mx-auto"
           >
             {settings.heroSubtitle}
           </motion.p>
@@ -88,20 +88,20 @@ export function ContactClient() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
-            className="bg-[#0f0f0f] border border-white/10 p-6 sm:p-8 rounded-3xl space-y-4 hover:border-[#C9A96E]/50 transition-all duration-300 flex flex-col justify-between group"
+            className="bg-surface border border-border p-6 sm:p-8 rounded-3xl space-y-4 hover:border-[#C9A96E]/50 transition-all duration-300 flex flex-col justify-between group shadow-sm"
           >
             <div className="space-y-4">
               <div className="w-12 h-12 rounded-2xl bg-[#C9A96E]/10 border border-[#C9A96E]/30 flex items-center justify-center text-[#C9A96E] group-hover:scale-110 transition-transform">
                 <Phone className="w-6 h-6" />
               </div>
-              <h3 className="font-serif text-xl text-white font-medium">Telephone & WhatsApp</h3>
-              <div className="space-y-2 text-xs text-white/70 font-light">
+              <h3 className="font-serif text-xl text-foreground font-medium">Telephone & WhatsApp</h3>
+              <div className="space-y-2 text-xs text-foreground-muted font-light">
                 <p>Direct Concierge Line:</p>
-                <a href={`tel:${settings.phone}`} className="text-white font-semibold text-sm hover:text-[#C9A96E] transition-colors block">
+                <a href={`tel:${settings.phone}`} className="text-foreground font-semibold text-sm hover:text-[#C9A96E] transition-colors block">
                   {settings.phone}
                 </a>
                 <p className="pt-1">WhatsApp Concierge:</p>
-                <a href={settings.whatsappLink || `https://wa.me/${settings.whatsapp}`} target="_blank" rel="noopener noreferrer" className="text-emerald-400 font-mono hover:underline inline-flex items-center gap-1.5">
+                <a href={settings.whatsappLink || `https://wa.me/${settings.whatsapp}`} target="_blank" rel="noopener noreferrer" className="text-emerald-500 font-mono hover:underline inline-flex items-center gap-1.5">
                   <MessageSquare className="w-3.5 h-3.5" />
                   <span>{settings.whatsapp}</span>
                 </a>
@@ -115,23 +115,23 @@ export function ContactClient() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="bg-[#0f0f0f] border border-white/10 p-6 sm:p-8 rounded-3xl space-y-4 hover:border-[#C9A96E]/50 transition-all duration-300 flex flex-col justify-between group"
+            className="bg-surface border border-border p-6 sm:p-8 rounded-3xl space-y-4 hover:border-[#C9A96E]/50 transition-all duration-300 flex flex-col justify-between group shadow-sm"
           >
             <div className="space-y-4">
               <div className="w-12 h-12 rounded-2xl bg-[#C9A96E]/10 border border-[#C9A96E]/30 flex items-center justify-center text-[#C9A96E] group-hover:scale-110 transition-transform">
                 <Mail className="w-6 h-6" />
               </div>
-              <h3 className="font-serif text-xl text-white font-medium">Email Advisory</h3>
-              <div className="space-y-3 text-xs text-white/70 font-light">
+              <h3 className="font-serif text-xl text-foreground font-medium">Email Advisory</h3>
+              <div className="space-y-3 text-xs text-foreground-muted font-light">
                 <div>
-                  <span className="text-white/40 block text-[10px] uppercase font-mono">Client Care:</span>
+                  <span className="text-foreground-muted/60 block text-[10px] uppercase font-mono">Client Care:</span>
                   <a href={`mailto:${settings.email}`} className="text-[#C9A96E] font-medium text-sm hover:underline">
                     {settings.email}
                   </a>
                 </div>
                 <div>
-                  <span className="text-white/40 block text-[10px] uppercase font-mono">Press & PR:</span>
-                  <a href={`mailto:${settings.pressEmail}`} className="text-white hover:text-[#C9A96E] transition-colors">
+                  <span className="text-foreground-muted/60 block text-[10px] uppercase font-mono">Press & PR:</span>
+                  <a href={`mailto:${settings.pressEmail}`} className="text-foreground hover:text-[#C9A96E] transition-colors">
                     {settings.pressEmail}
                   </a>
                 </div>
@@ -145,17 +145,17 @@ export function ContactClient() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="bg-[#0f0f0f] border border-white/10 p-6 sm:p-8 rounded-3xl space-y-4 hover:border-[#C9A96E]/50 transition-all duration-300 flex flex-col justify-between group"
+            className="bg-surface border border-border p-6 sm:p-8 rounded-3xl space-y-4 hover:border-[#C9A96E]/50 transition-all duration-300 flex flex-col justify-between group shadow-sm"
           >
             <div className="space-y-4">
               <div className="w-12 h-12 rounded-2xl bg-[#C9A96E]/10 border border-[#C9A96E]/30 flex items-center justify-center text-[#C9A96E] group-hover:scale-110 transition-transform">
                 <MapPin className="w-6 h-6" />
               </div>
-              <h3 className="font-serif text-xl text-white font-medium">Flagship Store</h3>
-              <div className="space-y-2 text-xs text-white/70 font-light">
-                <p className="text-white font-medium">{settings.address}</p>
+              <h3 className="font-serif text-xl text-foreground font-medium">Flagship Store</h3>
+              <div className="space-y-2 text-xs text-foreground-muted font-light">
+                <p className="text-foreground font-medium">{settings.address}</p>
                 <p>{settings.cityCountry}</p>
-                <div className="pt-2 flex items-center gap-1.5 text-white/50 text-[11px]">
+                <div className="pt-2 flex items-center gap-1.5 text-foreground-muted text-[11px]">
                   <Clock className="w-3.5 h-3.5 text-[#C9A96E]" />
                   <span>{settings.operatingHours}</span>
                 </div>
@@ -169,34 +169,34 @@ export function ContactClient() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.3 }}
-            className="bg-[#0f0f0f] border border-white/10 p-6 sm:p-8 rounded-3xl space-y-4 hover:border-[#C9A96E]/50 transition-all duration-300 flex flex-col justify-between group"
+            className="bg-surface border border-border p-6 sm:p-8 rounded-3xl space-y-4 hover:border-[#C9A96E]/50 transition-all duration-300 flex flex-col justify-between group shadow-sm"
           >
             <div className="space-y-4">
               <div className="w-12 h-12 rounded-2xl bg-[#C9A96E]/10 border border-[#C9A96E]/30 flex items-center justify-center text-[#C9A96E] group-hover:scale-110 transition-transform">
                 <Share2 className="w-6 h-6" />
               </div>
-              <h3 className="font-serif text-xl text-white font-medium">Social Channels</h3>
+              <h3 className="font-serif text-xl text-foreground font-medium">Social Channels</h3>
               <div className="grid grid-cols-2 gap-2 text-xs">
                 {settings.socials.instagram && (
-                  <a href={settings.socials.instagram} target="_blank" rel="noopener noreferrer" className="p-2 rounded-xl bg-white/5 border border-white/10 hover:border-pink-500/50 hover:text-pink-400 transition-colors flex items-center gap-2">
+                  <a href={settings.socials.instagram} target="_blank" rel="noopener noreferrer" className="p-2 rounded-xl bg-background border border-border hover:border-pink-500/50 hover:text-pink-500 transition-colors flex items-center gap-2">
                     <IconInstagram className="w-3.5 h-3.5" />
                     <span>Instagram</span>
                   </a>
                 )}
                 {settings.socials.facebook && (
-                  <a href={settings.socials.facebook} target="_blank" rel="noopener noreferrer" className="p-2 rounded-xl bg-white/5 border border-white/10 hover:border-blue-500/50 hover:text-blue-400 transition-colors flex items-center gap-2">
+                  <a href={settings.socials.facebook} target="_blank" rel="noopener noreferrer" className="p-2 rounded-xl bg-background border border-border hover:border-blue-500/50 hover:text-blue-500 transition-colors flex items-center gap-2">
                     <IconFacebook className="w-3.5 h-3.5" />
                     <span>Facebook</span>
                   </a>
                 )}
                 {settings.socials.twitter && (
-                  <a href={settings.socials.twitter} target="_blank" rel="noopener noreferrer" className="p-2 rounded-xl bg-white/5 border border-white/10 hover:border-sky-500/50 hover:text-sky-400 transition-colors flex items-center gap-2">
+                  <a href={settings.socials.twitter} target="_blank" rel="noopener noreferrer" className="p-2 rounded-xl bg-background border border-border hover:border-sky-500/50 hover:text-sky-500 transition-colors flex items-center gap-2">
                     <IconTwitterX className="w-3.5 h-3.5" />
                     <span>X (Twitter)</span>
                   </a>
                 )}
                 {settings.socials.linkedin && (
-                  <a href={settings.socials.linkedin} target="_blank" rel="noopener noreferrer" className="p-2 rounded-xl bg-white/5 border border-white/10 hover:border-blue-600/50 hover:text-blue-500 transition-colors flex items-center gap-2">
+                  <a href={settings.socials.linkedin} target="_blank" rel="noopener noreferrer" className="p-2 rounded-xl bg-background border border-border hover:border-blue-600/50 hover:text-blue-600 transition-colors flex items-center gap-2">
                     <IconLinkedin className="w-3.5 h-3.5" />
                     <span>LinkedIn</span>
                   </a>
@@ -216,16 +216,16 @@ export function ContactClient() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.7 }}
-            className="lg:col-span-7 bg-[#0a0a0a] border border-white/10 p-8 sm:p-12 rounded-3xl space-y-6"
+            className="lg:col-span-7 bg-surface border border-border p-8 sm:p-12 rounded-3xl space-y-6 shadow-sm"
           >
             <div className="space-y-2">
               <span className="text-[#C9A96E] text-xs uppercase tracking-[0.3em] font-semibold block">
                 Send an Enquiry
               </span>
-              <h2 className="font-heading text-3xl font-light text-white">
+              <h2 className="font-heading text-3xl font-light text-foreground">
                 Bespoke Client Inquiry
               </h2>
-              <p className="text-xs text-white/60 font-light">
+              <p className="text-xs text-foreground-muted font-light">
                 Fill out the form below and our Concierge team will respond within 24 hours.
               </p>
             </div>
@@ -233,14 +233,14 @@ export function ContactClient() {
             {submitted ? (
               <div className="p-8 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl text-center space-y-3">
                 <CheckCircle2 className="w-10 h-10 text-emerald-400 mx-auto" />
-                <h3 className="font-serif text-xl text-white font-medium">Enquiry Received</h3>
-                <p className="text-xs text-white/70 leading-relaxed">
+                <h3 className="font-serif text-xl text-foreground font-medium">Enquiry Received</h3>
+                <p className="text-xs text-foreground-muted leading-relaxed">
                   Thank you for reaching out to Piyella. A client advisor has been assigned to your message and will contact you shortly.
                 </p>
                 <button
                   type="button"
                   onClick={() => setSubmitted(false)}
-                  className="px-6 py-2.5 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs uppercase tracking-wider"
+                  className="px-6 py-2.5 bg-background border border-border hover:bg-muted text-foreground rounded-xl text-xs uppercase tracking-wider"
                 >
                   Send Another Message
                 </button>
@@ -249,7 +249,7 @@ export function ContactClient() {
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-xs uppercase tracking-wider text-white/70 font-semibold mb-2">
+                    <label className="block text-xs uppercase tracking-wider text-foreground-muted font-semibold mb-2">
                       Your Full Name
                     </label>
                     <input
@@ -258,12 +258,12 @@ export function ContactClient() {
                       value={formState.name}
                       onChange={(e) => setFormState({ ...formState, name: e.target.value })}
                       placeholder="Lady Evelyn Vance"
-                      className="w-full bg-black border border-white/15 rounded-xl px-4 py-3.5 text-sm text-white focus:border-[#C9A96E] focus:outline-none"
+                      className="w-full bg-background border border-border rounded-xl px-4 py-3.5 text-sm text-foreground focus:border-[#C9A96E] focus:outline-none"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs uppercase tracking-wider text-white/70 font-semibold mb-2">
+                    <label className="block text-xs uppercase tracking-wider text-foreground-muted font-semibold mb-2">
                       Email Address
                     </label>
                     <input
@@ -272,19 +272,19 @@ export function ContactClient() {
                       value={formState.email}
                       onChange={(e) => setFormState({ ...formState, email: e.target.value })}
                       placeholder="evelyn@domain.com"
-                      className="w-full bg-black border border-white/15 rounded-xl px-4 py-3.5 text-sm text-white focus:border-[#C9A96E] focus:outline-none"
+                      className="w-full bg-background border border-border rounded-xl px-4 py-3.5 text-sm text-foreground focus:border-[#C9A96E] focus:outline-none"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs uppercase tracking-wider text-white/70 font-semibold mb-2">
+                  <label className="block text-xs uppercase tracking-wider text-foreground-muted font-semibold mb-2">
                     Inquiry Topic
                   </label>
                   <select
                     value={formState.subject}
                     onChange={(e) => setFormState({ ...formState, subject: e.target.value })}
-                    className="w-full bg-black border border-white/15 rounded-xl px-4 py-3.5 text-sm text-white focus:border-[#C9A96E] focus:outline-none"
+                    className="w-full bg-background border border-border rounded-xl px-4 py-3.5 text-sm text-foreground focus:border-[#C9A96E] focus:outline-none"
                   >
                     <option value="General Inquiry">General Inquiry</option>
                     <option value="Custom Order">Custom Artwork / Bespoke Order</option>
@@ -294,7 +294,7 @@ export function ContactClient() {
                 </div>
 
                 <div>
-                  <label className="block text-xs uppercase tracking-wider text-white/70 font-semibold mb-2">
+                  <label className="block text-xs uppercase tracking-wider text-foreground-muted font-semibold mb-2">
                     Your Message
                   </label>
                   <textarea
@@ -303,7 +303,7 @@ export function ContactClient() {
                     value={formState.message}
                     onChange={(e) => setFormState({ ...formState, message: e.target.value })}
                     placeholder="How may our concierge assist you today?"
-                    className="w-full bg-black border border-white/15 rounded-xl px-4 py-3.5 text-sm text-white focus:border-[#C9A96E] focus:outline-none resize-none"
+                    className="w-full bg-background border border-border rounded-xl px-4 py-3.5 text-sm text-foreground focus:border-[#C9A96E] focus:outline-none resize-none font-light"
                   />
                 </div>
 
@@ -325,41 +325,41 @@ export function ContactClient() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.7 }}
-            className="lg:col-span-5 bg-[#0a0a0a] border border-white/10 p-8 sm:p-12 rounded-3xl space-y-6 flex flex-col justify-between h-full"
+            className="lg:col-span-5 bg-surface border border-border p-8 sm:p-12 rounded-3xl space-y-6 flex flex-col justify-between h-full shadow-sm"
           >
             <div className="space-y-4">
               <span className="text-[#C9A96E] text-xs uppercase tracking-[0.3em] font-semibold block">
                 Visit Our Flagship Store
               </span>
-              <h2 className="font-heading text-3xl font-light text-white">
+              <h2 className="font-heading text-3xl font-light text-foreground">
                 Flagship Sanctuary
               </h2>
-              <p className="text-xs text-white/60 font-light leading-relaxed">
+              <p className="text-xs text-foreground-muted font-light leading-relaxed">
                 Experience our curated embroidery collection in person. Private consultations available by appointment.
               </p>
 
               <div className="space-y-3 pt-2 text-xs">
-                <div className="p-4 bg-black/60 border border-white/10 rounded-2xl space-y-1">
-                  <span className="text-white/40 block text-[10px] uppercase font-mono">Address</span>
-                  <span className="text-white font-medium block">{settings.address}</span>
-                  <span className="text-white/60 block">{settings.cityCountry}</span>
+                <div className="p-4 bg-background border border-border rounded-2xl space-y-1">
+                  <span className="text-foreground-muted/60 block text-[10px] uppercase font-mono">Address</span>
+                  <span className="text-foreground font-medium block">{settings.address}</span>
+                  <span className="text-foreground-muted block">{settings.cityCountry}</span>
                 </div>
 
-                <div className="p-4 bg-black/60 border border-white/10 rounded-2xl space-y-1">
-                  <span className="text-white/40 block text-[10px] uppercase font-mono">Concierge Hours</span>
-                  <span className="text-white font-medium block">{settings.operatingHours}</span>
+                <div className="p-4 bg-background border border-border rounded-2xl space-y-1">
+                  <span className="text-foreground-muted/60 block text-[10px] uppercase font-mono">Concierge Hours</span>
+                  <span className="text-foreground font-medium block">{settings.operatingHours}</span>
                 </div>
               </div>
             </div>
 
             {/* Embedded Google Map */}
-            <div className="w-full aspect-[4/3] rounded-2xl overflow-hidden border border-white/15 relative bg-white/5 mt-4">
+            <div className="w-full aspect-[4/3] rounded-2xl overflow-hidden border border-border relative bg-muted mt-4">
               <iframe
                 title="Piyella Atelier Location"
                 src={settings.mapEmbedUrl}
                 width="100%"
                 height="100%"
-                style={{ border: 0, filter: 'invert(90%) hue-rotate(180deg)' }}
+                style={{ border: 0 }}
                 allowFullScreen={false}
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"

@@ -8,7 +8,7 @@ export const metadata = constructMetadata({
 
 export default function ContactPage() {
   return (
-    <main className="min-h-screen bg-black">
+    <main className="min-h-screen bg-background text-foreground">
       <ContactClient />
     </main>
   );

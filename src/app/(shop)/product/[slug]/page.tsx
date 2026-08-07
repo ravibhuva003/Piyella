@@ -105,16 +105,16 @@ export default function ProductDetailPage({ params }: PageProps) {
   };
 
   return (
-    <main className="min-h-screen bg-black text-white pt-24 pb-20 selection:bg-[#C9A96E] selection:text-black">
+    <main className="min-h-screen bg-background text-foreground pt-24 pb-20 selection:bg-[#C9A96E] selection:text-black">
       <div className="max-w-screen-2xl mx-auto px-4 md:px-8">
         
         {/* Breadcrumbs */}
-        <nav className="text-xs tracking-widest uppercase text-zinc-500 mb-8 font-light flex items-center gap-2">
-          <Link href="/" className="hover:text-white transition-colors">Home</Link>
+        <nav className="text-xs tracking-widest uppercase text-foreground-muted mb-8 font-light flex items-center gap-2">
+          <Link href="/" className="hover:text-foreground transition-colors">Home</Link>
           <span>/</span>
-          <Link href="/collections" className="hover:text-white transition-colors">Collections</Link>
+          <Link href="/collections" className="hover:text-foreground transition-colors">Collections</Link>
           <span>/</span>
-          <span className="text-zinc-300">{product.name}</span>
+          <span className="text-foreground">{product.name}</span>
         </nav>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 mb-24">
@@ -134,7 +134,7 @@ export default function ProductDetailPage({ params }: PageProps) {
             
             <div 
               onClick={() => setIsZoomOpen(true)}
-              className="relative w-full aspect-[3/4] lg:aspect-[4/5] bg-zinc-900 overflow-hidden cursor-zoom-in group rounded-2xl border border-white/10"
+              className="relative w-full aspect-[3/4] lg:aspect-[4/5] bg-surface overflow-hidden cursor-zoom-in group rounded-2xl border border-border"
             >
               <Image 
                 src={images[activeImage] || '/images/placeholder.jpg'} 
@@ -153,17 +153,17 @@ export default function ProductDetailPage({ params }: PageProps) {
           <div className="flex flex-col py-4">
             <div className="mb-8">
               <div className="flex items-center gap-3 mb-3">
-                <span className="text-zinc-500 uppercase tracking-widest text-xs font-light">
+                <span className="text-foreground-muted uppercase tracking-widest text-xs font-light">
                   {product.category} &nbsp;|&nbsp; SKU: {product.sku}
                 </span>
 
                 {/* Real-time Inventory Badge */}
                 <span className={`px-2.5 py-0.5 text-[10px] uppercase tracking-wider font-semibold rounded-full border ${
                   product.inventory > 5 
-                    ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' 
+                    ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' 
                     : product.inventory > 0 
-                    ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' 
-                    : 'bg-red-500/10 text-red-400 border-red-500/20'
+                    ? 'bg-amber-500/10 text-amber-500 border-amber-500/20' 
+                    : 'bg-red-500/10 text-red-500 border-red-500/20'
                 }`}>
                   {product.inventory > 5 
                     ? `In Stock (${product.inventory} available)` 
@@ -173,7 +173,7 @@ export default function ProductDetailPage({ params }: PageProps) {
                 </span>
               </div>
 
-              <h1 className="text-3xl lg:text-5xl font-serif mb-4 leading-tight">{product.name}</h1>
+              <h1 className="text-3xl lg:text-5xl font-serif mb-4 leading-tight text-foreground">{product.name}</h1>
               
               <div className="flex items-center gap-4 mb-6">
                 <div className="flex text-[#C9A96E]">
@@ -181,18 +181,18 @@ export default function ProductDetailPage({ params }: PageProps) {
                     <Star key={i} size={16} fill={i < Math.floor(product.ratings || 5) ? "currentColor" : "none"} />
                   ))}
                 </div>
-                <span className="text-sm text-zinc-400 font-light">{product.reviewCount || 0} Client Reviews</span>
+                <span className="text-sm text-foreground-muted font-light">{product.reviewCount || 0} Client Reviews</span>
               </div>
 
               <div className="flex items-end gap-4">
-                <span className="text-3xl font-serif font-medium text-white">{formatPrice(product.price, product.currency)}</span>
+                <span className="text-3xl font-serif font-medium text-foreground">{formatPrice(product.price, product.currency)}</span>
                 {product.compareAtPrice && product.compareAtPrice > product.price && (
-                  <span className="text-zinc-500 line-through text-lg mb-1">{formatPrice(product.compareAtPrice, product.currency)}</span>
+                  <span className="text-foreground-muted line-through text-lg mb-1">{formatPrice(product.compareAtPrice, product.currency)}</span>
                 )}
               </div>
             </div>
 
-            <p className="text-zinc-300 font-light leading-relaxed mb-10 text-base">
+            <p className="text-foreground-muted font-light leading-relaxed mb-10 text-base">
               {product.description || "Meticulously crafted with unparalleled attention to detail, this piece embodies the essence of modern luxury and timeless elegance."}
             </p>
 
@@ -200,14 +200,14 @@ export default function ProductDetailPage({ params }: PageProps) {
             {colorVariants.length > 0 && (
               <div className="mb-8">
                 <div className="flex justify-between items-center mb-3">
-                  <span className="text-xs tracking-widest uppercase font-medium">Color: <span className="text-[#C9A96E]">{selectedColor}</span></span>
+                  <span className="text-xs tracking-widest uppercase font-medium text-foreground">Color: <span className="text-[#C9A96E]">{selectedColor}</span></span>
                 </div>
                 <div className="flex gap-3">
                   {colorVariants.map((color) => (
                     <button
                       key={color.id}
                       onClick={() => setSelectedColor(color.value)}
-                      className={`w-9 h-9 rounded-full border-2 ${selectedColor === color.value ? 'border-[#C9A96E] scale-110' : 'border-transparent ring-1 ring-zinc-700'} transition-all`}
+                      className={`w-9 h-9 rounded-full border-2 ${selectedColor === color.value ? 'border-[#C9A96E] scale-110' : 'border-transparent ring-1 ring-border'} transition-all`}
                       style={{ backgroundColor: color.value.toLowerCase() }}
                       aria-label={`Select color ${color.name}`}
                     />
@@ -220,8 +220,8 @@ export default function ProductDetailPage({ params }: PageProps) {
             {sizeVariants.length > 0 && (
               <div className="mb-8">
                 <div className="flex justify-between items-center mb-3">
-                  <span className="text-xs tracking-widest uppercase font-medium">Size</span>
-                  <button className="text-xs text-zinc-400 underline underline-offset-4 hover:text-white transition-colors">Size Guide</button>
+                  <span className="text-xs tracking-widest uppercase font-medium text-foreground">Size</span>
+                  <button className="text-xs text-foreground-muted underline underline-offset-4 hover:text-foreground transition-colors">Size Guide</button>
                 </div>
                 <div className="flex flex-wrap gap-3">
                   {sizeVariants.map((size) => (
@@ -231,7 +231,7 @@ export default function ProductDetailPage({ params }: PageProps) {
                       className={`w-14 h-12 border rounded-xl flex items-center justify-center text-xs font-semibold transition-all ${
                         selectedSize === size.value 
                           ? 'border-[#C9A96E] bg-[#C9A96E]/10 text-[#C9A96E]' 
-                          : 'border-zinc-800 text-zinc-400 hover:border-zinc-500 hover:text-white'
+                          : 'border-border text-foreground-muted hover:border-foreground/50 hover:text-foreground bg-surface'
                       }`}
                     >
                       {size.value}
@@ -243,10 +243,10 @@ export default function ProductDetailPage({ params }: PageProps) {
 
             {/* Quantity & Actions */}
             <div className="flex flex-col sm:flex-row gap-4 mb-10">
-              <div className="flex items-center border border-zinc-800 rounded-xl h-14 w-full sm:w-32">
-                <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="px-4 text-zinc-400 hover:text-white transition-colors"><Minus size={16} /></button>
-                <span className="flex-1 text-center font-light text-lg">{quantity}</span>
-                <button onClick={() => setQuantity(quantity + 1)} className="px-4 text-zinc-400 hover:text-white transition-colors"><Plus size={16} /></button>
+              <div className="flex items-center border border-border bg-surface rounded-xl h-14 w-full sm:w-32">
+                <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="px-4 text-foreground-muted hover:text-foreground transition-colors"><Minus size={16} /></button>
+                <span className="flex-1 text-center font-light text-lg text-foreground">{quantity}</span>
+                <button onClick={() => setQuantity(quantity + 1)} className="px-4 text-foreground-muted hover:text-foreground transition-colors"><Plus size={16} /></button>
               </div>
               
               <button 
@@ -266,13 +266,12 @@ export default function ProductDetailPage({ params }: PageProps) {
 
               <button 
                 onClick={toggleWishlist}
-                className={`h-14 w-14 rounded-xl flex items-center justify-center border transition-colors ${isWishlisted ? 'border-[#C9A96E] text-[#C9A96E]' : 'border-zinc-800 text-zinc-400 hover:border-zinc-500 hover:text-white'}`}
+                className={`h-14 w-14 rounded-xl flex items-center justify-center border transition-colors bg-surface ${isWishlisted ? 'border-[#C9A96E] text-[#C9A96E]' : 'border-border text-foreground-muted hover:border-foreground/50 hover:text-foreground'}`}
                 aria-label="Add to wishlist"
               >
                 <Heart size={20} fill={isWishlisted ? "currentColor" : "none"} />
               </button>
             </div>
-            
           </div>
         </div>
 

@@ -3,8 +3,7 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { motion } from 'motion/react';
-import { Heart, Sparkles, Scissors, Feather, Award, ArrowRight } from 'lucide-react';
+import { Feather, ArrowRight } from 'lucide-react';
 import { Container } from '@/components/layout/container';
 
 export default function StoryPage() {
@@ -36,7 +35,7 @@ export default function StoryPage() {
   ];
 
   return (
-    <main className="min-h-screen bg-black text-white pt-28 pb-24 selection:bg-[#C9A96E] selection:text-black">
+    <main className="min-h-screen bg-background text-foreground pt-28 pb-24 selection:bg-[#C9A96E] selection:text-black">
       <Container>
         
         {/* Story Hero */}
@@ -45,10 +44,10 @@ export default function StoryPage() {
             <Feather className="w-4 h-4" />
             <span>The Handcrafted Legacy</span>
           </div>
-          <h1 className="font-serif text-4xl sm:text-6xl text-white font-medium leading-tight">
+          <h1 className="font-serif text-4xl sm:text-6xl text-foreground font-medium leading-tight">
             Handcrafted with Soul, Thread & Devotion
           </h1>
-          <p className="text-white/70 font-light text-base leading-relaxed">
+          <p className="text-foreground-muted font-light text-base leading-relaxed">
             In an era of mass automation, Piyella stands as a sanctuary for traditional needlework. Every purse, crochet throw, and velvet cushion carries the warmth of human hands and centuries of Italian embroidery mastery.
           </p>
         </div>
@@ -59,20 +58,20 @@ export default function StoryPage() {
             <span className="text-[#C9A96E] text-xs uppercase tracking-[0.3em] font-medium block">
               Craftsmanship Unveiled
             </span>
-            <h2 className="font-serif text-3xl sm:text-4xl text-white font-medium">
+            <h2 className="font-serif text-3xl sm:text-4xl text-foreground font-medium">
               Behind the Stitch: Our 4-Stage Process
             </h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
             {steps.map((st) => (
-              <div key={st.number} className="bg-[#0a0a0a] border border-white/10 p-8 rounded-3xl space-y-6 flex flex-col justify-between">
+              <div key={st.number} className="bg-surface border border-border p-8 rounded-3xl space-y-6 flex flex-col justify-between shadow-sm">
                 <div className="space-y-4">
                   <span className="font-mono text-3xl font-bold text-[#C9A96E] block">{st.number}</span>
-                  <h3 className="font-serif text-2xl text-white font-medium">{st.title}</h3>
-                  <p className="text-sm text-white/60 font-light leading-relaxed">{st.description}</p>
+                  <h3 className="font-serif text-2xl text-foreground font-medium">{st.title}</h3>
+                  <p className="text-sm text-foreground-muted font-light leading-relaxed">{st.description}</p>
                 </div>
-                <div className="relative aspect-[16/9] w-full rounded-2xl overflow-hidden bg-white/5 border border-white/10">
+                <div className="relative aspect-[16/9] w-full rounded-2xl overflow-hidden bg-background border border-border">
                   <Image src={st.image} alt={st.title} fill className="object-cover" />
                 </div>
               </div>
@@ -81,40 +80,40 @@ export default function StoryPage() {
         </section>
 
         {/* Meet the Artist Section */}
-        <section className="bg-[#0a0a0a] border border-white/10 rounded-3xl p-8 sm:p-14 mb-24 space-y-12">
+        <section className="bg-surface border border-border rounded-3xl p-8 sm:p-14 mb-24 space-y-12 shadow-sm">
           <div className="max-w-2xl space-y-3">
             <span className="text-[#C9A96E] text-xs uppercase tracking-[0.3em] font-medium block">
               Artisan Guild Spotlight
             </span>
-            <h2 className="font-serif text-3xl sm:text-5xl text-white font-medium">
+            <h2 className="font-serif text-3xl sm:text-5xl text-foreground font-medium">
               Meet Master Embroiderer Beatrice Vane
             </h2>
-            <p className="text-white/70 font-light text-sm leading-relaxed">
+            <p className="text-foreground-muted font-light text-sm leading-relaxed">
               &ldquo;Needlework is a form of slow meditation. When I stitch gold thread into Mulberry silk, I am weaving patience, history, and emotion into a piece that will outlast generations.&rdquo;
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-white/5 border border-white/10">
+            <div className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-background border border-border">
               <Image src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=800&auto=format&fit=crop" alt="Beatrice Vane" fill className="object-cover" />
             </div>
 
             <div className="md:col-span-2 space-y-6 flex flex-col justify-center">
               <div className="space-y-2">
-                <h3 className="font-serif text-2xl text-white">25+ Years of Florentine Needlework</h3>
-                <p className="text-sm text-white/60 font-light leading-relaxed">
+                <h3 className="font-serif text-2xl text-foreground">25+ Years of Florentine Needlework</h3>
+                <p className="text-sm text-foreground-muted font-light leading-relaxed">
                   Trained in the historic ateliers of Florence and Venice, Beatrice leads our team of 14 female artisans. Each purse and cushion is hand-signed and numbered by the master artisan who crafted it.
                 </p>
               </div>
 
               <div className="grid grid-cols-2 gap-4 text-xs">
-                <div className="p-4 bg-black/60 border border-white/10 rounded-xl space-y-1">
+                <div className="p-4 bg-background border border-border rounded-xl space-y-1">
                   <span className="font-serif text-2xl font-bold text-[#C9A96E]">120+</span>
-                  <span className="text-white/50 block">Hours Spent Per Purse</span>
+                  <span className="text-foreground-muted block">Hours Spent Per Purse</span>
                 </div>
-                <div className="p-4 bg-black/60 border border-white/10 rounded-xl space-y-1">
+                <div className="p-4 bg-background border border-border rounded-xl space-y-1">
                   <span className="font-serif text-2xl font-bold text-[#C9A96E]">100%</span>
-                  <span className="text-white/50 block">Natural Organic Threads</span>
+                  <span className="text-foreground-muted block">Natural Organic Threads</span>
                 </div>
               </div>
 
