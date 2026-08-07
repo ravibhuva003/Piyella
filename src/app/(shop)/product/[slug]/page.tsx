@@ -4,7 +4,7 @@ import { use, useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Heart, Minus, Plus, ShoppingBag, Star, Truck, ShieldCheck, RefreshCw, ChevronDown, ChevronUp, ZoomIn, X } from "lucide-react";
+import { Heart, Minus, Plus, ShoppingBag, Star, ZoomIn, X } from "lucide-react";
 import { ProductCard } from "@/components/product/ProductCard";
 import { FadeIn, SlideUp } from "@/components/ui/animations";
 import { getProductBySlug, getProducts, formatPrice } from "@/lib/data";
@@ -33,7 +33,6 @@ export default function ProductDetailPage({ params }: PageProps) {
   const [selectedColor, setSelectedColor] = useState("");
   const [selectedSize, setSelectedSize] = useState("");
   const [quantity, setQuantity] = useState(1);
-  const [activeTab, setActiveTab] = useState("specifications");
   const [isAdding, setIsAdding] = useState(false);
 
   const cart = useCart();
@@ -272,41 +271,6 @@ export default function ProductDetailPage({ params }: PageProps) {
               >
                 <Heart size={20} fill={isWishlisted ? "currentColor" : "none"} />
               </button>
-            </div>
-
-            {/* Feature Badges */}
-            <div className="flex flex-col gap-3 py-6 border-y border-zinc-900 mb-8">
-              <div className="flex items-center gap-3 text-xs text-zinc-400 font-light">
-                <Truck size={18} className="text-[#C9A96E]" /> <span>Complimentary Express Worldwide Shipping</span>
-              </div>
-              <div className="flex items-center gap-3 text-xs text-zinc-400 font-light">
-                <ShieldCheck size={18} className="text-[#C9A96E]" /> <span>100% Certified Authentic Guarantee</span>
-              </div>
-              <div className="flex items-center gap-3 text-xs text-zinc-400 font-light">
-                <RefreshCw size={18} className="text-[#C9A96E]" /> <span>30-Day Easy Returns & Exchanges</span>
-              </div>
-            </div>
-
-            {/* Accordion Tabs */}
-            <div className="flex flex-col">
-              {[
-                { id: "specifications", label: "Product Specifications", content: "Crafted from 100% premium materials. Designed in Milan, Italy. Intricate detailing and perfect tailoring ensure an impeccable fit." },
-                { id: "care", label: "Materials & Care", content: "Dry clean only. Do not bleach. Store in a cool, dry place away from direct sunlight. Handle with care to maintain the pristine condition." },
-                { id: "shipping", label: "Shipping & Returns", content: "Orders are processed within 24 hours. Complimentary express shipping worldwide. Returns accepted within 30 days of delivery in original unused condition." }
-              ].map((tab) => (
-                <div key={tab.id} className="border-b border-zinc-900">
-                  <button 
-                    onClick={() => setActiveTab(activeTab === tab.id ? "" : tab.id)}
-                    className="w-full py-5 flex items-center justify-between text-left group"
-                  >
-                    <span className="text-xs tracking-widest uppercase font-medium group-hover:text-[#C9A96E] transition-colors">{tab.label}</span>
-                    {activeTab === tab.id ? <ChevronUp size={18} className="text-zinc-500" /> : <ChevronDown size={18} className="text-zinc-500" />}
-                  </button>
-                  <div className={`overflow-hidden transition-all duration-300 ${activeTab === tab.id ? 'max-h-40 pb-5 opacity-100' : 'max-h-0 opacity-0'}`}>
-                    <p className="text-zinc-400 font-light text-xs sm:text-sm leading-relaxed">{tab.content}</p>
-                  </div>
-                </div>
-              ))}
             </div>
             
           </div>
