@@ -113,12 +113,14 @@ export async function getProductsByCollection(collectionSlugOrId: string): Promi
 
 export function searchProducts(query: string): Product[] {
   const allProducts = getLiveProducts();
-  const q = query.toLowerCase();
+  if (!query || !query.trim()) return allProducts;
+  const q = query.trim().toLowerCase();
   return allProducts.filter(
     (p) =>
       p.name.toLowerCase().includes(q) ||
       p.description.toLowerCase().includes(q) ||
       p.category.toLowerCase().includes(q) ||
+      (p.sku && p.sku.toLowerCase().includes(q)) ||
       p.tags?.some((t) => t.toLowerCase().includes(q))
   );
 }
